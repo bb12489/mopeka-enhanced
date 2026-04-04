@@ -27,6 +27,11 @@ After restart, add or reconfigure your Mopeka devices from Settings -> Devices &
 - This custom component uses the `mopeka` domain and is intended to override the built-in core integration implementation.
 - Keep only one active implementation for the domain to avoid confusion during troubleshooting.
 
+## Acknowledgment
+
+This custom component builds on the original Mopeka integration from Home Assistant Core.
+Credit to the original upstream maintainer and codeowner, `@bdraco`, for the core integration foundation.
+
 ## Development
 
 The integration code lives in `custom_components/mopeka`.
