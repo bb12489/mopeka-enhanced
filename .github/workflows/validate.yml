@@ -17,7 +17,4 @@ jobs:
         uses: "hacs/action@main"
         with:
           category: "integration"
-          # brands: custom repos are not published to the HA brands repository,
-          #   so this check will always fail for custom HACS distributions.
-          # images: no screenshots in README yet; not a functional requirement.
-          ignore: "brands images"
+          ignore: "brands"
