@@ -27,6 +27,19 @@ After restart, add or reconfigure your Mopeka devices from Settings -> Devices &
 - This custom component uses the `mopeka` domain and is intended to override the built-in core integration implementation.
 - Keep only one active implementation for the domain to avoid confusion during troubleshooting.
 
+## Release Checklist (HACS)
+
+Before creating a release, verify:
+
+1. `custom_components/mopeka/manifest.json` has an updated `version` value (for example, `0.1.1`).
+2. Create a matching git tag with `v` prefix (for example, `v0.1.1`).
+3. Push the tag to GitHub.
+4. Confirm the GitHub release workflow runs for that tag.
+5. Confirm HACS shows the new version after the release is published.
+
+Quick check: manifest version and tag should match except for the `v` prefix.
+Example: manifest `0.1.1` <-> tag `v0.1.1`.
+
 ## Development
 
 The integration code lives in `custom_components/mopeka`.
