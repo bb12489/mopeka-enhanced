@@ -1,0 +1,23 @@
+name: Validate
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  validate-hacs:
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: HACS validation
+        uses: "hacs/action@main"
+        with:
+          category: "integration"
+          # brands: custom repos are not published to the HA brands repository,
+          #   so this check will always fail for custom HACS distributions.
+          # images: no screenshots in README yet; not a functional requirement.
+          ignore: "brands images"
