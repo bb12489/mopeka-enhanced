@@ -1,0 +1,191 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "[%key:common::config_flow::abort::already_configured_device%]",
+      "already_in_progress": "[%key:common::config_flow::abort::already_in_progress%]",
+      "no_devices_found": "[%key:common::config_flow::abort::no_devices_found%]",
+      "not_supported": "Device not supported",
+      "reconfigure_successful": "[%key:common::config_flow::abort::reconfigure_successful%]"
+    },
+    "flow_title": "{name}",
+    "step": {
+      "bluetooth_confirm": {
+        "data": {
+          "medium_type": "[%key:component::mopeka::config::step::user::data::medium_type%]"
+        },
+        "description": "[%key:component::bluetooth::config::step::bluetooth_confirm::description%]"
+      },
+      "custom_height": {
+        "data": {
+          "custom_tank_height": "Custom tank height",
+          "tank_capacity": "Tank capacity"
+        },
+        "data_description": {
+          "custom_tank_height": "Maximum usable fill height of the tank in millimeters. For horizontal tanks, measure and enter the inner diameter. Set to 0 to disable the fill percentage sensor.",
+          "tank_capacity": "Total usable capacity of the tank in gallons. Used to calculate the volume remaining sensor. Set to 0 to disable the volume sensor."
+        },
+        "title": "Custom tank height"
+      },
+      "ibc_tank_config": {
+        "data": { "tank_size": "Tank size" },
+        "data_description": {
+          "tank_size": "Select a preset IBC tote tank size. Choose 'Custom' to enter the tank height manually."
+        },
+        "title": "IBC tote tank configuration"
+      },
+      "reconfigure": {
+        "data": {
+          "medium_type": "[%key:component::mopeka::config::step::user::data::medium_type%]"
+        },
+        "title": "Reconfigure Mopeka"
+      },
+      "reconfigure_custom_height": {
+        "data": {
+          "custom_tank_height": "[%key:component::mopeka::config::step::custom_height::data::custom_tank_height%]",
+          "tank_capacity": "[%key:component::mopeka::config::step::custom_height::data::tank_capacity%]"
+        },
+        "data_description": {
+          "custom_tank_height": "[%key:component::mopeka::config::step::custom_height::data_description::custom_tank_height%]",
+          "tank_capacity": "[%key:component::mopeka::config::step::custom_height::data_description::tank_capacity%]"
+        },
+        "title": "[%key:component::mopeka::config::step::custom_height::title%]"
+      },
+      "reconfigure_ibc_tank_config": {
+        "data": {
+          "tank_size": "[%key:component::mopeka::config::step::ibc_tank_config::data::tank_size%]"
+        },
+        "data_description": {
+          "tank_size": "[%key:component::mopeka::config::step::ibc_tank_config::data_description::tank_size%]"
+        },
+        "title": "[%key:component::mopeka::config::step::ibc_tank_config::title%]"
+      },
+      "reconfigure_tank_config": {
+        "data": {
+          "tank_size": "[%key:component::mopeka::config::step::tank_config::data::tank_size%]"
+        },
+        "data_description": {
+          "tank_size": "[%key:component::mopeka::config::step::tank_config::data_description::tank_size%]"
+        },
+        "title": "[%key:component::mopeka::config::step::tank_config::title%]"
+      },
+      "tank_config": {
+        "data": { "tank_size": "Tank size" },
+        "data_description": {
+          "tank_size": "Select a preset tank size. Choose 'Custom' to enter the tank height manually."
+        },
+        "title": "Tank configuration"
+      },
+      "user": {
+        "data": {
+          "address": "[%key:common::config_flow::data::device%]",
+          "medium_type": "Medium type"
+        },
+        "description": "[%key:component::bluetooth::config::step::user::description%]"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "medium_type": {
+        "name": "Medium type",
+        "state": {
+          "air": "Air",
+          "black_water": "Black water",
+          "diesel": "Diesel",
+          "fresh_water": "Fresh water",
+          "gasoline": "Gasoline",
+          "hydraulic_oil": "Hydraulic oil",
+          "live_well": "Live well",
+          "lng": "LNG",
+          "oil": "Oil",
+          "propane": "Propane",
+          "raw_water": "Raw water",
+          "waste_water": "Waste water"
+        }
+      },
+      "propane_preset": {
+        "name": "Propane preset",
+        "state": {
+          "12_2gal_rv_h": "12.2 gal / 50 lb (RV horizontal ASME)",
+          "16gal_rv_h": "16 gal / 65 lb (RV horizontal ASME)",
+          "20_3gal_rv_h": "20.3 gal / 84 lb (RV horizontal ASME)",
+          "20lb": "20 lb",
+          "29_3gal_rv_h": "29.3 gal / 98 lb (RV horizontal ASME)",
+          "30lb": "30 lb",
+          "40lb": "40 lb",
+          "100gal_h": "100 gal (horizontal)",
+          "100lb": "100 lb",
+          "500gal_h": "500 gal (horizontal)",
+          "1000gal_h": "1000 gal (horizontal)",
+          "custom": "Custom"
+        }
+      },
+      "tank_level_percent": { "name": "Tank fill" },
+      "tank_volume": { "name": "Tank volume" }
+    }
+  },
+  "options": {
+    "step": {
+      "custom_height": {
+        "data": {
+          "custom_tank_height": "[%key:component::mopeka::config::step::custom_height::data::custom_tank_height%]",
+          "tank_capacity": "[%key:component::mopeka::config::step::custom_height::data::tank_capacity%]"
+        },
+        "data_description": {
+          "custom_tank_height": "[%key:component::mopeka::config::step::custom_height::data_description::custom_tank_height%]",
+          "tank_capacity": "[%key:component::mopeka::config::step::custom_height::data_description::tank_capacity%]"
+        },
+        "title": "[%key:component::mopeka::config::step::custom_height::title%]"
+      },
+      "ibc_tank_config": {
+        "data": {
+          "tank_size": "[%key:component::mopeka::config::step::ibc_tank_config::data::tank_size%]"
+        },
+        "data_description": {
+          "tank_size": "[%key:component::mopeka::config::step::ibc_tank_config::data_description::tank_size%]"
+        },
+        "title": "[%key:component::mopeka::config::step::ibc_tank_config::title%]"
+      },
+      "init": {
+        "data": {
+          "medium_type": "[%key:component::mopeka::config::step::user::data::medium_type%]"
+        },
+        "title": "Configure Mopeka"
+      },
+      "tank_config": {
+        "data": {
+          "tank_size": "[%key:component::mopeka::config::step::tank_config::data::tank_size%]"
+        },
+        "data_description": {
+          "tank_size": "[%key:component::mopeka::config::step::tank_config::data_description::tank_size%]"
+        },
+        "title": "[%key:component::mopeka::config::step::tank_config::title%]"
+      }
+    }
+  },
+  "selector": {
+    "ibc_tank_size": {
+      "options": {
+        "custom": "Custom",
+        "ibc_275gal": "275 gal IBC tote (38.5 in / 98 cm)",
+        "ibc_330gal": "330 gal IBC tote (46 in / 114 cm)"
+      }
+    },
+    "tank_size": {
+      "options": {
+        "12_2gal_rv_h": "12.2 gal / 50 lb (RV horizontal ASME)",
+        "16gal_rv_h": "16 gal / 65 lb (RV horizontal ASME)",
+        "20_3gal_rv_h": "20.3 gal / 84 lb (RV horizontal ASME)",
+        "20lb": "20 lb",
+        "29_3gal_rv_h": "29.3 gal / 98 lb (RV horizontal ASME)",
+        "30lb": "30 lb",
+        "40lb": "40 lb",
+        "100gal_h": "100 gal (horizontal)",
+        "100lb": "100 lb",
+        "500gal_h": "500 gal (horizontal)",
+        "1000gal_h": "1000 gal (horizontal)",
+        "custom": "Custom"
+      }
+    }
+  }
+}
