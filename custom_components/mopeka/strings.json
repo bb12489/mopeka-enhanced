@@ -31,7 +31,7 @@
         "data_description": {
           "tank_size": "Select a preset IBC tote tank size. Choose 'Custom' to enter the tank height manually."
         },
-        "title": "IBC tote tank configuration"
+        "title": "Tank configuration"
       },
       "reconfigure": {
         "data": {
