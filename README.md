@@ -37,7 +37,55 @@ After restart, add or reconfigure your Mopeka devices from Settings -> Devices &
 
 ## Horizontal Tank Geometry
 
+For horizontal propane presets, tank fill is calculated with non-linear geometry from the integration code in `custom_components/mopeka/sensor.py`.
 
+The key formula uses the circular segment area of a horizontal cylinder cross-section:
+
+$$
+A(h) = r^2 \cdot \arccos\left(\frac{r-h}{r}\right) - (r-h) \cdot \sqrt{2rh-h^2}
+$$
+
+where:
+
+- $h$ is measured liquid height in mm
+- $r = \frac{\text{diameter}}{2}$
+- normalized fraction is:
+
+$$
+f(h) = \frac{A(h)}{\pi r^2}
+$$
+
+The integration then adjusts for the configured empty offset (`empty_mm`) and computes fill percentage as:
+
+$$
+	ext{fill\_pct} = \frac{f(h_{reading}) - f(h_{empty})}{1 - f(h_{empty})} \times 100
+$$
+
+### Worked example (500 gal horizontal preset)
+
+Using preset values from the integration:
+
+- `empty_mm = 38.1`
+- `full_mm (diameter) = 939.8`
+- sample reading `h_reading = 469.9`
+
+Computed values:
+
+- $f(h_{empty}) = 0.01369$
+- $f(h_{reading}) = 0.5$
+- $\text{fill\_pct} = 49.31\%$
+
+If total configured capacity is 500 gal, then tank volume is:
+
+$$
+	ext{volume} = 0.4931 \times 500 = 246.53\,\text{gal}
+$$
+
+### Why this matters (especially with hemispherical endcaps)
+
+Horizontal tanks are not linear: a 10 mm change near the bottom does not represent the same volume change as 10 mm near the middle. A simple linear height-to-percent conversion would over/under-estimate fuel at different fill levels.
+
+Many horizontal propane tanks also have rounded/hemispherical endcaps, which further separate true volume from a naive linear model. This integration improves practical accuracy by using non-linear cylindrical geometry for fill percentage and then applying the configured tank capacity for final gallons.
 
 ## Notes
 
