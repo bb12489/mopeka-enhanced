@@ -123,7 +123,7 @@
         }
       },
       "tank_level_percent": { "name": "Tank fill" },
-      "tank_volume": { "name": "Tank volume" }
+      "tank_volume": { "name": "Tank level (gallons)" }
     }
   },
   "options": {
