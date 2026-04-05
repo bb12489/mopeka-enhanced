@@ -8,6 +8,8 @@
 [![Hassfest](https://img.shields.io/github/actions/workflow/status/bb12489/mopeka-enhanced/hassfest.yml?branch=main&style=for-the-badge&label=Hassfest)](https://github.com/bb12489/mopeka-enhanced/actions/workflows/hassfest.yml)
 [![GitHub Release](https://img.shields.io/github/v/release/bb12489/mopeka-enhanced.svg?style=for-the-badge)](https://github.com/bb12489/mopeka-enhanced/releases)
 [![License](https://img.shields.io/github/license/bb12489/mopeka-enhanced?style=for-the-badge)](LICENSE)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=for-the-badge)](https://www.paypal.com/paypalme/BryantBeers)
+
 
 ## Intro
 
