@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.9] - 2026-04-05
+
+### Fixed
+
+- Fixed capacity unit dropdown not updating the number input field unit label in custom tank configuration forms. Changing the unit now refreshes the form so the input field label reflects the selected unit (gallons, kilograms, or liters) before saving.
+
 ## [0.1.8] - 2026-04-05
 
 ### Added
