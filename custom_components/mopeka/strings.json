@@ -119,6 +119,9 @@
           "1000gal_h": "1000 gal (horizontal)",
           "ibc_275gal": "275 gal IBC tote (38.5 in / 98 cm)",
           "ibc_330gal": "330 gal IBC tote (46 in / 114 cm)",
+          "6kg": "6 kg (Euro)",
+          "11kg": "11 kg (Euro)",
+          "14kg": "14 kg (Euro)",
           "custom": "Custom"
         }
       },
@@ -186,6 +189,9 @@
         "100lb": "100 lb",
         "500gal_h": "500 gal (horizontal)",
         "1000gal_h": "1000 gal (horizontal)",
+        "6kg": "6 kg (Euro)",
+        "11kg": "11 kg (Euro)",
+        "14kg": "14 kg (Euro)",
         "custom": "Custom"
       }
     }

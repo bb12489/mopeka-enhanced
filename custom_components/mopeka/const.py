@@ -33,6 +33,9 @@ class TankSize(StrEnum):
     LB_30 = "30lb"
     LB_40 = "40lb"
     LB_100 = "100lb"
+    KG_6 = "6kg"
+    KG_11 = "11kg"
+    KG_14 = "14kg"
     GAL_100_H = "100gal_h"
     GAL_500_H = "500gal_h"
     GAL_1000_H = "1000gal_h"
@@ -60,6 +63,9 @@ PROPANE_TANK_SIZES: Final[list[TankSize]] = [
     TankSize.GAL_16_RV_H,
     TankSize.GAL_20_3_RV_H,
     TankSize.GAL_29_3_RV_H,
+    TankSize.KG_6,
+    TankSize.KG_11,
+    TankSize.KG_14,
     TankSize.CUSTOM,
 ]
 
@@ -104,6 +110,9 @@ TANK_SIZE_RANGES: Final[dict[str, tuple[float, float]]] = {
     TankSize.GAL_16_RV_H: (TANK_EMPTY_MM, 346.7),
     TankSize.GAL_20_3_RV_H: (TANK_EMPTY_MM, 393.7),
     TankSize.GAL_29_3_RV_H: (TANK_EMPTY_MM, 369.6),
+    TankSize.KG_6: (TANK_EMPTY_MM, 336.0),
+    TankSize.KG_11: (TANK_EMPTY_MM, 366.0),
+    TankSize.KG_14: (TANK_EMPTY_MM, 467.0),
 }
 
 # IBC tote tank dimensions in millimeters for non-propane media (bottom-mount and
@@ -153,4 +162,7 @@ TANK_SIZE_CAPACITIES: Final[dict[str, float]] = {
     TankSize.GAL_29_3_RV_H: 29.3,
     TankSize.IBC_275: 275.0,
     TankSize.IBC_330: 330.0,
+    TankSize.KG_6: 3.1,
+    TankSize.KG_11: 5.7,
+    TankSize.KG_14: 7.3,
 }
