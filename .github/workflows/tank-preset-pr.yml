@@ -1,0 +1,112 @@
+name: Tank Preset PR Validation
+
+# Trigger on any pull request that touches the primary tank-preset files.
+# The script itself decides whether the PR actually adds a new preset.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "custom_components/mopeka/const.py"
+      - "custom_components/mopeka/strings.json"
+      - "custom_components/mopeka/translations/en.json"
+      - "CHANGELOG.md"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  validate-tank-preset:
+    name: Validate Tank Preset PR
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout PR branch (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Run the validation script.  continue-on-error so we can always
+      # post/update the PR comment even when checks fail.
+      - name: Run tank preset validation
+        id: validate
+        run: python .github/scripts/validate_tank_preset_pr.py
+        continue-on-error: true
+        env:
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+
+      # Post (or update) a single bot comment on the PR with the results.
+      # Skipped entirely when the script detected no new presets (status = skip).
+      - name: Post validation results as PR comment
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const marker = '<!-- tank-preset-validation -->';
+
+            // Read outputs written by the Python script
+            let report = '';
+            let status = 'skip';
+            try {
+              report = fs.readFileSync('/tmp/validation_report.md', 'utf8');
+              status = fs.readFileSync('/tmp/validation_passed.txt', 'utf8').trim();
+            } catch (e) {
+              // Script crashed before writing output files
+              report = [
+                marker,
+                '',
+                '## ❌ Tank Preset Validation — Script Error',
+                '',
+                '> The validation script encountered an unexpected error.',
+                '> Please check the [workflow logs](' +
+                  `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}` +
+                  `/actions/runs/${context.runId}) for details.`,
+              ].join('\n');
+              status = 'false';
+            }
+
+            // If no new presets were detected, skip posting a comment
+            if (status === 'skip' || report.trim() === '') {
+              console.log('No new tank presets detected — skipping comment.');
+              return;
+            }
+
+            // Find an existing bot comment (identified by the HTML marker)
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+            });
+            const existing = comments.find(c => c.body && c.body.startsWith(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body: report,
+              });
+              console.log(`Updated existing validation comment #${existing.id}.`);
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                body: report,
+              });
+              console.log('Created new validation comment.');
+            }
+
+      # Fail the workflow (blocking the PR) when the validation script exited 1.
+      # This step is skipped when the script found no new presets (exit 0 / skip).
+      - name: Fail if validation did not pass
+        if: steps.validate.outcome == 'failure'
+        run: |
+          echo "::error::Tank preset validation failed. See the PR comment for details."
+          exit 1
