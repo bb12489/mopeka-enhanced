@@ -73,7 +73,7 @@ Computed values:
 
 - $f(h_{empty}) = 0.01369$
 - $f(h_{reading}) = 0.5$
-- $\text{fill\_pct} = 49.31\%$
+- Fill percentage = 49.31%
 
 If total configured capacity is 500 gal, then tank volume is:
 
