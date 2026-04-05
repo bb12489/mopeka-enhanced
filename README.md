@@ -58,7 +58,7 @@ $$
 The integration then adjusts for the configured empty offset (`empty_mm`) and computes fill percentage as:
 
 $$
-	ext{fill\_pct} = \frac{f(h_{reading}) - f(h_{empty})}{1 - f(h_{empty})} \times 100
+\mathrm{fill\_pct} = \frac{f(h_{reading}) - f(h_{empty})}{1 - f(h_{empty})} \times 100
 $$
 
 ### Worked example (500 gal horizontal preset)
@@ -78,7 +78,7 @@ Computed values:
 If total configured capacity is 500 gal, then tank volume is:
 
 $$
-	ext{volume} = 0.4931 \times 500 = 246.53\,\text{gal}
+\mathrm{volume} = 0.4931 \times 500 = 246.53\,\mathrm{gal}
 $$
 
 ### Why this matters (especially with hemispherical endcaps)
