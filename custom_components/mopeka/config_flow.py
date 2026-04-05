@@ -244,6 +244,7 @@ class MopekaConfigFlow(ConfigFlow, domain=DOMAIN):
         self._discovered_service_infos: dict[str, BluetoothServiceInfoBleak] = {}
         self._medium_type: str = DEFAULT_MEDIUM_TYPE
         self._is_top_mount: bool = False
+        self._custom_capacity_unit: str = DEFAULT_TANK_CAPACITY_UNIT
         self._title: str = ""
         self._address: str | None = None
 
@@ -379,14 +380,27 @@ class MopekaConfigFlow(ConfigFlow, domain=DOMAIN):
             capacity_unit = user_input.get(
                 CONF_TANK_CAPACITY_UNIT, DEFAULT_TANK_CAPACITY_UNIT
             )
+            if capacity_unit != self._custom_capacity_unit:
+                self._custom_capacity_unit = capacity_unit
+                return self.async_show_form(
+                    step_id="custom_height",
+                    data_schema=_async_generate_custom_height_schema(
+                        medium_type=self._medium_type,
+                        custom_tank_height=height,
+                        tank_capacity=capacity,
+                        tank_capacity_unit=self._custom_capacity_unit,
+                    ),
+                )
             return await self._async_create_config_entry(
                 TankSize.CUSTOM, height, capacity, capacity_unit
             )
 
+        self._custom_capacity_unit = DEFAULT_TANK_CAPACITY_UNIT
         return self.async_show_form(
             step_id="custom_height",
             data_schema=_async_generate_custom_height_schema(
                 medium_type=self._medium_type,
+                tank_capacity_unit=self._custom_capacity_unit,
             ),
         )
 
@@ -485,6 +499,17 @@ class MopekaConfigFlow(ConfigFlow, domain=DOMAIN):
                 CONF_TANK_CAPACITY_UNIT,
                 entry.data.get(CONF_TANK_CAPACITY_UNIT, DEFAULT_TANK_CAPACITY_UNIT),
             )
+            if capacity_unit != self._custom_capacity_unit:
+                self._custom_capacity_unit = capacity_unit
+                return self.async_show_form(
+                    step_id="reconfigure_custom_height",
+                    data_schema=_async_generate_custom_height_schema(
+                        medium_type=self._medium_type,
+                        custom_tank_height=height,
+                        tank_capacity=capacity,
+                        tank_capacity_unit=self._custom_capacity_unit,
+                    ),
+                )
             return self.async_update_reload_and_abort(
                 entry,
                 data_updates={
@@ -502,7 +527,7 @@ class MopekaConfigFlow(ConfigFlow, domain=DOMAIN):
         existing_capacity = float(
             entry.data.get(CONF_TANK_CAPACITY, DEFAULT_TANK_CAPACITY)
         )
-        existing_capacity_unit = entry.data.get(
+        self._custom_capacity_unit = entry.data.get(
             CONF_TANK_CAPACITY_UNIT, DEFAULT_TANK_CAPACITY_UNIT
         )
         return self.async_show_form(
@@ -511,7 +536,7 @@ class MopekaConfigFlow(ConfigFlow, domain=DOMAIN):
                 medium_type=self._medium_type,
                 custom_tank_height=existing_height,
                 tank_capacity=existing_capacity,
-                tank_capacity_unit=existing_capacity_unit,
+                tank_capacity_unit=self._custom_capacity_unit,
             ),
         )
 
@@ -564,6 +589,7 @@ class MopekaOptionsFlow(config_entries.OptionsFlow):
     def __init__(self) -> None:
         """Initialize options flow."""
         self._medium_type: str | None = None
+        self._custom_capacity_unit: str = DEFAULT_TANK_CAPACITY_UNIT
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
@@ -669,6 +695,17 @@ class MopekaOptionsFlow(config_entries.OptionsFlow):
                     CONF_TANK_CAPACITY_UNIT, DEFAULT_TANK_CAPACITY_UNIT
                 ),
             )
+            if capacity_unit != self._custom_capacity_unit:
+                self._custom_capacity_unit = capacity_unit
+                return self.async_show_form(
+                    step_id="custom_height",
+                    data_schema=_async_generate_custom_height_schema(
+                        medium_type=self._medium_type,
+                        custom_tank_height=height,
+                        tank_capacity=capacity,
+                        tank_capacity_unit=self._custom_capacity_unit,
+                    ),
+                )
             new_data = {
                 **self.config_entry.data,
                 CONF_MEDIUM_TYPE: self._medium_type,
@@ -689,7 +726,7 @@ class MopekaOptionsFlow(config_entries.OptionsFlow):
         existing_capacity = float(
             self.config_entry.data.get(CONF_TANK_CAPACITY, DEFAULT_TANK_CAPACITY)
         )
-        existing_capacity_unit = self.config_entry.data.get(
+        self._custom_capacity_unit = self.config_entry.data.get(
             CONF_TANK_CAPACITY_UNIT, DEFAULT_TANK_CAPACITY_UNIT
         )
         return self.async_show_form(
@@ -698,6 +735,6 @@ class MopekaOptionsFlow(config_entries.OptionsFlow):
                 medium_type=self._medium_type,
                 custom_tank_height=existing_height,
                 tank_capacity=existing_capacity,
-                tank_capacity_unit=existing_capacity_unit,
+                tank_capacity_unit=self._custom_capacity_unit,
             ),
         )
