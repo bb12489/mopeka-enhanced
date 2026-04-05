@@ -17,7 +17,6 @@ Outputs written to /tmp/:
 import ast
 import json
 import os
-import re
 import subprocess
 import sys
 from pathlib import Path
@@ -67,16 +66,6 @@ def _changed_files() -> set[str]:
 def _base_content(rel_path: str) -> str:
     """Return the content of *rel_path* on the base branch (empty string on error)."""
     return _git("show", f"origin/{_base_ref()}:{rel_path}")
-
-
-def _diff_added_lines(rel_path: str) -> list[str]:
-    """Return the lines *added* (not deleted) for *rel_path* in this PR."""
-    diff = _git("diff", f"origin/{_base_ref()}...HEAD", "--", rel_path)
-    return [
-        line[1:]  # strip leading '+'
-        for line in diff.splitlines()
-        if line.startswith("+") and not line.startswith("+++")
-    ]
 
 
 # ---------------------------------------------------------------------------
