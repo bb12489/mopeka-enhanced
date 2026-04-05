@@ -1,0 +1,2 @@
+pytest-homeassistant-custom-component
+mopeka-iot-ble==0.8.0

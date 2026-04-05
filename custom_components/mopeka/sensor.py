@@ -2,11 +2,9 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable, Mapping
 import math
+from collections.abc import Callable, Mapping
 from typing import Any
-
-from mopeka_iot_ble import SensorUpdate
 
 from homeassistant.components.bluetooth.passive_update_processor import (
     PassiveBluetoothDataProcessor,
@@ -31,8 +29,11 @@ from homeassistant.const import (
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityDescription
-from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
+from homeassistant.helpers.entity_platform import (
+    AddEntitiesCallback as AddConfigEntryEntitiesCallback,
+)
 from homeassistant.helpers.sensor import sensor_device_info_to_hass_device_info
+from mopeka_iot_ble import SensorUpdate
 
 from . import MopekaConfigEntry
 from .const import (

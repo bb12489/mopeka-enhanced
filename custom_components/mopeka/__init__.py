@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import logging
 
-from mopeka_iot_ble import MediumType, MopekaIOTBluetoothDeviceData
-
 from homeassistant.components.bluetooth import BluetoothScanningMode
 from homeassistant.components.bluetooth.passive_update_processor import (
     PassiveBluetoothProcessorCoordinator,
@@ -14,6 +12,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
+from mopeka_iot_ble import MediumType, MopekaIOTBluetoothDeviceData
 
 from .const import CONF_MEDIUM_TYPE, DEFAULT_MEDIUM_TYPE
 

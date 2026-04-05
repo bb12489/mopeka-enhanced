@@ -5,9 +5,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import Any
 
-from mopeka_iot_ble import MopekaIOTBluetoothDeviceData as DeviceData
 import voluptuous as vol
-
 from homeassistant import config_entries
 from homeassistant.components.bluetooth import (
     BluetoothServiceInfoBleak,
@@ -17,6 +15,7 @@ from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.const import CONF_ADDRESS
 from homeassistant.core import callback
 from homeassistant.helpers import selector
+from mopeka_iot_ble import MopekaIOTBluetoothDeviceData as DeviceData
 
 from .const import (
     CONF_CUSTOM_TANK_HEIGHT,
