@@ -136,4 +136,4 @@ The integration code lives in `custom_components/mopeka`.
 
 ## License
 
-This project is released under the Apache 2.0 license. See `LICENSE`.
+This project is released under the MIT license. See `LICENSE`.
