@@ -18,11 +18,13 @@
             "custom_height": {
                 "data": {
                     "custom_tank_height": "Custom tank height",
+                    "tank_capacity_unit": "Capacity unit",
                     "tank_capacity": "Tank capacity"
                 },
                 "data_description": {
                     "custom_tank_height": "Maximum usable fill height of the tank in millimeters. For horizontal tanks, measure and enter the inner diameter. Set to 0 to disable the fill percentage sensor.",
-                    "tank_capacity": "Total usable capacity of the tank in gallons. Used to calculate the volume remaining sensor. Set to 0 to disable the volume sensor."
+                    "tank_capacity_unit": "Choose the custom tank capacity unit. Propane supports gallons or kilograms; other media support gallons or liters.",
+                    "tank_capacity": "Total usable capacity of the tank, entered in the selected capacity unit. The tank level sensor uses that same unit (gallons, kilograms, or liters). Set to 0 to disable the volume sensor."
                 },
                 "title": "Custom tank height"
             },
@@ -44,11 +46,13 @@
             "reconfigure_custom_height": {
                 "data": {
                     "custom_tank_height": "Custom tank height",
+                    "tank_capacity_unit": "Capacity unit",
                     "tank_capacity": "Tank capacity"
                 },
                 "data_description": {
                     "custom_tank_height": "Maximum usable fill height of the tank in millimeters. For horizontal tanks, measure and enter the inner diameter. Set to 0 to disable the fill percentage sensor.",
-                    "tank_capacity": "Total usable capacity of the tank in gallons. Used to calculate the volume remaining sensor. Set to 0 to disable the volume sensor."
+                    "tank_capacity_unit": "Choose the custom tank capacity unit. Propane supports gallons or kilograms; other media support gallons or liters.",
+                    "tank_capacity": "Total usable capacity of the tank, entered in the selected capacity unit. The tank level sensor uses that same unit (gallons, kilograms, or liters). Set to 0 to disable the volume sensor."
                 },
                 "title": "Custom tank height"
             },
@@ -142,11 +146,13 @@
             "custom_height": {
                 "data": {
                     "custom_tank_height": "Custom tank height",
+                    "tank_capacity_unit": "Capacity unit",
                     "tank_capacity": "Tank capacity"
                 },
                 "data_description": {
                     "custom_tank_height": "Maximum usable fill height of the tank in millimeters. For horizontal tanks, measure and enter the inner diameter. Set to 0 to disable the fill percentage sensor.",
-                    "tank_capacity": "Total usable capacity of the tank in gallons. Used to calculate the volume remaining sensor. Set to 0 to disable the volume sensor."
+                    "tank_capacity_unit": "Choose the custom tank capacity unit. Propane supports gallons or kilograms; other media support gallons or liters.",
+                    "tank_capacity": "Total usable capacity of the tank, entered in the selected capacity unit. The tank level sensor uses that same unit (gallons, kilograms, or liters). Set to 0 to disable the volume sensor."
                 },
                 "title": "Custom tank height"
             },
@@ -201,6 +207,13 @@
                 "11kg": "11 kg (Euro)",
                 "14kg": "14 kg (Euro)",
                 "custom": "Custom"
+            }
+        },
+        "tank_capacity_unit": {
+            "options": {
+                "gal": "Gallons (gal)",
+                "kg": "Kilograms (kg)",
+                "l": "Liters (L)"
             }
         }
     }

@@ -10,6 +10,7 @@ DOMAIN = "mopeka"
 CONF_CUSTOM_TANK_HEIGHT: Final = "custom_tank_height"
 CONF_MEDIUM_TYPE: Final = "medium_type"
 CONF_TANK_CAPACITY: Final = "tank_capacity"
+CONF_TANK_CAPACITY_UNIT: Final = "tank_capacity_unit"
 CONF_TANK_SIZE: Final = "tank_size"
 CONF_TOP_MOUNT: Final = "top_mount"
 
@@ -24,6 +25,10 @@ TOP_MOUNT_MODEL_IDS: Final[frozenset[int]] = frozenset({0x0A, 0x0B})
 DEFAULT_MEDIUM_TYPE: Final = MediumType.PROPANE.value
 DEFAULT_CUSTOM_TANK_HEIGHT: Final = 0
 DEFAULT_TANK_CAPACITY: Final = 0.0
+CAPACITY_UNIT_GALLONS: Final = "gal"
+CAPACITY_UNIT_KILOGRAMS: Final = "kg"
+CAPACITY_UNIT_LITERS: Final = "l"
+DEFAULT_TANK_CAPACITY_UNIT: Final = CAPACITY_UNIT_GALLONS
 
 
 class TankSize(StrEnum):
