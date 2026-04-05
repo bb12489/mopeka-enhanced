@@ -315,8 +315,8 @@ def make_sensor_update_to_bluetooth_data_update(
                 entity_data[med_key] = medium_type
                 entity_names[med_key] = None
 
-        # Inject a diagnostic sensor that reflects the configured propane preset.
-        if medium_type == "propane" and propane_preset is not None:
+        # Inject a diagnostic sensor that reflects the configured tank preset.
+        if propane_preset is not None:
             for device_id in sensor_update.devices:
                 preset_key = PassiveBluetoothEntityKey(_PROPANE_PRESET_KEY, device_id)
                 entity_descriptions[preset_key] = SENSOR_DESCRIPTIONS[

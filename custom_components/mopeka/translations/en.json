@@ -108,7 +108,7 @@
                 }
             },
             "propane_preset": {
-                "name": "Propane preset",
+                "name": "Tank preset",
                 "state": {
                     "1000gal_h": "1000 gal (horizontal)",
                     "100gal_h": "100 gal (horizontal)",
@@ -121,6 +121,8 @@
                     "30lb": "30 lb",
                     "40lb": "40 lb",
                     "500gal_h": "500 gal (horizontal)",
+                    "ibc_275gal": "275 gal IBC tote (38.5 in / 98 cm)",
+                    "ibc_330gal": "330 gal IBC tote (46 in / 114 cm)",
                     "custom": "Custom"
                 }
             },
