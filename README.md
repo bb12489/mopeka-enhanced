@@ -20,15 +20,14 @@ I 100% welcome others to improve upon this work. Find any mistakes I made, make 
 
 ## Features
 
-- Tank presets for horizontal and vertical style propane tanks in gal/lbs (US standard sizes only)
-- Standard IBC tote presets for 275 gallon and 330 gallon sizes (available for all non-propane medium types)
-- Option to define your own custom tank height in millimeters, and tank volume in gallons
-- Automatic detection of top mount sensor models (TD40 and TD200) for correct sensor measurements (top mount sensors read through the air instead of liquid mediums)
-- Updated config flow menu for tank configuration based on medium type selection and device detection (top mount sensors)
-- Added background calculations to better handle horizontal propane tank geometry(hemisphere endcaps)
-- Added two sensors for tank fill (percentage), and tank volume (gallons)
-- Tank volume sensor is derived from the tank presets or from the custom tank config flow. 
-- Added two diagnostic sensors for Medium type (currently configured medium), and Tank preset (currently configured tank preset)
+- 🛢️ Tank presets for horizontal and vertical style propane tanks in gal/lbs (US standard sizes only)
+- 🚰 Standard IBC tote presets for 275 gallon and 330 gallon sizes (available for all non-propane medium types)
+- 📏 Option to define your own custom tank height in millimeters, and tank volume in gallons
+- 📡 Automatic detection of top mount sensor models (TD40 and TD200) for correct sensor measurements (top mount sensors read through the air instead of liquid mediums)
+- 🧭 Updated config flow menu for tank configuration based on medium type selection and device detection (top mount sensors)
+- 🧮 Added background calculations to better handle horizontal propane tank geometry (hemisphere endcaps)
+- 📊 Added two sensors for tank fill (percentage), and tank volume (gallons)
+- 📊 Added two diagnostic sensors for Medium type (currently configured medium), and Tank preset (currently configured tank preset)
 
 ## A word on tank Presets
 
