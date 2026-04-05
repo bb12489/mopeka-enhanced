@@ -21,6 +21,7 @@ import re
 import subprocess
 import sys
 from pathlib import Path
+from typing import NamedTuple
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 
@@ -182,14 +183,25 @@ def _state_keys(data: dict) -> set[str]:
 # Validation logic
 # ---------------------------------------------------------------------------
 
-Check = tuple[str, bool, str]   # (description, passed, detail_on_failure)
+class Check(NamedTuple):
+    """A single validation check result."""
+
+    description: str
+    passed: bool
+    failure_detail: str = ""
 
 
-def _validate() -> list[Check]:
+def _validate() -> tuple[list[Check], int]:
+    """Run all validation checks.
+
+    Returns a tuple of (checks, new_key_count) where *new_key_count* is the
+    number of new TankSize entries detected in this PR.
+    """
     checks: list[Check] = []
+    new_key_count = 0
 
-    def chk(description: str, passed: bool, detail: str = "") -> None:
-        checks.append((description, passed, detail))
+    def chk(description: str, passed: bool, failure_detail: str = "") -> None:
+        checks.append(Check(description, passed, failure_detail))
 
     # ── Fetch and diff ──────────────────────────────────────────────────────
     _fetch_base()
@@ -205,7 +217,7 @@ def _validate() -> list[Check]:
             False,
             f"Python syntax error: {exc}",
         )
-        return checks
+        return checks, 0
 
     base_source = _base_content(CONST_PY)
     base = _parse_const_py(base_source) if base_source else {"tank_size_enum": {}}
@@ -220,7 +232,9 @@ def _validate() -> list[Check]:
     if not new_keys:
         # Not a tank-preset PR (or const.py was edited for another reason).
         # Return without checks so the workflow passes silently.
-        return []
+        return [], 0
+
+    new_key_count = len(new_keys)
 
     # ── Per-preset checks ───────────────────────────────────────────────────
     strings = _load_json(STRINGS_JSON)
@@ -356,7 +370,7 @@ def _validate() -> list[Check]:
         "changes are needed for standard preset additions.",
     )
 
-    return checks
+    return checks, new_key_count
 
 
 # ---------------------------------------------------------------------------
@@ -364,7 +378,7 @@ def _validate() -> list[Check]:
 # ---------------------------------------------------------------------------
 
 def _build_report(checks: list[Check], new_key_count: int) -> str:
-    passed_all = all(p for _, p, _ in checks)
+    passed_all = all(c.passed for c in checks)
 
     lines = [COMMENT_MARKER, ""]
 
@@ -378,7 +392,7 @@ def _build_report(checks: list[Check], new_key_count: int) -> str:
             "",
         ]
     else:
-        fail_count = sum(1 for _, p, _ in checks if not p)
+        fail_count = sum(1 for c in checks if not c.passed)
         lines += [
             "## ❌ Tank Preset PR — Validation Issues Found",
             "",
@@ -389,11 +403,11 @@ def _build_report(checks: list[Check], new_key_count: int) -> str:
 
     lines.append("### Checklist")
     lines.append("")
-    for description, passed, detail in checks:
-        icon = "✅" if passed else "❌"
-        lines.append(f"- {icon} {description}")
-        if not passed and detail:
-            lines.append(f"  > {detail}")
+    for c in checks:
+        icon = "✅" if c.passed else "❌"
+        lines.append(f"- {icon} {c.description}")
+        if not c.passed and c.failure_detail:
+            lines.append(f"  > {c.failure_detail}")
 
     lines += [
         "",
@@ -409,7 +423,7 @@ def _build_report(checks: list[Check], new_key_count: int) -> str:
 # ---------------------------------------------------------------------------
 
 def main() -> None:
-    checks = _validate()
+    checks, new_key_count = _validate()
 
     if not checks:
         # No new tank presets found — not a tank-preset PR; exit silently.
@@ -417,11 +431,9 @@ def main() -> None:
         (_OUT_DIR / "validation_passed.txt").write_text("skip")
         sys.exit(0)
 
-    passed_all = all(p for _, p, _ in checks)
+    passed_all = all(c.passed for c in checks)
 
-    # Count how many new TankSize entries triggered the run
-    # (approximate: one entry adds 8 checks)
-    report = _build_report(checks, new_key_count=max(1, len(checks) // 8))
+    report = _build_report(checks, new_key_count)
 
     (_OUT_DIR / "validation_report.md").write_text(report)
     (_OUT_DIR / "validation_passed.txt").write_text("true" if passed_all else "false")
