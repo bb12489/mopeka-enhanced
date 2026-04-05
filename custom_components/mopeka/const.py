@@ -121,8 +121,8 @@ TANK_SIZE_RANGES: Final[dict[str, tuple[float, float]]] = {
 #   330 gal: 46 in   (≈ 114 cm) → 1140 mm
 #
 # For bottom-mount sensors: fill% = (reading - TANK_EMPTY_MM) / (height - TANK_EMPTY_MM)
-# For top-mount sensors: the range is inverted in _get_tank_level_range() because the
-# sensor measures the decreasing air gap above the liquid surface.
+# For top-mount sensors: the raw reading is air gap and is converted to fluid
+# height in sensor.py as (height - air_gap) before fill% is calculated.
 IBC_TANK_SIZE_RANGES: Final[dict[str, tuple[float, float]]] = {
     TankSize.IBC_275: (TANK_EMPTY_MM, 980.0),
     TankSize.IBC_330: (TANK_EMPTY_MM, 1140.0),

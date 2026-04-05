@@ -177,10 +177,11 @@ def _get_tank_level_range(
                         coefficients are applied by the library per CONF_MEDIUM_TYPE).
     Other medium + propane preset → not permitted; propane ranges are propane-specific.
 
-    Top-mount (TD40/TD200) + Custom → inverted range: the sensor measures the
-                        decreasing air gap above the liquid surface, so
-                        (empty_mm=height, full_mm=0.0) inverts the fill formula.
-    Top-mount + IBC preset → inverted range using preset height.
+    Top-mount (TD40/TD200) + Custom → standard range (0..height). The raw
+                        sensor reading is first converted from air gap to
+                        fluid height via (height - air_gap).
+    Top-mount + IBC preset → standard range (0..preset_height) with the same
+                        air-gap conversion.
 
     Legacy entries without CONF_MEDIUM_TYPE default to propane.
     """
@@ -193,18 +194,17 @@ def _get_tank_level_range(
         if height <= 0:
             return None
         if entry_data.get(CONF_TOP_MOUNT, False):
-            # Top-mount: reading decreases as tank fills.  Invert by swapping
-            # empty/full so the standard formula produces the correct fill %.
-            return (float(height), 0.0, False)
+            # Top-mount sensors report air gap. Convert to fluid height later
+            # as (height - air_gap), then evaluate fill percentage on 0..height.
+            return (0.0, float(height), False)
         return (0.0, float(height), False)
     # IBC tote presets are valid for any non-propane medium (bottom-mount and
-    # top-mount sensors).  Top-mount inversion: swap empty/full so the standard
-    # formula produces increasing fill % as the air gap shrinks.
+    # top-mount sensors). For top-mount, convert air gap to fluid height first.
     ibc_range = IBC_TANK_SIZE_RANGES.get(tank_size)
     if ibc_range is not None:
         empty_mm, full_mm = ibc_range
         if entry_data.get(CONF_TOP_MOUNT, False):
-            return (full_mm, 0.0, False)
+            return (0.0, full_mm, False)
         return (empty_mm, full_mm, False)
     # Propane presets are calibrated for propane coefficients only.
     if medium_type != DEFAULT_MEDIUM_TYPE:
@@ -232,6 +232,7 @@ def _get_tank_capacity_gallons(entry_data: Mapping[str, Any]) -> float | None:
 
 def make_sensor_update_to_bluetooth_data_update(
     tank_range: tuple[float, float, bool] | None,
+    top_mount: bool,
     medium_type: str | None,
     propane_preset: str | None,
     tank_capacity: float | None = None,
@@ -266,6 +267,7 @@ def make_sensor_update_to_bluetooth_data_update(
             empty_mm, full_mm, is_horizontal = tank_range
             for device_key, sensor_values in sensor_update.entity_values.items():
                 if device_key.key == "tank_level":
+                    tank_level_entity_key = device_key_to_bluetooth_entity_key(device_key)
                     pct_entity_key = PassiveBluetoothEntityKey(
                         _TANK_LEVEL_PERCENT_KEY, device_key.device_id
                     )
@@ -276,19 +278,32 @@ def make_sensor_update_to_bluetooth_data_update(
                     raw_level = sensor_values.native_value
                     fill_pct: float | None = None
                     if isinstance(raw_level, (int, float)):
+                        level_for_calc = float(raw_level)
+                        if top_mount:
+                            # Top-mount sensors report air gap from sensor to fluid
+                            # surface; convert to fluid height using configured depth.
+                            level_for_calc = full_mm - level_for_calc
+                        level_for_calc = min(full_mm, max(0.0, level_for_calc))
+                        # Report tank_level as fluid height for top-mount sensors.
+                        if top_mount:
+                            entity_data[tank_level_entity_key] = level_for_calc
                         if is_horizontal:
                             # Cylindrical geometry: volume fraction is
                             # non-linear with respect to fluid height.
                             frac_empty = _circular_segment_fraction(empty_mm, full_mm)
                             frac_reading = _circular_segment_fraction(
-                                raw_level, full_mm
+                                level_for_calc, full_mm
                             )
                             pct = (
                                 (frac_reading - frac_empty) / (1.0 - frac_empty) * 100.0
                             )
                         else:
                             # Vertical / custom: linear interpolation.
-                            pct = (raw_level - empty_mm) / (full_mm - empty_mm) * 100.0
+                            pct = (
+                                (level_for_calc - empty_mm)
+                                / (full_mm - empty_mm)
+                                * 100.0
+                            )
                         fill_pct = round(min(100.0, max(0.0, pct)), 1)
                     entity_data[pct_entity_key] = fill_pct
 
@@ -346,12 +361,13 @@ async def async_setup_entry(
     """Set up the Mopeka BLE sensors."""
     coordinator = entry.runtime_data
     tank_range = _get_tank_level_range(entry.data)
+    top_mount = entry.data.get(CONF_TOP_MOUNT, False)
     medium_type = entry.data.get(CONF_MEDIUM_TYPE)
     propane_preset = entry.data.get(CONF_TANK_SIZE)
     tank_capacity = _get_tank_capacity_gallons(entry.data)
     processor = PassiveBluetoothDataProcessor(
         make_sensor_update_to_bluetooth_data_update(
-            tank_range, medium_type, propane_preset, tank_capacity
+            tank_range, top_mount, medium_type, propane_preset, tank_capacity
         )
     )
     entry.async_on_unload(

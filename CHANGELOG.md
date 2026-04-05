@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.7] - 2026-04-05
+
+### Fixed
+
+- Corrected top-down (TD40/TD200) tank math to explicitly convert air-gap readings into fluid height before calculating tank fill percentage and volume.
+- Updated top-down custom and IBC range handling to use a standard `0..depth` calibration range, with conversion applied as `fluid_height = depth - air_gap`.
+- Top-down `tank_level` now reports fluid height after conversion, matching bottom-mount semantics.
+
+### Changed
+
+- Updated inline documentation/comments to reflect explicit top-down air-gap conversion behavior.
+
 ## [0.1.6] - 2026-04-05
 
 ### Changed
