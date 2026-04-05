@@ -29,6 +29,24 @@ I 100% welcome others to improve upon this work. Find any mistakes I made, make 
 - 📊 Added two sensors for tank fill (percentage), and tank volume (gallons)
 - 📊 Added two diagnostic sensors for Medium type (currently configured medium), and Tank preset (currently configured tank preset)
 
+## Screenshots
+
+### Sensors
+
+![Sensors view](images/screenshots/sensors.png)
+
+### Propane Presets
+
+![Propane presets](images/screenshots/propane_presets.png)
+
+### IBC Presets
+
+![IBC presets](images/screenshots/ibc_presets.png)
+
+### Custom Tanks
+
+![Custom tanks](images/screenshots/custom%20tanks.png)
+
 ## A word on tank Presets
 
 I've taken the 20 lb, 30 lb, and 40 lb vertical tank measurements from the Mopeka ESPHome component, as I believe they may have pulled them from the official Mopeka app. The rest of the tank measurements were obtained from extension Google searching (both manual and assisted by Gemini AI). I narrowed my research down to only US standard propane tank sizes since that's what I use on our bus. I'll eventually bring over the remaining 6Kg, 11Kg, and 14Kg Euro tank sizes from ESPHome. Feel free to submit a PR here for additional tank presets that you think would be valuable.
