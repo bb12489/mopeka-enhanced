@@ -1,13 +1,13 @@
 # Mopeka Enhanced
 
-[![HACS Custom](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://hacs.xyz/docs/faq/custom_repositories/)
-[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2025.1.0%2B-41BDF5.svg)](https://www.home-assistant.io/)
+[![HACS Custom](https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge)](https://hacs.xyz/docs/faq/custom_repositories/)
+[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2025.1.0%2B-41BDF5.svg?style=for-the-badge)](https://www.home-assistant.io/)
 [![Active Installations](https://raw.githubusercontent.com/golles/ha-active-installation-badges/main/badges/mopeka.svg)](https://github.com/golles/ha-active-installation-badges)
-[![Quality Scale](https://img.shields.io/badge/Quality%20Scale-Custom-795548.svg)](https://www.home-assistant.io/docs/quality_scale/)
-[![HACS Validate](https://github.com/bb12489/mopeka-enhanced/actions/workflows/validate.yml/badge.svg?branch=main)](https://github.com/bb12489/mopeka-enhanced/actions/workflows/validate.yml)
-[![Hassfest](https://github.com/bb12489/mopeka-enhanced/actions/workflows/hassfest.yml/badge.svg?branch=main)](https://github.com/bb12489/mopeka-enhanced/actions/workflows/hassfest.yml)
-[![GitHub Release](https://img.shields.io/github/v/release/bb12489/mopeka-enhanced)](https://github.com/bb12489/mopeka-enhanced/releases)
-[![License](https://img.shields.io/github/license/bb12489/mopeka-enhanced)](LICENSE)
+[![Quality Scale](https://img.shields.io/badge/Quality%20Scale-Custom-795548.svg?style=for-the-badge)](https://www.home-assistant.io/docs/quality_scale/)
+[![HACS Validate](https://img.shields.io/github/actions/workflow/status/bb12489/mopeka-enhanced/validate.yml?branch=main&style=for-the-badge&label=HACS+Validate)](https://github.com/bb12489/mopeka-enhanced/actions/workflows/validate.yml)
+[![Hassfest](https://img.shields.io/github/actions/workflow/status/bb12489/mopeka-enhanced/hassfest.yml?branch=main&style=for-the-badge&label=Hassfest)](https://github.com/bb12489/mopeka-enhanced/actions/workflows/hassfest.yml)
+[![GitHub Release](https://img.shields.io/github/v/release/bb12489/mopeka-enhanced?style=for-the-badge)](https://github.com/bb12489/mopeka-enhanced/releases)
+[![License](https://img.shields.io/github/license/bb12489/mopeka-enhanced?style=for-the-badge)](LICENSE)
 
 ## Intro
 
