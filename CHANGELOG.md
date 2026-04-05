@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.8] - 2026-04-05
+
+### Added
+
+- Added custom tank capacity unit selection for propane custom tanks: `gallons` or `kilograms`.
+- Added custom tank capacity unit selection for non-propane custom tanks: `gallons` or `liters`.
+
+### Changed
+
+- Updated custom tank configuration forms to display capacity input fields with the correct unit based on the selected capacity unit.
+- Updated synthesized tank level capacity sensor behavior so custom tanks report in the selected unit (`gallons`, `kilograms`, or `liters`).
+- Updated related UI text and translations for consistent capacity unit labeling.
+
 ## [0.1.7] - 2026-04-05
 
 ### Fixed
