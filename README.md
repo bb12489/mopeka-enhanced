@@ -33,19 +33,19 @@ I 100% welcome others to improve upon this work. Find any mistakes I made, make 
 
 ### Sensors
 
-<img src="images/screenshots/sensors.png" alt="Sensors view" width="85%" />
+<img src="images/screenshots/sensors.png" alt="Sensors view" width="75%" />
 
 ### Propane Presets
 
-<img src="images/screenshots/propane_presets.png" alt="Propane presets" width="85%" />
+<img src="images/screenshots/propane_presets.png" alt="Propane presets" width="75%" />
 
 ### IBC Presets
 
-<img src="images/screenshots/ibc_presets.png" alt="IBC presets" width="85%" />
+<img src="images/screenshots/ibc_presets.png" alt="IBC presets" width="75%" />
 
 ### Custom Tanks
 
-<img src="images/screenshots/custom%20tanks.png" alt="Custom tanks" width="85%" />
+<img src="images/screenshots/custom%20tanks.png" alt="Custom tanks" width="75%" />
 
 ## A word on tank Presets
 
