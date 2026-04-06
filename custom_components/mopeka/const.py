@@ -40,8 +40,14 @@ class TankSize(StrEnum):
     LB_100 = "100lb"
     KG_6 = "6kg"
     KG_11 = "11kg"
+    KG_12 = "12kg"
     KG_14 = "14kg"
-    GAL_100_H = "100gal_h"
+    KG_18 = "18kg"
+    KG_48 = "48kg"
+    GAL_120_V = "120gal_v"
+    GAL_120_H = "120gal_h"
+    GAL_150_H = "150gal_h"
+    GAL_250_H = "250gal_h"
     GAL_500_H = "500gal_h"
     GAL_1000_H = "1000gal_h"
     GAL_12_2_RV_H = "12_2gal_rv_h"
@@ -61,7 +67,10 @@ PROPANE_TANK_SIZES: Final[list[TankSize]] = [
     TankSize.LB_30,
     TankSize.LB_40,
     TankSize.LB_100,
-    TankSize.GAL_100_H,
+    TankSize.GAL_120_V,
+    TankSize.GAL_120_H,
+    TankSize.GAL_150_H,
+    TankSize.GAL_250_H,
     TankSize.GAL_500_H,
     TankSize.GAL_1000_H,
     TankSize.GAL_12_2_RV_H,
@@ -70,7 +79,10 @@ PROPANE_TANK_SIZES: Final[list[TankSize]] = [
     TankSize.GAL_29_3_RV_H,
     TankSize.KG_6,
     TankSize.KG_11,
+    TankSize.KG_12,
     TankSize.KG_14,
+    TankSize.KG_18,
+    TankSize.KG_48,
     TankSize.CUSTOM,
 ]
 
@@ -95,9 +107,12 @@ TANK_EMPTY_MM: Final = 38.1
 # coefficients and therefore produce different mm values for the same physical
 # fill level, making these ranges inapplicable.
 #
+# Heights are sourced from the official Mopeka app tank_types.js (converted from
+# meters, applying any 0.8 scaling factors used in that file).
+#
 # Vertical tank full heights are the maximum liquid column heights for standard
-# US DOT propane cylinders.  Horizontal / RV ASME full heights are the inner
-# diameter (the geometric maximum fluid height when the tank is on its side).
+# propane cylinders.  Horizontal tank full heights are the inner diameter (the
+# geometric maximum fluid height when the tank is on its side).
 #
 # Fill % = clamp((reading - empty_mm) / (full_mm - empty_mm) * 100, 0, 100)
 # (horizontal tanks apply cylindrical cross-section geometry for volume accuracy).
@@ -108,16 +123,22 @@ TANK_SIZE_RANGES: Final[dict[str, tuple[float, float]]] = {
     TankSize.LB_30: (TANK_EMPTY_MM, 381.0),
     TankSize.LB_40: (TANK_EMPTY_MM, 508.0),
     TankSize.LB_100: (TANK_EMPTY_MM, 813.0),
-    TankSize.GAL_100_H: (TANK_EMPTY_MM, 600.7),
+    TankSize.GAL_120_V: (TANK_EMPTY_MM, 975.4),
+    TankSize.GAL_120_H: (TANK_EMPTY_MM, 609.6),
+    TankSize.GAL_150_H: (TANK_EMPTY_MM, 609.6),
+    TankSize.GAL_250_H: (TANK_EMPTY_MM, 762.0),
     TankSize.GAL_500_H: (TANK_EMPTY_MM, 939.8),
-    TankSize.GAL_1000_H: (TANK_EMPTY_MM, 1025.7),
+    TankSize.GAL_1000_H: (TANK_EMPTY_MM, 1041.4),
     TankSize.GAL_12_2_RV_H: (TANK_EMPTY_MM, 301.0),
     TankSize.GAL_16_RV_H: (TANK_EMPTY_MM, 346.7),
     TankSize.GAL_20_3_RV_H: (TANK_EMPTY_MM, 393.7),
     TankSize.GAL_29_3_RV_H: (TANK_EMPTY_MM, 369.6),
     TankSize.KG_6: (TANK_EMPTY_MM, 336.0),
     TankSize.KG_11: (TANK_EMPTY_MM, 366.0),
+    TankSize.KG_12: (TANK_EMPTY_MM, 400.0),
     TankSize.KG_14: (TANK_EMPTY_MM, 467.0),
+    TankSize.KG_18: (TANK_EMPTY_MM, 589.3),
+    TankSize.KG_48: (TANK_EMPTY_MM, 1000.0),
 }
 
 # IBC tote tank dimensions in millimeters for non-propane media (bottom-mount and
@@ -138,7 +159,9 @@ IBC_TANK_SIZE_RANGES: Final[dict[str, tuple[float, float]]] = {
 # volume is non-linear (circular cross-section geometry).
 HORIZONTAL_TANK_SIZES: Final[frozenset[str]] = frozenset(
     {
-        TankSize.GAL_100_H,
+        TankSize.GAL_120_H,
+        TankSize.GAL_150_H,
+        TankSize.GAL_250_H,
         TankSize.GAL_500_H,
         TankSize.GAL_1000_H,
         TankSize.GAL_12_2_RV_H,
@@ -158,7 +181,10 @@ TANK_SIZE_CAPACITIES: Final[dict[str, float]] = {
     TankSize.LB_30: 7.1,
     TankSize.LB_40: 9.4,
     TankSize.LB_100: 23.6,
-    TankSize.GAL_100_H: 100.0,
+    TankSize.GAL_120_V: 120.0,
+    TankSize.GAL_120_H: 120.0,
+    TankSize.GAL_150_H: 150.0,
+    TankSize.GAL_250_H: 250.0,
     TankSize.GAL_500_H: 500.0,
     TankSize.GAL_1000_H: 1000.0,
     TankSize.GAL_12_2_RV_H: 12.2,
@@ -169,5 +195,8 @@ TANK_SIZE_CAPACITIES: Final[dict[str, float]] = {
     TankSize.IBC_330: 330.0,
     TankSize.KG_6: 3.1,
     TankSize.KG_11: 5.7,
+    TankSize.KG_12: 6.2,
     TankSize.KG_14: 7.3,
+    TankSize.KG_18: 9.4,
+    TankSize.KG_48: 24.9,
 }
