@@ -15,9 +15,7 @@
 
 This is an enhanced version of Home Assistant's native Mopeka integration by `@bdraco`. It continues to use the mopeka_ble_iot library to interface with the sensors. No changes have been made there. 
 
-The code changes I have made are mainly to add tank presets, calculations for horizontal tank geometry, custom tank sizes, and new sensors. In the past you would have had only the tank level sensor that displays inches, and it was up to you to create the proper template sensors to display percentage or gallons. No longer!
-
-Tank preset data for the integration is sourced from the official Mopeka app by extracting the `tank_types.js` file and converting those measurements into the preset definitions used here. There are a lot of regions defined in this file for tank sizes, but I'm only using the US and Euro ones at the moment. I'll more regions as time permits.  
+The code changes I have made are primarily to add tank presets, new sensors, calculations for horizontal tank geometry, and an updated config flow. In the native integration you were only presented with s sensor that displayed the tank level in inches. This isn't very useful, and it was up to you to create the proper template sensors to display percentage or gallons based on your tank geometry. No longer! Now you can choose from a number of tank presets to make setup and configuration just as easy as in the Mopeka app.
 
 This custom Mopeka integration will override the native HA integration while keeping any preconfigured Mopeka devices intact. You will have to reconfigure your existing Mopeka devices to use the new tank presets and show the updated tank sensors.
 
@@ -27,21 +25,33 @@ Was this vibecoded? Yup!
 
 I'm not a developer, but I am an IT Systems Engineer, so I have a good grasp on what I'm doing. The heavy lifting was done with Github Copilot (Claude Opus/Sonnet) in VScode using the Home Assistant dev container environment. The research and verification however was done by me. 
 
-All HA and HACS standards have been followed, and all coding tests passed. Real world sensor readings using the integration enhancements were conducted on my 40 lb vertical propane tank, 100 lb horizontal propane tank, and my 330 gallon IBC tote (fresh water). The readings matched the Mopka app so well that I deemed this viable to share with the rest of the world. 
+All HA and HACS standards have been followed, and all coding tests passed. Real world sensor readings using the integration enhancements were conducted on my 40 lb vertical propane tank, 100 lb horizontal propane tank, and my 330 gallon IBC tote (fresh water). The readings match the Mopka app so well, and in most cases display even more accurate measurements due to the enhancements made here!
 
-I 100% welcome others to improve upon this work. Find any mistakes I made, make things more efficient, or add additional tank presets. Maybe some day we can get these changes merged into the HA core integration!
+I 100% welcome others to improve upon this work. Find any mistakes I made, make things more efficient, improve the documentation, or add additional tank presets. Maybe some day we can get these changes merged into the HA core integration!
 
 ## Features
 
-- 🛢️ Tank presets for horizontal and vertical style propane tanks in gal/lbs (US standard sizes only)
-- 🧾 Preset dimensions are derived from extracted official Mopeka app `tank_types.js` data and converted for integration use
-- 🚰 Standard IBC tote presets for 275 gallon and 330 gallon sizes (available for all non-propane medium types)
-- 📏 Option to define your own custom tank height in millimeters, and tank volume in gallons
-- 📡 Automatic detection of top mount sensor models (TD40 and TD200) for correct sensor measurements (top mount sensors read through the air instead of liquid mediums)
-- 🧭 Updated config flow menu for tank configuration based on medium type selection and device detection (top mount sensors)
-- 🧮 Added background calculations to better handle horizontal propane tank geometry (hemisphere endcaps)
-- 📊 Added two sensors for tank fill (percentage), and tank volume (gallons)
-- 📊 Added two diagnostic sensors for Medium type (currently configured medium), and Tank preset (currently configured tank preset)
+ 🛢️ Tank presets for US and Euro horizontal and vertical style propane tanks in gal/lbs/kg (Sourced from the Mopeka Tank App)
+
+ 🚰 Standard IBC tote presets for 275 gallon and 330 gallon sizes (available for all non-propane medium types)
+
+ 📏 Option to define your own custom tank height in millimeters, and tank volume in gal/lbs/kg
+
+ 📡 Automatic detection of top mount sensor models (TD40 and TD200) for correct sensor measurements
+
+ 🧭 Updated config flow menu for tank configuration based on medium type selection and device detection (top mount sensors)
+
+ 🧮 Background calculations for horizontal tank geometry (hemisphere endcaps)
+
+ 📊 Tank Level sensors that display percentage and gal/lbs/kg
+
+ 📊 Diagnostic sensors to display the currently selected medium (fluid) type, and tank preset 
+
+## A word on tank Presets
+
+The tank preset data for the integration was sourced from the `tank_types.js` file extracted from the Mopeka tank.apk Android app. Almost all of the tank presets use the dimensions from `tank_types.js`, with the exception of the ASME tanks and IBC totes. These type of tanks were never included in the Mopeka app, so I had to source these dimensions from internet research (with the help of Gemini). There are a lot of regions defined in this file for tank sizes, but I'm only using the US and Euro ones at the moment. I'll more regions as time permits.   
+
+Feel free to submit a PR here for additional tank presets that you think would be valuable.
 
 ## Screenshots
 
@@ -61,18 +71,10 @@ I 100% welcome others to improve upon this work. Find any mistakes I made, make 
 
 <img src="images/screenshots/custom%20tanks.png" alt="Custom tanks" width="75%" />
 
-## A word on tank Presets
-
-The preset tank dimensions in this integration are now based on data extracted from the official Mopeka app's `tank_types.js` file. Those values are converted into the preset definitions used by the integration so the available propane tank options stay aligned with the official app wherever that source provides a match.
-
-That means the current preset list is no longer primarily based on manual web research. It is derived from the Mopeka app data first, then adapted for the integration's preset ranges, capacities, labels, and horizontal tank geometry handling.
-
-Feel free to submit a PR here for additional tank presets that you think would be valuable.
-
 
 ## Horizontal Tank Geometry
 
-For horizontal propane presets, tank fill is calculated with non-linear geometry from the integration code in `custom_components/mopeka/sensor.py`.
+For horizontal propane presets, tank fill is calculated with non-linear geometry from the integration code in `custom_components/mopeka/sensor.py`. This is something that was never part of the official Mopeka app. They never took into account any type of tank geometry for their measurements, so you'll likely see readings that don't exactly match the Mopeka app at times. This is fine since our readings will be a lot  more accurate than theirs!
 
 The key formula uses the circular segment area of a horizontal cylinder cross-section:
 
