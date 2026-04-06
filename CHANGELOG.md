@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0] - 2026-04-06
+
+### Added
+
+- Added new propane tank presets sourced directly from the official Mopeka app `tank_types.js` file: 120 gal vertical, 150 gal horizontal, 250 gal horizontal, 12 kg, 18 kg, and 48 kg.
+
+### Changed
+
+- Updated existing tank presets to match the official Mopeka app `tank_types.js` data, including the horizontal 120 gal preset mapping and the 1000 gal horizontal tank height.
+- Updated the related preset labels and translations to match the revised and newly added tank options.
+
 ## [0.1.9] - 2026-04-05
 
 ### Fixed

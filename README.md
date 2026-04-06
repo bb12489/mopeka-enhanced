@@ -17,6 +17,8 @@ This is an enhanced version of Home Assistant's native Mopeka integration by `@b
 
 The code changes I have made are mainly to add tank presets, calculations for horizontal tank geometry, custom tank sizes, and new sensors. In the past you would have had only the tank level sensor that displays inches, and it was up to you to create the proper template sensors to display percentage or gallons. No longer!
 
+Tank preset data for the integration is sourced from the official Mopeka app by extracting the `tank_types.js` file and converting those measurements into the preset definitions used here. There are a lot of regions defined in this file for tank sizes, but I'm only using the US and Euro ones at the moment. I'll more regions as time permits.  
+
 This custom Mopeka integration will override the native HA integration while keeping any preconfigured Mopeka devices intact. You will have to reconfigure your existing Mopeka devices to use the new tank presets and show the updated tank sensors.
 
 ## AI Disclaimer
@@ -32,6 +34,7 @@ I 100% welcome others to improve upon this work. Find any mistakes I made, make 
 ## Features
 
 - 🛢️ Tank presets for horizontal and vertical style propane tanks in gal/lbs (US standard sizes only)
+- 🧾 Preset dimensions are derived from extracted official Mopeka app `tank_types.js` data and converted for integration use
 - 🚰 Standard IBC tote presets for 275 gallon and 330 gallon sizes (available for all non-propane medium types)
 - 📏 Option to define your own custom tank height in millimeters, and tank volume in gallons
 - 📡 Automatic detection of top mount sensor models (TD40 and TD200) for correct sensor measurements (top mount sensors read through the air instead of liquid mediums)
@@ -60,7 +63,11 @@ I 100% welcome others to improve upon this work. Find any mistakes I made, make 
 
 ## A word on tank Presets
 
-I've taken the 20 lb, 30 lb, and 40 lb vertical tank measurements from the Mopeka ESPHome component, as I believe they may have pulled them from the official Mopeka app. The rest of the tank measurements were obtained from extensive Google searching (both manual and assisted by Gemini AI). I narrowed my research down to only US standard propane tank sizes since that's what I use on our bus. Euro-style 6 kg, 11 kg, and 14 kg cylinder presets are also included, with heights sourced from the Mopeka ESPHome component. Feel free to submit a PR here for additional tank presets that you think would be valuable.
+The preset tank dimensions in this integration are now based on data extracted from the official Mopeka app's `tank_types.js` file. Those values are converted into the preset definitions used by the integration so the available propane tank options stay aligned with the official app wherever that source provides a match.
+
+That means the current preset list is no longer primarily based on manual web research. It is derived from the Mopeka app data first, then adapted for the integration's preset ranges, capacities, labels, and horizontal tank geometry handling.
+
+Feel free to submit a PR here for additional tank presets that you think would be valuable.
 
 
 ## Horizontal Tank Geometry
