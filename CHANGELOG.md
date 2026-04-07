@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.4] - 2026-04-07
+
+### Changed
+
+- Removed unit labels from the tank capacity number input field in custom tank configuration forms. The unit is now selected exclusively via the separate capacity unit dropdown menu, eliminating UI redundancy and confusion.
+- Simplified config flow by eliminating redundant `_CUSTOM_CAPACITY_KG_SELECTOR` and `_CUSTOM_CAPACITY_L_SELECTOR` constants; all capacity inputs now use a single unitless selector.
+- Bumped integration version in `custom_components/mopeka/manifest.json` to `0.2.4`.
+
+### Added
+
+- Added parameterized regression test `test_dropdown_unit_and_capacity_drive_tank_volume_output` to verify that the selected capacity unit dropdown plus entered capacity value correctly drive the synthesized tank volume sensor's unit and numeric output across all three unit paths (gallons, kilograms, liters).
+
 ## [0.2.3] - 2026-04-07
 
 ### Changed
