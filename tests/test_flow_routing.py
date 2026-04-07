@@ -106,7 +106,7 @@ def test_custom_height_unit_change_refreshes_capacity_selector(config_flow_modul
 
     assert result["step_id"] == "custom_height"
     capacity_selector = _schema_value(result["data_schema"], "tank_capacity")
-    assert capacity_selector.config.unit_of_measurement == "kg"
+    assert capacity_selector.config.unit_of_measurement is None
 
 
 def test_custom_height_unit_change_refreshes_capacity_selector_liters(
@@ -130,7 +130,7 @@ def test_custom_height_unit_change_refreshes_capacity_selector_liters(
 
     assert result["step_id"] == "custom_height"
     capacity_selector = _schema_value(result["data_schema"], "tank_capacity")
-    assert capacity_selector.config.unit_of_measurement == "L"
+    assert capacity_selector.config.unit_of_measurement is None
 
 
 def test_reconfigure_tank_config_falls_back_for_unknown_legacy_propane_key(

@@ -119,8 +119,8 @@ class _NumberSelectorConfig:
     min: float
     max: float
     step: float
-    unit_of_measurement: str
     mode: str
+    unit_of_measurement: str | None = None
 
 
 @dataclass

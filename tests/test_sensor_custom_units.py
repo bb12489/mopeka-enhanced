@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 
 def _build_update(stub_types, level_mm: float):
     device_key = stub_types["DeviceKey"]("tank_level", "dev1")
@@ -96,3 +98,51 @@ def test_custom_capacity_unit_resolution(sensor_module):
             "tank_capacity_unit": "gal",
         }
     ) == (75.0, "gal")
+
+
+@pytest.mark.parametrize(
+    (
+        "medium_type",
+        "tank_capacity_unit",
+        "capacity",
+        "expected_unit",
+        "expected_label",
+    ),
+    [
+        ("propane", "gal", 80.0, "gal", None),
+        ("propane", "kg", 40.0, "kg", "Tank level (kilograms)"),
+        ("fresh_water", "l", 200.0, "L", "Tank level (liters)"),
+    ],
+)
+def test_dropdown_unit_and_capacity_drive_tank_volume_output(
+    sensor_module,
+    stub_types,
+    medium_type,
+    tank_capacity_unit,
+    capacity,
+    expected_unit,
+    expected_label,
+):
+    entry_data = {
+        "tank_size": "custom",
+        "medium_type": medium_type,
+        "tank_capacity": capacity,
+        "tank_capacity_unit": tank_capacity_unit,
+    }
+    tank_capacity = sensor_module._get_tank_capacity(entry_data)
+
+    converter = sensor_module.make_sensor_update_to_bluetooth_data_update(
+        tank_range=(0.0, 1000.0, False),
+        top_mount=False,
+        medium_type=medium_type,
+        propane_preset="custom",
+        tank_capacity=tank_capacity,
+    )
+
+    # 250mm in a 0..1000mm tank yields 25% volume.
+    update = converter(_build_update(stub_types, level_mm=250.0))
+    key = stub_types["PassiveBluetoothEntityKey"]("tank_volume", "dev1")
+
+    assert update.entity_data[key] == pytest.approx(capacity * 0.25)
+    assert update.entity_names[key] == expected_label
+    assert update.entity_descriptions[key].native_unit_of_measurement == expected_unit

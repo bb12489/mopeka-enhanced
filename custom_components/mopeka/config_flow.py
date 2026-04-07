@@ -81,27 +81,6 @@ _CUSTOM_CAPACITY_SELECTOR = selector.NumberSelector(
         min=0,
         max=100000,
         step=0.1,
-        unit_of_measurement="gal",
-        mode=selector.NumberSelectorMode.BOX,
-    )
-)
-
-_CUSTOM_CAPACITY_KG_SELECTOR = selector.NumberSelector(
-    selector.NumberSelectorConfig(
-        min=0,
-        max=100000,
-        step=0.1,
-        unit_of_measurement="kg",
-        mode=selector.NumberSelectorMode.BOX,
-    )
-)
-
-_CUSTOM_CAPACITY_L_SELECTOR = selector.NumberSelector(
-    selector.NumberSelectorConfig(
-        min=0,
-        max=100000,
-        step=0.1,
-        unit_of_measurement="L",
         mode=selector.NumberSelectorMode.BOX,
     )
 )
@@ -260,13 +239,7 @@ def _async_generate_custom_height_schema(
             if tank_capacity is not None
             else DEFAULT_TANK_CAPACITY,
         )
-    ] = (
-        _CUSTOM_CAPACITY_KG_SELECTOR
-        if is_propane and selected_unit == CAPACITY_UNIT_KILOGRAMS
-        else _CUSTOM_CAPACITY_L_SELECTOR
-        if (not is_propane and selected_unit == CAPACITY_UNIT_LITERS)
-        else _CUSTOM_CAPACITY_SELECTOR
-    )
+    ] = _CUSTOM_CAPACITY_SELECTOR
 
     return vol.Schema(schema)
 

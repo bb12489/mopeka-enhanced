@@ -47,7 +47,7 @@ def test_custom_schema_uses_kg_input_when_propane_kg_selected(config_flow_module
         tank_capacity_unit="kg",
     )
     capacity_selector = _schema_value(schema, "tank_capacity")
-    assert capacity_selector.config.unit_of_measurement == "kg"
+    assert capacity_selector.config.unit_of_measurement is None
 
 
 def test_custom_schema_uses_liters_input_when_non_propane_l_selected(
@@ -59,7 +59,7 @@ def test_custom_schema_uses_liters_input_when_non_propane_l_selected(
         tank_capacity_unit="l",
     )
     capacity_selector = _schema_value(schema, "tank_capacity")
-    assert capacity_selector.config.unit_of_measurement == "L"
+    assert capacity_selector.config.unit_of_measurement is None
 
 
 def test_custom_schema_defaults_to_gallons_for_invalid_unit(config_flow_module):
@@ -69,7 +69,7 @@ def test_custom_schema_defaults_to_gallons_for_invalid_unit(config_flow_module):
         tank_capacity_unit="kg",
     )
     capacity_selector = _schema_value(schema, "tank_capacity")
-    assert capacity_selector.config.unit_of_measurement == "gal"
+    assert capacity_selector.config.unit_of_measurement is None
 
 
 def test_format_medium_type(config_flow_module):
