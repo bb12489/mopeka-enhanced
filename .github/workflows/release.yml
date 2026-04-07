@@ -18,9 +18,42 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build release notes from changelog
+        run: |
+          set -euo pipefail
+          TAG_NAME="${{ inputs.tag_name || github.ref_name }}"
+          VERSION="${TAG_NAME#v}"
+
+          CHANGELOG_SECTION="$(awk -v ver="$VERSION" '
+            $0 ~ "^## \\[" ver "\\]" {in_section=1; next}
+            in_section && $0 ~ "^## \\[" {exit}
+            in_section {print}
+          ' CHANGELOG.md)"
+
+          if [ -z "${CHANGELOG_SECTION}" ]; then
+            CHANGELOG_SECTION="- No changelog entry found for ${VERSION}."
+          fi
+
+          PREV_TAG="$(git tag --sort=-v:refname | grep '^v' | grep -vx "${TAG_NAME}" | head -n 1 || true)"
+
+          {
+            echo "## What's Changed"
+            echo
+            echo "${CHANGELOG_SECTION}"
+            echo
+            if [ -n "${PREV_TAG}" ]; then
+              echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/${PREV_TAG}...${TAG_NAME}"
+            fi
+          } > release_notes.md
+
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ inputs.tag_name || github.ref_name }}
-          generate_release_notes: true
+          body_path: release_notes.md
           make_latest: true
