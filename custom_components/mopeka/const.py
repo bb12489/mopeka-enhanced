@@ -1,5 +1,7 @@
 """Constants for the Mopeka integration."""
 
+from __future__ import annotations
+
 from enum import StrEnum
 from typing import Final
 
@@ -34,26 +36,26 @@ DEFAULT_TANK_CAPACITY_UNIT: Final = CAPACITY_UNIT_GALLONS
 class TankSize(StrEnum):
     """Predefined tank sizes matching the Mopeka app presets."""
 
-    LB_20 = "20lb"
-    LB_30 = "30lb"
-    LB_40 = "40lb"
-    LB_100 = "100lb"
-    KG_6 = "6kg"
-    KG_11 = "11kg"
-    KG_12 = "12kg"
-    KG_14 = "14kg"
-    KG_18 = "18kg"
-    KG_48 = "48kg"
+    LB_20 = "20lb_v"
+    LB_30 = "30lb_v"
+    LB_40 = "40lb_v"
+    LB_100 = "100lb_v"
+    KG_6 = "6kg_v"
+    KG_11 = "11kg_v"
+    KG_12 = "12kg_v"
+    KG_14 = "14kg_v"
+    KG_18 = "18kg_v"
+    KG_48 = "48kg_v"
     GAL_120_V = "120gal_v"
     GAL_120_H = "120gal_h"
     GAL_150_H = "150gal_h"
     GAL_250_H = "250gal_h"
     GAL_500_H = "500gal_h"
     GAL_1000_H = "1000gal_h"
-    GAL_12_2_RV_H = "12_2gal_rv_h"
-    GAL_16_RV_H = "16gal_rv_h"
-    GAL_20_3_RV_H = "20_3gal_rv_h"
-    GAL_29_3_RV_H = "29_3gal_rv_h"
+    GAL_12_2_ASME_H = "12_2gal_asme_h"
+    GAL_16_ASME_H = "16gal_asme_h"
+    GAL_20_3_ASME_H = "20_3gal_asme_h"
+    GAL_29_3_ASME_H = "29_3gal_asme_h"
     IBC_275 = "ibc_275gal"
     IBC_330 = "ibc_330gal"
     CUSTOM = "custom"
@@ -73,10 +75,10 @@ PROPANE_TANK_SIZES: Final[list[TankSize]] = [
     TankSize.GAL_250_H,
     TankSize.GAL_500_H,
     TankSize.GAL_1000_H,
-    TankSize.GAL_12_2_RV_H,
-    TankSize.GAL_16_RV_H,
-    TankSize.GAL_20_3_RV_H,
-    TankSize.GAL_29_3_RV_H,
+    TankSize.GAL_12_2_ASME_H,
+    TankSize.GAL_16_ASME_H,
+    TankSize.GAL_20_3_ASME_H,
+    TankSize.GAL_29_3_ASME_H,
     TankSize.KG_6,
     TankSize.KG_11,
     TankSize.KG_12,
@@ -94,6 +96,32 @@ IBC_TANK_SIZES: Final[list[TankSize]] = [
 ]
 
 DEFAULT_IBC_TANK_SIZE: Final = TankSize.IBC_275
+
+# Backward compatibility map for previously persisted tank preset keys.
+LEGACY_TANK_SIZE_ALIASES: Final[dict[str, str]] = {
+    "20lb": TankSize.LB_20,
+    "30lb": TankSize.LB_30,
+    "40lb": TankSize.LB_40,
+    "100lb": TankSize.LB_100,
+    "6kg": TankSize.KG_6,
+    "11kg": TankSize.KG_11,
+    "12kg": TankSize.KG_12,
+    "14kg": TankSize.KG_14,
+    "18kg": TankSize.KG_18,
+    "48kg": TankSize.KG_48,
+    "12_2gal_rv_h": TankSize.GAL_12_2_ASME_H,
+    "16gal_rv_h": TankSize.GAL_16_ASME_H,
+    "20_3gal_rv_h": TankSize.GAL_20_3_ASME_H,
+    "29_3gal_rv_h": TankSize.GAL_29_3_ASME_H,
+}
+
+
+def normalize_tank_size(tank_size: str | None) -> str | None:
+    """Return the canonical tank preset key, including legacy aliases."""
+    if tank_size is None:
+        return None
+    return LEGACY_TANK_SIZE_ALIASES.get(tank_size, tank_size)
+
 
 # Minimum readable fluid height in mm.  Accounts for the physical curvature at the
 # bottom of the tank and the ultrasonic sensor's dead zone.
@@ -129,10 +157,10 @@ TANK_SIZE_RANGES: Final[dict[str, tuple[float, float]]] = {
     TankSize.GAL_250_H: (TANK_EMPTY_MM, 762.0),
     TankSize.GAL_500_H: (TANK_EMPTY_MM, 939.8),
     TankSize.GAL_1000_H: (TANK_EMPTY_MM, 1041.4),
-    TankSize.GAL_12_2_RV_H: (TANK_EMPTY_MM, 301.0),
-    TankSize.GAL_16_RV_H: (TANK_EMPTY_MM, 346.7),
-    TankSize.GAL_20_3_RV_H: (TANK_EMPTY_MM, 393.7),
-    TankSize.GAL_29_3_RV_H: (TANK_EMPTY_MM, 369.6),
+    TankSize.GAL_12_2_ASME_H: (TANK_EMPTY_MM, 301.0),
+    TankSize.GAL_16_ASME_H: (TANK_EMPTY_MM, 346.7),
+    TankSize.GAL_20_3_ASME_H: (TANK_EMPTY_MM, 393.7),
+    TankSize.GAL_29_3_ASME_H: (TANK_EMPTY_MM, 369.6),
     TankSize.KG_6: (TANK_EMPTY_MM, 336.0),
     TankSize.KG_11: (TANK_EMPTY_MM, 366.0),
     TankSize.KG_12: (TANK_EMPTY_MM, 400.0),
@@ -164,10 +192,10 @@ HORIZONTAL_TANK_SIZES: Final[frozenset[str]] = frozenset(
         TankSize.GAL_250_H,
         TankSize.GAL_500_H,
         TankSize.GAL_1000_H,
-        TankSize.GAL_12_2_RV_H,
-        TankSize.GAL_16_RV_H,
-        TankSize.GAL_20_3_RV_H,
-        TankSize.GAL_29_3_RV_H,
+        TankSize.GAL_12_2_ASME_H,
+        TankSize.GAL_16_ASME_H,
+        TankSize.GAL_20_3_ASME_H,
+        TankSize.GAL_29_3_ASME_H,
     }
 )
 
@@ -187,10 +215,10 @@ TANK_SIZE_CAPACITIES: Final[dict[str, float]] = {
     TankSize.GAL_250_H: 250.0,
     TankSize.GAL_500_H: 500.0,
     TankSize.GAL_1000_H: 1000.0,
-    TankSize.GAL_12_2_RV_H: 12.2,
-    TankSize.GAL_16_RV_H: 16.0,
-    TankSize.GAL_20_3_RV_H: 20.3,
-    TankSize.GAL_29_3_RV_H: 29.3,
+    TankSize.GAL_12_2_ASME_H: 12.2,
+    TankSize.GAL_16_ASME_H: 16.0,
+    TankSize.GAL_20_3_ASME_H: 20.3,
+    TankSize.GAL_29_3_ASME_H: 29.3,
     TankSize.IBC_275: 275.0,
     TankSize.IBC_330: 330.0,
     TankSize.KG_6: 3.1,

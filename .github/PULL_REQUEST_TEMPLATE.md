@@ -15,7 +15,7 @@ Preset type:
   - Euro propane       → European-style LPG cylinder measured in kg
   - IBC                → IBC tote for non-propane media (water, diesel, etc.)
 
-Internal preset key: the short string value used in code, e.g. "20lb", "6kg", "100gal_h".
+Internal preset key: the short string value used in code, e.g. "20lb_v", "6kg_v", "100gal_h".
   - Use only lowercase letters, digits, and underscores/hyphens.
   - Must be unique across all existing TankSize entries in const.py.
 

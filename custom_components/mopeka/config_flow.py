@@ -41,6 +41,7 @@ from .const import (
     TOP_MOUNT_MODEL_IDS,
     MediumType,
     TankSize,
+    normalize_tank_size,
 )
 
 
@@ -104,6 +105,45 @@ _CUSTOM_CAPACITY_L_SELECTOR = selector.NumberSelector(
         mode=selector.NumberSelectorMode.BOX,
     )
 )
+
+
+def _coerce_int(value: Any, default: int) -> int:
+    """Safely coerce a value to int, returning default on invalid input."""
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _coerce_float(value: Any, default: float) -> float:
+    """Safely coerce a value to float, returning default on invalid input."""
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _parse_custom_height_values(
+    user_input: dict[str, Any],
+) -> tuple[int | None, float | None, dict[str, str]]:
+    """Parse custom height/capacity values, returning field errors when invalid."""
+    errors: dict[str, str] = {}
+
+    try:
+        height = int(
+            user_input.get(CONF_CUSTOM_TANK_HEIGHT, DEFAULT_CUSTOM_TANK_HEIGHT)
+        )
+    except (TypeError, ValueError):
+        height = None
+        errors[CONF_CUSTOM_TANK_HEIGHT] = "invalid_number"
+
+    try:
+        capacity = float(user_input.get(CONF_TANK_CAPACITY, DEFAULT_TANK_CAPACITY))
+    except (TypeError, ValueError):
+        capacity = None
+        errors[CONF_TANK_CAPACITY] = "invalid_number"
+
+    return height, capacity, errors
 
 
 def _is_propane_medium(medium_type: str | None) -> bool:
@@ -231,6 +271,15 @@ def _async_generate_custom_height_schema(
     return vol.Schema(schema)
 
 
+def _normalized_propane_tank_size_or_default(tank_size: str | None) -> str:
+    """Return a valid propane preset key suitable for selector defaults."""
+    normalized_tank_size = normalize_tank_size(tank_size)
+    valid_sizes = {size.value for size in PROPANE_TANK_SIZES}
+    if normalized_tank_size not in valid_sizes:
+        return DEFAULT_TANK_SIZE
+    return normalized_tank_size
+
+
 class MopekaConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for mopeka."""
 
@@ -313,7 +362,7 @@ class MopekaConfigFlow(ConfigFlow, domain=DOMAIN):
         """Create the config entry with the collected parameters."""
         data = {
             CONF_MEDIUM_TYPE: self._medium_type,
-            CONF_TANK_SIZE: tank_size,
+            CONF_TANK_SIZE: normalize_tank_size(tank_size),
             CONF_CUSTOM_TANK_HEIGHT: custom_height,
             CONF_TANK_CAPACITY: tank_capacity,
             CONF_TANK_CAPACITY_UNIT: tank_capacity_unit,
@@ -373,12 +422,8 @@ class MopekaConfigFlow(ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         """Enter a custom tank height and total capacity."""
         if user_input is not None:
-            height = int(
-                user_input.get(CONF_CUSTOM_TANK_HEIGHT, DEFAULT_CUSTOM_TANK_HEIGHT)
-            )
-            capacity = float(user_input.get(CONF_TANK_CAPACITY, DEFAULT_TANK_CAPACITY))
             capacity_unit = user_input.get(
-                CONF_TANK_CAPACITY_UNIT, DEFAULT_TANK_CAPACITY_UNIT
+                CONF_TANK_CAPACITY_UNIT, self._custom_capacity_unit
             )
             if capacity_unit != self._custom_capacity_unit:
                 self._custom_capacity_unit = capacity_unit
@@ -386,13 +431,44 @@ class MopekaConfigFlow(ConfigFlow, domain=DOMAIN):
                     step_id="custom_height",
                     data_schema=_async_generate_custom_height_schema(
                         medium_type=self._medium_type,
-                        custom_tank_height=height,
-                        tank_capacity=capacity,
+                        custom_tank_height=_coerce_int(
+                            user_input.get(
+                                CONF_CUSTOM_TANK_HEIGHT, DEFAULT_CUSTOM_TANK_HEIGHT
+                            ),
+                            DEFAULT_CUSTOM_TANK_HEIGHT,
+                        ),
+                        tank_capacity=_coerce_float(
+                            user_input.get(CONF_TANK_CAPACITY, DEFAULT_TANK_CAPACITY),
+                            DEFAULT_TANK_CAPACITY,
+                        ),
                         tank_capacity_unit=self._custom_capacity_unit,
                     ),
                 )
+            height, capacity, errors = _parse_custom_height_values(user_input)
+            if errors:
+                return self.async_show_form(
+                    step_id="custom_height",
+                    data_schema=_async_generate_custom_height_schema(
+                        medium_type=self._medium_type,
+                        custom_tank_height=_coerce_int(
+                            user_input.get(
+                                CONF_CUSTOM_TANK_HEIGHT, DEFAULT_CUSTOM_TANK_HEIGHT
+                            ),
+                            DEFAULT_CUSTOM_TANK_HEIGHT,
+                        ),
+                        tank_capacity=_coerce_float(
+                            user_input.get(CONF_TANK_CAPACITY, DEFAULT_TANK_CAPACITY),
+                            DEFAULT_TANK_CAPACITY,
+                        ),
+                        tank_capacity_unit=self._custom_capacity_unit,
+                    ),
+                    errors=errors,
+                )
             return await self._async_create_config_entry(
-                TankSize.CUSTOM, height, capacity, capacity_unit
+                TankSize.CUSTOM,
+                height,
+                capacity,
+                capacity_unit,  # type: ignore[arg-type]
             )
 
         self._custom_capacity_unit = DEFAULT_TANK_CAPACITY_UNIT
@@ -447,7 +523,9 @@ class MopekaConfigFlow(ConfigFlow, domain=DOMAIN):
                 },
             )
 
-        existing_tank_size = entry.data.get(CONF_TANK_SIZE, DEFAULT_TANK_SIZE)
+        existing_tank_size = _normalized_propane_tank_size_or_default(
+            entry.data.get(CONF_TANK_SIZE, DEFAULT_TANK_SIZE)
+        )
         return self.async_show_form(
             step_id="reconfigure_tank_config",
             data_schema=_async_generate_tank_schema(
@@ -475,7 +553,7 @@ class MopekaConfigFlow(ConfigFlow, domain=DOMAIN):
                 },
             )
 
-        existing_tank_size = entry.data.get(CONF_TANK_SIZE)
+        existing_tank_size = normalize_tank_size(entry.data.get(CONF_TANK_SIZE))
         if existing_tank_size not in IBC_TANK_SIZES:
             existing_tank_size = DEFAULT_IBC_TANK_SIZE
         return self.async_show_form(
@@ -491,13 +569,9 @@ class MopekaConfigFlow(ConfigFlow, domain=DOMAIN):
         """Handle reconfiguration — enter custom tank height and total capacity."""
         entry = self._get_reconfigure_entry()
         if user_input is not None:
-            height = int(
-                user_input.get(CONF_CUSTOM_TANK_HEIGHT, DEFAULT_CUSTOM_TANK_HEIGHT)
-            )
-            capacity = float(user_input.get(CONF_TANK_CAPACITY, DEFAULT_TANK_CAPACITY))
             capacity_unit = user_input.get(
                 CONF_TANK_CAPACITY_UNIT,
-                entry.data.get(CONF_TANK_CAPACITY_UNIT, DEFAULT_TANK_CAPACITY_UNIT),
+                self._custom_capacity_unit,
             )
             if capacity_unit != self._custom_capacity_unit:
                 self._custom_capacity_unit = capacity_unit
@@ -505,10 +579,38 @@ class MopekaConfigFlow(ConfigFlow, domain=DOMAIN):
                     step_id="reconfigure_custom_height",
                     data_schema=_async_generate_custom_height_schema(
                         medium_type=self._medium_type,
-                        custom_tank_height=height,
-                        tank_capacity=capacity,
+                        custom_tank_height=_coerce_int(
+                            user_input.get(
+                                CONF_CUSTOM_TANK_HEIGHT, DEFAULT_CUSTOM_TANK_HEIGHT
+                            ),
+                            DEFAULT_CUSTOM_TANK_HEIGHT,
+                        ),
+                        tank_capacity=_coerce_float(
+                            user_input.get(CONF_TANK_CAPACITY, DEFAULT_TANK_CAPACITY),
+                            DEFAULT_TANK_CAPACITY,
+                        ),
                         tank_capacity_unit=self._custom_capacity_unit,
                     ),
+                )
+            height, capacity, errors = _parse_custom_height_values(user_input)
+            if errors:
+                return self.async_show_form(
+                    step_id="reconfigure_custom_height",
+                    data_schema=_async_generate_custom_height_schema(
+                        medium_type=self._medium_type,
+                        custom_tank_height=_coerce_int(
+                            user_input.get(
+                                CONF_CUSTOM_TANK_HEIGHT, DEFAULT_CUSTOM_TANK_HEIGHT
+                            ),
+                            DEFAULT_CUSTOM_TANK_HEIGHT,
+                        ),
+                        tank_capacity=_coerce_float(
+                            user_input.get(CONF_TANK_CAPACITY, DEFAULT_TANK_CAPACITY),
+                            DEFAULT_TANK_CAPACITY,
+                        ),
+                        tank_capacity_unit=self._custom_capacity_unit,
+                    ),
+                    errors=errors,
                 )
             return self.async_update_reload_and_abort(
                 entry,
@@ -636,8 +738,8 @@ class MopekaOptionsFlow(config_entries.OptionsFlow):
             await self.hass.config_entries.async_reload(self.config_entry.entry_id)
             return self.async_create_entry(title="", data={})
 
-        existing_tank_size = self.config_entry.data.get(
-            CONF_TANK_SIZE, DEFAULT_TANK_SIZE
+        existing_tank_size = _normalized_propane_tank_size_or_default(
+            self.config_entry.data.get(CONF_TANK_SIZE, DEFAULT_TANK_SIZE)
         )
         return self.async_show_form(
             step_id="tank_config",
@@ -669,7 +771,9 @@ class MopekaOptionsFlow(config_entries.OptionsFlow):
             await self.hass.config_entries.async_reload(self.config_entry.entry_id)
             return self.async_create_entry(title="", data={})
 
-        existing_tank_size = self.config_entry.data.get(CONF_TANK_SIZE)
+        existing_tank_size = normalize_tank_size(
+            self.config_entry.data.get(CONF_TANK_SIZE)
+        )
         if existing_tank_size not in IBC_TANK_SIZES:
             existing_tank_size = DEFAULT_IBC_TANK_SIZE
         return self.async_show_form(
@@ -685,15 +789,9 @@ class MopekaOptionsFlow(config_entries.OptionsFlow):
         """Enter a custom tank height and total capacity."""
         assert self._medium_type is not None
         if user_input is not None:
-            height = int(
-                user_input.get(CONF_CUSTOM_TANK_HEIGHT, DEFAULT_CUSTOM_TANK_HEIGHT)
-            )
-            capacity = float(user_input.get(CONF_TANK_CAPACITY, DEFAULT_TANK_CAPACITY))
             capacity_unit = user_input.get(
                 CONF_TANK_CAPACITY_UNIT,
-                self.config_entry.data.get(
-                    CONF_TANK_CAPACITY_UNIT, DEFAULT_TANK_CAPACITY_UNIT
-                ),
+                self._custom_capacity_unit,
             )
             if capacity_unit != self._custom_capacity_unit:
                 self._custom_capacity_unit = capacity_unit
@@ -701,10 +799,38 @@ class MopekaOptionsFlow(config_entries.OptionsFlow):
                     step_id="custom_height",
                     data_schema=_async_generate_custom_height_schema(
                         medium_type=self._medium_type,
-                        custom_tank_height=height,
-                        tank_capacity=capacity,
+                        custom_tank_height=_coerce_int(
+                            user_input.get(
+                                CONF_CUSTOM_TANK_HEIGHT, DEFAULT_CUSTOM_TANK_HEIGHT
+                            ),
+                            DEFAULT_CUSTOM_TANK_HEIGHT,
+                        ),
+                        tank_capacity=_coerce_float(
+                            user_input.get(CONF_TANK_CAPACITY, DEFAULT_TANK_CAPACITY),
+                            DEFAULT_TANK_CAPACITY,
+                        ),
                         tank_capacity_unit=self._custom_capacity_unit,
                     ),
+                )
+            height, capacity, errors = _parse_custom_height_values(user_input)
+            if errors:
+                return self.async_show_form(
+                    step_id="custom_height",
+                    data_schema=_async_generate_custom_height_schema(
+                        medium_type=self._medium_type,
+                        custom_tank_height=_coerce_int(
+                            user_input.get(
+                                CONF_CUSTOM_TANK_HEIGHT, DEFAULT_CUSTOM_TANK_HEIGHT
+                            ),
+                            DEFAULT_CUSTOM_TANK_HEIGHT,
+                        ),
+                        tank_capacity=_coerce_float(
+                            user_input.get(CONF_TANK_CAPACITY, DEFAULT_TANK_CAPACITY),
+                            DEFAULT_TANK_CAPACITY,
+                        ),
+                        tank_capacity_unit=self._custom_capacity_unit,
+                    ),
+                    errors=errors,
                 )
             new_data = {
                 **self.config_entry.data,

@@ -56,6 +56,7 @@ from .const import (
     TANK_SIZE_CAPACITIES,
     TANK_SIZE_RANGES,
     TankSize,
+    normalize_tank_size,
 )
 from .device import device_key_to_bluetooth_entity_key
 
@@ -192,7 +193,7 @@ def _get_tank_level_range(
 
     Legacy entries without CONF_MEDIUM_TYPE default to propane.
     """
-    tank_size = entry_data.get(CONF_TANK_SIZE)
+    tank_size = normalize_tank_size(entry_data.get(CONF_TANK_SIZE))
     if tank_size is None:
         return None
     medium_type = entry_data.get(CONF_MEDIUM_TYPE, DEFAULT_MEDIUM_TYPE)
@@ -230,7 +231,7 @@ def _get_tank_capacity(entry_data: Mapping[str, Any]) -> tuple[float, str] | Non
     Propane custom entries may use kilograms; all custom entries may use gallons.
     Non-propane custom entries may use liters.
     """
-    tank_size = entry_data.get(CONF_TANK_SIZE)
+    tank_size = normalize_tank_size(entry_data.get(CONF_TANK_SIZE))
     if tank_size is None:
         return None
     if tank_size == TankSize.CUSTOM:
@@ -406,7 +407,7 @@ async def async_setup_entry(
     tank_range = _get_tank_level_range(entry.data)
     top_mount = entry.data.get(CONF_TOP_MOUNT, False)
     medium_type = entry.data.get(CONF_MEDIUM_TYPE)
-    propane_preset = entry.data.get(CONF_TANK_SIZE)
+    propane_preset = normalize_tank_size(entry.data.get(CONF_TANK_SIZE))
     tank_capacity = _get_tank_capacity(entry.data)
     processor = PassiveBluetoothDataProcessor(
         make_sensor_update_to_bluetooth_data_update(

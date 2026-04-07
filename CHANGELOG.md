@@ -55,7 +55,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 - Simplified IBC tote preset names by removing inch/centimeter dimensions from display labels.
-- Updated horizontal ASME propane preset labels to remove "RV" wording and display as "Horizontal ASME".
+- Updated horizontal ASME propane preset labels to remove legacy under-mount wording and display as "Horizontal ASME".
 
 ## [0.1.5] - 2026-04-05
 

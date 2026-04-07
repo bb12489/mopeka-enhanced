@@ -15,7 +15,12 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 
-from .const import CONF_MEDIUM_TYPE, DEFAULT_MEDIUM_TYPE
+from .const import (
+    CONF_MEDIUM_TYPE,
+    CONF_TANK_SIZE,
+    DEFAULT_MEDIUM_TYPE,
+    normalize_tank_size,
+)
 
 PLATFORMS: list[Platform] = [Platform.SENSOR]
 
@@ -29,6 +34,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: MopekaConfigEntry) -> bo
     """Set up Mopeka BLE device from a config entry."""
     address = entry.unique_id
     assert address is not None
+
+    tank_size = entry.data.get(CONF_TANK_SIZE)
+    normalized_tank_size = normalize_tank_size(tank_size)
+    if normalized_tank_size != tank_size:
+        hass.config_entries.async_update_entry(
+            entry,
+            data={**entry.data, CONF_TANK_SIZE: normalized_tank_size},
+        )
 
     # Default sensors configured prior to the introduction of MediumType
     medium_type_str = entry.data.get(CONF_MEDIUM_TYPE, DEFAULT_MEDIUM_TYPE)
