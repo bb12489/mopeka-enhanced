@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.3] - 2026-04-07
+
+### Changed
+
+- Consolidated recent tank/key naming updates in the release notes: normalized tank preset keys to canonical orientation suffixes (`_v` / `_h`) and standardized horizontal ASME naming (`*_asme_h`) while preserving legacy alias compatibility for existing configs.
+- Hardened config-flow naming/default handling so persisted preset keys are normalized and selector defaults remain valid after naming updates.
+
+### Added
+
+- Added CI quality coverage in `.github/workflows/validate.yml` for `pytest`, `ruff check`, and `ruff format --check`.
+- Added the `tests/` directory to version control and updated `.gitignore` accordingly so CI can execute the full suite.
+
+### Fixed
+
+- Fixed GitHub Actions `pytest` failures caused by a non-subscriptable test stub type in `tests/conftest.py` (`_PassiveBluetoothDataProcessor`) under CI Python typing paths.
+- Bumped integration version in `custom_components/mopeka/manifest.json` to `0.2.3`.
+
 ## [0.2.2] - 2026-04-07
 
 ### Added
