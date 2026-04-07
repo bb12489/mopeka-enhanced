@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.2] - 2026-04-07
+
+### Added
+
+- Added a `quality` GitHub Actions job in `.github/workflows/validate.yml` to run the same required local checks in CI: `pytest`, `ruff check`, and `ruff format --check`.
+
+### Changed
+
+- Added the `tests/` directory to version control so automated checks can run against the full test suite in GitHub Actions.
+- Updated `.gitignore` to stop ignoring `tests/`.
+- Bumped integration version in `custom_components/mopeka/manifest.json` to `0.2.2`.
+
 ## [0.2.1] - 2026-04-07
 
 ### Fixed
