@@ -25,7 +25,7 @@ This custom Mopeka integration will override the native HA integration while kee
 
 Was this vibecoded? Yup!
 
-I'm not a developer, but I am an IT Systems Engineer, so I have a good grasp on what I'm doing. The heavy lifting was done with Github Copilot (Claude Opus/Sonnet) in VScode using the Home Assistant dev container environment. The research and verification however was done by me. 
+I'm not a developer, but I am an IT Systems Engineer, so I have a good grasp on what I'm doing. As mentioned, this builds on the original Mopeka code from HA core. The heavy lifting for the enhancements was done with Github Copilot (Claude Opus/Sonnet) in VScode using the Home Assistant dev container environment. The research and verification however was done by me.
 
 All HA and HACS standards have been followed, and all coding tests passed. Real world sensor readings using the integration enhancements were conducted on my 40 lb vertical propane tank, 100 lb horizontal propane tank, and my 330 gallon IBC tote (fresh water). The readings match the Mopka app so well, and in most cases display even more accurate measurements due to the enhancements made here!
 
