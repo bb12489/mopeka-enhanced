@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.1] - 2026-04-07
+
+### Fixed
+
+- Corrected `manifest.json` version, which still reported `0.1.9` at the time the `0.2.0` release was published, causing a version mismatch between what Home Assistant displayed and what HACS reported.
+
 ## [0.2.0] - 2026-04-06
 
 ### Added
