@@ -46,6 +46,9 @@ class _PassiveBluetoothDataUpdate:
 
 
 class _PassiveBluetoothDataProcessor:
+    def __class_getitem__(cls, _item):
+        return cls
+
     def __init__(self, update_method):
         self.update_method = update_method
 
