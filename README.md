@@ -138,7 +138,9 @@ Many horizontal propane tanks also have rounded/hemispherical endcaps, which fur
 5. Search for `Mopeka Enhanced` in HACS and install it.
 6. Restart Home Assistant.
 
-After restart, add or reconfigure your Mopeka devices from Settings -> Devices & Services.
+After restart, add or reconfigure your Mopeka devices from Settings -> Devices. 
+
+Mopeka Enhanced doesn't modify any existing Mopeka tank sensors after installation. So you won't automatically see the new tank level/volume sensors until you reconfigure them with a new tank preset, or by defining a custom height/capacity. 
 
 ## Acknowledgment
 
