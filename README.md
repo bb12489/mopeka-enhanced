@@ -17,7 +17,11 @@
 
 This is an enhanced version of Home Assistant's native Mopeka integration by `@bdraco`. It continues to use the mopeka_ble_iot library to interface with the sensors. No changes have been made there. 
 
-The code changes I have made are primarily to add tank presets, new sensors, calculations for horizontal tank geometry, and an updated config flow. In the native integration you were only presented with s sensor that displayed the tank level in inches. This isn't very useful, and it was up to you to create the proper template sensors to display percentage or gallons based on your tank geometry. No longer! Now you can choose from a number of tank presets to make setup and configuration just as easy as in the Mopeka app.
+The code changes I have made are primarily to add tank presets, new sensors, calculations for horizontal tank geometry, and an updated config flow. In the native integration you were only presented with a sensor that displayed the fluid level in inches. This isn't very useful, and it was up to you to create the proper template sensors to display percentage or gallons based on your tank geometry.
+
+No longer! 
+
+Now you can choose from a number of preset tank types which will then automatically create percentage and volume sensors for you. Don't see your tank type in the list? No worries! You can also enter a custom tank height and capacity rating during set up. 
 
 This custom Mopeka integration will override the native HA integration while keeping any preconfigured Mopeka devices intact. You will have to reconfigure your existing Mopeka devices to use the new tank presets and show the updated tank sensors.
 
