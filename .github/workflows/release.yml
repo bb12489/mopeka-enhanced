@@ -51,9 +51,24 @@ jobs:
             fi
           } > release_notes.md
 
+      - name: Determine release channel
+        id: release_channel
+        run: |
+          set -euo pipefail
+          TAG_NAME="${{ inputs.tag_name || github.ref_name }}"
+
+          if echo "${TAG_NAME}" | grep -qi "beta"; then
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+            echo "make_latest=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+            echo "make_latest=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ inputs.tag_name || github.ref_name }}
           body_path: release_notes.md
-          make_latest: true
+          prerelease: ${{ steps.release_channel.outputs.prerelease }}
+          make_latest: ${{ steps.release_channel.outputs.make_latest }}

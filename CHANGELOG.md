@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.5] - 2026-04-10
+
+### Changed
+
+- Promoted `0.2.5-Beta1` to stable `0.2.5` with no additional code changes.
+- Bumped integration version in `custom_components/mopeka/manifest.json` to `0.2.5`.
+
+## [0.2.5-Beta1] - 2026-04-10
+
+### Changed
+
+- Replaced legacy horizontal ASME presets with a manufacturer-specific ASME under-mount catalog (Flame King, Manchester, Armebe, and Generic/Legacy), including new preset keys, capacities, and tank ID-based height ranges.
+- Reordered the ASME portion of the propane preset dropdown to be grouped by manufacturer while leaving non-ASME presets unchanged.
+- Updated preset translations and selector labels in both `strings.json` and `translations/en.json` for the new ASME catalog.
+- Added compatibility aliases so previously stored ASME preset keys continue to resolve to current presets.
+- Bumped integration version in `custom_components/mopeka/manifest.json` to `0.2.5-Beta1`.
+
+### Added
+
+- Added local developer dependency management via `requirements-dev.txt`.
+- Added `.venv/`, `venv/`, and `.python-version` to `.gitignore`.
+- Added README development guidance for local test/lint/format commands and links to workflow-based HACS/Hassfest validation.
+
 ## [0.2.4] - 2026-04-07
 
 ### Changed

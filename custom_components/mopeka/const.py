@@ -52,10 +52,26 @@ class TankSize(StrEnum):
     GAL_250_H = "250gal_h"
     GAL_500_H = "500gal_h"
     GAL_1000_H = "1000gal_h"
-    GAL_12_2_ASME_H = "12_2gal_asme_h"
-    GAL_16_ASME_H = "16gal_asme_h"
-    GAL_20_3_ASME_H = "20_3gal_asme_h"
-    GAL_29_3_ASME_H = "29_3gal_asme_h"
+    GAL_5_9_ASME_FK = "5_9gal_asme_fk"
+    GAL_6_9_ASME_MANCHESTER = "6_9gal_asme_manchester"
+    GAL_7_9_ASME_GENERIC = "7_9gal_asme_generic"
+    GAL_9_8_ASME_MANCHESTER = "9_8gal_asme_manchester"
+    GAL_10_0_ASME_ARMEBE = "10_0gal_asme_armebe"
+    GAL_11_3_ASME_MANCHESTER = "11_3gal_asme_manchester"
+    GAL_11_9_ASME_ARMEBE = "11_9gal_asme_armebe"
+    GAL_12_2_ASME_ARMEBE = "12_2gal_asme_armebe"
+    GAL_12_2_ASME_FK = "12_2gal_asme_fk"
+    GAL_14_1_ASME_ARMEBE = "14_1gal_asme_armebe"
+    GAL_16_0_ASME_ARMEBE = "16_0gal_asme_armebe"
+    GAL_16_0_ASME_FK = "16_0gal_asme_fk"
+    GAL_17_6_ASME_MANCHESTER = "17_6gal_asme_manchester"
+    GAL_20_3_ASME_ARMEBE = "20_3gal_asme_armebe"
+    GAL_20_3_ASME_FK = "20_3gal_asme_fk"
+    GAL_24_2_ASME_MANCHESTER = "24_2gal_asme_manchester"
+    GAL_24_5_ASME_ARMEBE = "24_5gal_asme_armebe"
+    GAL_29_3_ASME_ARMEBE = "29_3gal_asme_armebe"
+    GAL_29_3_ASME_FK = "29_3gal_asme_fk"
+    GAL_38_0_ASME_MANCHESTER = "38_0gal_asme_manchester"
     IBC_275 = "ibc_275gal"
     IBC_330 = "ibc_330gal"
     CUSTOM = "custom"
@@ -75,10 +91,26 @@ PROPANE_TANK_SIZES: Final[list[TankSize]] = [
     TankSize.GAL_250_H,
     TankSize.GAL_500_H,
     TankSize.GAL_1000_H,
-    TankSize.GAL_12_2_ASME_H,
-    TankSize.GAL_16_ASME_H,
-    TankSize.GAL_20_3_ASME_H,
-    TankSize.GAL_29_3_ASME_H,
+    TankSize.GAL_5_9_ASME_FK,
+    TankSize.GAL_12_2_ASME_FK,
+    TankSize.GAL_16_0_ASME_FK,
+    TankSize.GAL_20_3_ASME_FK,
+    TankSize.GAL_29_3_ASME_FK,
+    TankSize.GAL_6_9_ASME_MANCHESTER,
+    TankSize.GAL_9_8_ASME_MANCHESTER,
+    TankSize.GAL_11_3_ASME_MANCHESTER,
+    TankSize.GAL_17_6_ASME_MANCHESTER,
+    TankSize.GAL_24_2_ASME_MANCHESTER,
+    TankSize.GAL_38_0_ASME_MANCHESTER,
+    TankSize.GAL_10_0_ASME_ARMEBE,
+    TankSize.GAL_11_9_ASME_ARMEBE,
+    TankSize.GAL_12_2_ASME_ARMEBE,
+    TankSize.GAL_14_1_ASME_ARMEBE,
+    TankSize.GAL_16_0_ASME_ARMEBE,
+    TankSize.GAL_20_3_ASME_ARMEBE,
+    TankSize.GAL_24_5_ASME_ARMEBE,
+    TankSize.GAL_29_3_ASME_ARMEBE,
+    TankSize.GAL_7_9_ASME_GENERIC,
     TankSize.KG_6,
     TankSize.KG_11,
     TankSize.KG_12,
@@ -109,10 +141,14 @@ LEGACY_TANK_SIZE_ALIASES: Final[dict[str, str]] = {
     "14kg": TankSize.KG_14,
     "18kg": TankSize.KG_18,
     "48kg": TankSize.KG_48,
-    "12_2gal_rv_h": TankSize.GAL_12_2_ASME_H,
-    "16gal_rv_h": TankSize.GAL_16_ASME_H,
-    "20_3gal_rv_h": TankSize.GAL_20_3_ASME_H,
-    "29_3gal_rv_h": TankSize.GAL_29_3_ASME_H,
+    "12_2gal_rv_h": TankSize.GAL_12_2_ASME_FK,
+    "16gal_rv_h": TankSize.GAL_16_0_ASME_FK,
+    "20_3gal_rv_h": TankSize.GAL_20_3_ASME_FK,
+    "29_3gal_rv_h": TankSize.GAL_29_3_ASME_FK,
+    "12_2gal_asme_h": TankSize.GAL_12_2_ASME_FK,
+    "16gal_asme_h": TankSize.GAL_16_0_ASME_FK,
+    "20_3gal_asme_h": TankSize.GAL_20_3_ASME_FK,
+    "29_3gal_asme_h": TankSize.GAL_29_3_ASME_FK,
 }
 
 
@@ -157,10 +193,26 @@ TANK_SIZE_RANGES: Final[dict[str, tuple[float, float]]] = {
     TankSize.GAL_250_H: (TANK_EMPTY_MM, 762.0),
     TankSize.GAL_500_H: (TANK_EMPTY_MM, 939.8),
     TankSize.GAL_1000_H: (TANK_EMPTY_MM, 1041.4),
-    TankSize.GAL_12_2_ASME_H: (TANK_EMPTY_MM, 301.0),
-    TankSize.GAL_16_ASME_H: (TANK_EMPTY_MM, 346.7),
-    TankSize.GAL_20_3_ASME_H: (TANK_EMPTY_MM, 393.7),
-    TankSize.GAL_29_3_ASME_H: (TANK_EMPTY_MM, 369.6),
+    TankSize.GAL_5_9_ASME_FK: (TANK_EMPTY_MM, 197.0),
+    TankSize.GAL_6_9_ASME_MANCHESTER: (TANK_EMPTY_MM, 248.0),
+    TankSize.GAL_7_9_ASME_GENERIC: (TANK_EMPTY_MM, 248.0),
+    TankSize.GAL_9_8_ASME_MANCHESTER: (TANK_EMPTY_MM, 298.0),
+    TankSize.GAL_10_0_ASME_ARMEBE: (TANK_EMPTY_MM, 248.0),
+    TankSize.GAL_11_3_ASME_MANCHESTER: (TANK_EMPTY_MM, 298.0),
+    TankSize.GAL_11_9_ASME_ARMEBE: (TANK_EMPTY_MM, 358.0),
+    TankSize.GAL_12_2_ASME_ARMEBE: (TANK_EMPTY_MM, 298.0),
+    TankSize.GAL_12_2_ASME_FK: (TANK_EMPTY_MM, 306.0),
+    TankSize.GAL_14_1_ASME_ARMEBE: (TANK_EMPTY_MM, 298.0),
+    TankSize.GAL_16_0_ASME_ARMEBE: (TANK_EMPTY_MM, 298.0),
+    TankSize.GAL_16_0_ASME_FK: (TANK_EMPTY_MM, 349.0),
+    TankSize.GAL_17_6_ASME_MANCHESTER: (TANK_EMPTY_MM, 349.0),
+    TankSize.GAL_20_3_ASME_ARMEBE: (TANK_EMPTY_MM, 400.0),
+    TankSize.GAL_20_3_ASME_FK: (TANK_EMPTY_MM, 400.0),
+    TankSize.GAL_24_2_ASME_MANCHESTER: (TANK_EMPTY_MM, 349.0),
+    TankSize.GAL_24_5_ASME_ARMEBE: (TANK_EMPTY_MM, 400.0),
+    TankSize.GAL_29_3_ASME_ARMEBE: (TANK_EMPTY_MM, 358.0),
+    TankSize.GAL_29_3_ASME_FK: (TANK_EMPTY_MM, 372.0),
+    TankSize.GAL_38_0_ASME_MANCHESTER: (TANK_EMPTY_MM, 400.0),
     TankSize.KG_6: (TANK_EMPTY_MM, 336.0),
     TankSize.KG_11: (TANK_EMPTY_MM, 366.0),
     TankSize.KG_12: (TANK_EMPTY_MM, 400.0),
@@ -192,10 +244,26 @@ HORIZONTAL_TANK_SIZES: Final[frozenset[str]] = frozenset(
         TankSize.GAL_250_H,
         TankSize.GAL_500_H,
         TankSize.GAL_1000_H,
-        TankSize.GAL_12_2_ASME_H,
-        TankSize.GAL_16_ASME_H,
-        TankSize.GAL_20_3_ASME_H,
-        TankSize.GAL_29_3_ASME_H,
+        TankSize.GAL_5_9_ASME_FK,
+        TankSize.GAL_6_9_ASME_MANCHESTER,
+        TankSize.GAL_7_9_ASME_GENERIC,
+        TankSize.GAL_9_8_ASME_MANCHESTER,
+        TankSize.GAL_10_0_ASME_ARMEBE,
+        TankSize.GAL_11_3_ASME_MANCHESTER,
+        TankSize.GAL_11_9_ASME_ARMEBE,
+        TankSize.GAL_12_2_ASME_ARMEBE,
+        TankSize.GAL_12_2_ASME_FK,
+        TankSize.GAL_14_1_ASME_ARMEBE,
+        TankSize.GAL_16_0_ASME_ARMEBE,
+        TankSize.GAL_16_0_ASME_FK,
+        TankSize.GAL_17_6_ASME_MANCHESTER,
+        TankSize.GAL_20_3_ASME_ARMEBE,
+        TankSize.GAL_20_3_ASME_FK,
+        TankSize.GAL_24_2_ASME_MANCHESTER,
+        TankSize.GAL_24_5_ASME_ARMEBE,
+        TankSize.GAL_29_3_ASME_ARMEBE,
+        TankSize.GAL_29_3_ASME_FK,
+        TankSize.GAL_38_0_ASME_MANCHESTER,
     }
 )
 
@@ -215,10 +283,26 @@ TANK_SIZE_CAPACITIES: Final[dict[str, float]] = {
     TankSize.GAL_250_H: 250.0,
     TankSize.GAL_500_H: 500.0,
     TankSize.GAL_1000_H: 1000.0,
-    TankSize.GAL_12_2_ASME_H: 12.2,
-    TankSize.GAL_16_ASME_H: 16.0,
-    TankSize.GAL_20_3_ASME_H: 20.3,
-    TankSize.GAL_29_3_ASME_H: 29.3,
+    TankSize.GAL_5_9_ASME_FK: 5.9,
+    TankSize.GAL_6_9_ASME_MANCHESTER: 6.9,
+    TankSize.GAL_7_9_ASME_GENERIC: 7.9,
+    TankSize.GAL_9_8_ASME_MANCHESTER: 9.8,
+    TankSize.GAL_10_0_ASME_ARMEBE: 10.0,
+    TankSize.GAL_11_3_ASME_MANCHESTER: 11.3,
+    TankSize.GAL_11_9_ASME_ARMEBE: 11.9,
+    TankSize.GAL_12_2_ASME_ARMEBE: 12.2,
+    TankSize.GAL_12_2_ASME_FK: 12.2,
+    TankSize.GAL_14_1_ASME_ARMEBE: 14.1,
+    TankSize.GAL_16_0_ASME_ARMEBE: 16.0,
+    TankSize.GAL_16_0_ASME_FK: 16.0,
+    TankSize.GAL_17_6_ASME_MANCHESTER: 17.6,
+    TankSize.GAL_20_3_ASME_ARMEBE: 20.3,
+    TankSize.GAL_20_3_ASME_FK: 20.3,
+    TankSize.GAL_24_2_ASME_MANCHESTER: 24.2,
+    TankSize.GAL_24_5_ASME_ARMEBE: 24.5,
+    TankSize.GAL_29_3_ASME_ARMEBE: 29.3,
+    TankSize.GAL_29_3_ASME_FK: 29.3,
+    TankSize.GAL_38_0_ASME_MANCHESTER: 38.0,
     TankSize.IBC_275: 275.0,
     TankSize.IBC_330: 330.0,
     TankSize.KG_6: 3.1,
