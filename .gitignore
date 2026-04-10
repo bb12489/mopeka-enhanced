@@ -8,3 +8,6 @@ __pycache__/
 dist/
 build/
 *.egg-info/
+.venv/
+venv/
+.python-version
