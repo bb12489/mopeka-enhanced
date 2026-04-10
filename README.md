@@ -55,9 +55,11 @@ I 100% welcome others to improve upon this work. Find any mistakes I made, make 
 
 ## A word on tank presets
 
-The tank preset data for the integration was sourced from the `tank_types.js` file extracted from the Mopeka tank.apk. Almost all of the tank presets in this enhanced integration use the dimensions from `tank_types.js`, with the exception of the ASME tanks and IBC totes. These type of tanks were never included in the Mopeka app, so I had to source these dimensions from internet research (with the help of Gemini). There are a lot of regions defined in this file for tank sizes, but I'm only using the US and Euro ones at the moment. I'll add more regions as time permits.
+The tank preset data for the integration was sourced from the `tank_types.js` file extracted from the Mopeka tank.apk. All of the non-ASME tank presets in this enhanced integration use the dimensions from `tank_types.js`. There are a lot of regions defined in the `tank_types.js` file for tank sizes, but I'm only using the US and Euro ones at the moment. I'll add more regions as time permits. 
 
-For more details on all the available types and associated regions, head to my other repo here: https://github.com/bb12489/mopeka-tank-types
+To see the full `tank_types.js` file contents, head to my other repo here: https://github.com/bb12489/mopeka-tank-types
+
+The ASME horizontanl tank presets use data that has been sourced from their specific manufacturers sites. The data list can be found on the repo Wiki here: https://github.com/bb12489/mopeka-enhanced/wiki#supported-horizontal-propane-tanks--sources 
 
 
 ## Screenshots
