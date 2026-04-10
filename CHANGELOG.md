@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.5] - 2026-04-10
+
+### Changed
+
+- Promoted `0.2.5-Beta1` to stable `0.2.5` with no additional code changes.
+- Bumped integration version in `custom_components/mopeka/manifest.json` to `0.2.5`.
+
 ## [0.2.5-Beta1] - 2026-04-10
 
 ### Changed
