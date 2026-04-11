@@ -156,29 +156,6 @@ Credit to the original upstream maintainer and codeowner, `@bdraco`, for the cor
 
 The integration code lives in `custom_components/mopeka`.
 
-### Local Dev Setup
-
-1. Create and activate a Python virtual environment.
-2. Install development dependencies:
-	.\\.venv\\Scripts\\python.exe -m pip install -r requirements-dev.txt
-
-### Local Validation Commands
-
-1. Run tests:
-	.\\.venv\\Scripts\\python.exe -m pytest -q
-2. Run lint checks:
-	.\\.venv\\Scripts\\python.exe -m ruff check custom_components tests
-3. Run formatting checks:
-	.\\.venv\\Scripts\\python.exe -m ruff format --check custom_components tests
-
-### Hassfest And HACS Validation
-
-Hassfest and HACS validation in this repository are currently action-based checks via GitHub workflows:
-
-1. HACS validation workflow: `.github/workflows/validate.yml`
-2. Hassfest workflow: `.github/workflows/hassfest.yml`
-
-You can trigger these workflows from GitHub Actions on pushes/PRs (or manually via workflow dispatch where available).
 
 ## License
 
