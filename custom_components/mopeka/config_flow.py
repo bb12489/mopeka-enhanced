@@ -19,6 +19,8 @@ from homeassistant.core import callback
 from homeassistant.helpers import selector
 
 from .const import (
+    BEER_MEDIUM_GATEWAY,
+    BEER_MEDIUM_TYPES,
     CAPACITY_UNIT_GALLONS,
     CAPACITY_UNIT_KILOGRAMS,
     CAPACITY_UNIT_LITERS,
@@ -30,17 +32,21 @@ from .const import (
     CONF_TOP_MOUNT,
     DEFAULT_CUSTOM_TANK_HEIGHT,
     DEFAULT_IBC_TANK_SIZE,
+    DEFAULT_KEG_TANK_SIZE,
     DEFAULT_MEDIUM_TYPE,
     DEFAULT_TANK_CAPACITY,
     DEFAULT_TANK_CAPACITY_UNIT,
     DEFAULT_TANK_SIZE,
     DOMAIN,
     IBC_TANK_SIZES,
+    KEG_TANK_SIZES,
     MOPEKA_MANUFACTURER_ID,
     PROPANE_TANK_SIZES,
     TOP_MOUNT_MODEL_IDS,
+    BeerType,
     MediumType,
     TankSize,
+    is_beer_medium,
     normalize_tank_size,
 )
 
@@ -64,6 +70,19 @@ def format_medium_type(medium_type: Enum) -> str:
 
 MEDIUM_TYPES_BY_NAME = {
     medium.value: format_medium_type(medium) for medium in MediumType
+}
+# Add the Beer gateway option.  When selected it routes to async_step_beer_type
+# rather than being persisted directly to CONF_MEDIUM_TYPE.
+MEDIUM_TYPES_BY_NAME[BEER_MEDIUM_GATEWAY] = "Beer"
+
+# Display names for beer sub-types, shown in the beer_type selection step.
+BEER_TYPES_BY_NAME: dict[str, str] = {
+    BeerType.LIGHT_LAGER: "Light Domestic / Seltzer",
+    BeerType.STANDARD_ALE: "Standard Ale / Lager",
+    BeerType.IPA: "IPA / Pale Ale",
+    BeerType.DARK: "Dark / Heavy Beer",
+    BeerType.HIGH_GRAVITY: "High Gravity / Imperial",
+    BeerType.CIDER: "Cider / Sweet Wine",
 }
 
 _CUSTOM_HEIGHT_SELECTOR = selector.NumberSelector(
@@ -197,6 +216,51 @@ def _async_generate_ibc_tank_schema(
     )
 
 
+def _medium_type_for_form(medium_type: str | None) -> str:
+    """Map a stored medium type to the value shown in the medium-type selector.
+
+    Beer sub-types (e.g. "beer_ipa") are represented by the "beer" gateway
+    entry in the selector, so reconfigure/options forms pre-select "Beer".
+    """
+    if medium_type is not None and is_beer_medium(medium_type):
+        return BEER_MEDIUM_GATEWAY
+    return medium_type or DEFAULT_MEDIUM_TYPE
+
+
+def _async_generate_beer_type_schema(
+    beer_type: str | None = None,
+) -> vol.Schema:
+    """Return a schema containing the beer sub-type selector."""
+    return vol.Schema(
+        {
+            vol.Required(
+                CONF_MEDIUM_TYPE,
+                default=beer_type or BeerType.LIGHT_LAGER,
+            ): vol.In(BEER_TYPES_BY_NAME),
+        }
+    )
+
+
+def _async_generate_keg_tank_schema(
+    tank_size: str | None = None,
+) -> vol.Schema:
+    """Return a schema containing the keg preset selector (beer media)."""
+    return vol.Schema(
+        {
+            vol.Required(
+                CONF_TANK_SIZE,
+                default=tank_size or DEFAULT_KEG_TANK_SIZE,
+            ): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=[size.value for size in KEG_TANK_SIZES],
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                    translation_key="keg_tank_size",
+                )
+            ),
+        }
+    )
+
+
 def _async_generate_custom_height_schema(
     medium_type: str,
     custom_tank_height: int | None = None,
@@ -313,6 +377,8 @@ class MopekaConfigFlow(ConfigFlow, domain=DOMAIN):
             self._medium_type = user_input[CONF_MEDIUM_TYPE]
             self._title = title
             self._discovered_devices[discovery_info.address] = title
+            if self._medium_type == BEER_MEDIUM_GATEWAY:
+                return await self.async_step_beer_type()
             if self._medium_type == DEFAULT_MEDIUM_TYPE:
                 return await self.async_step_tank_config()
             return await self.async_step_ibc_tank_config()
@@ -390,6 +456,39 @@ class MopekaConfigFlow(ConfigFlow, domain=DOMAIN):
             data_schema=_async_generate_ibc_tank_schema(),
         )
 
+    async def async_step_beer_type(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Select a beer sub-type for acoustic calibration."""
+        if user_input is not None:
+            self._medium_type = user_input[CONF_MEDIUM_TYPE]
+            return await self.async_step_keg_config()
+
+        return self.async_show_form(
+            step_id="beer_type",
+            data_schema=_async_generate_beer_type_schema(),
+        )
+
+    async def async_step_keg_config(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Select a keg preset (beer media)."""
+        if user_input is not None:
+            tank_size = user_input.get(CONF_TANK_SIZE, TankSize.CUSTOM)
+            if tank_size == TankSize.CUSTOM:
+                return await self.async_step_custom_height()
+            return await self._async_create_config_entry(
+                tank_size,
+                0,
+                0.0,
+                DEFAULT_TANK_CAPACITY_UNIT,
+            )
+
+        return self.async_show_form(
+            step_id="keg_config",
+            data_schema=_async_generate_keg_tank_schema(),
+        )
+
     async def async_step_custom_height(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
@@ -465,6 +564,8 @@ class MopekaConfigFlow(ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             self._medium_type = user_input[CONF_MEDIUM_TYPE]
+            if self._medium_type == BEER_MEDIUM_GATEWAY:
+                return await self.async_step_reconfigure_beer_type()
             if self._medium_type == DEFAULT_MEDIUM_TYPE:
                 return await self.async_step_reconfigure_tank_config()
             return await self.async_step_reconfigure_ibc_tank_config()
@@ -472,7 +573,7 @@ class MopekaConfigFlow(ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="reconfigure",
             data_schema=_async_generate_medium_type_schema(
-                medium_type=entry.data.get(CONF_MEDIUM_TYPE),
+                medium_type=_medium_type_for_form(entry.data.get(CONF_MEDIUM_TYPE)),
             ),
         )
 
@@ -534,6 +635,52 @@ class MopekaConfigFlow(ConfigFlow, domain=DOMAIN):
             data_schema=_async_generate_ibc_tank_schema(
                 tank_size=existing_tank_size,
             ),
+        )
+
+    async def async_step_reconfigure_beer_type(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Handle reconfiguration — select beer sub-type."""
+        entry = self._get_reconfigure_entry()
+        if user_input is not None:
+            self._medium_type = user_input[CONF_MEDIUM_TYPE]
+            return await self.async_step_reconfigure_keg_config()
+
+        existing_beer_type = entry.data.get(CONF_MEDIUM_TYPE)
+        if not is_beer_medium(existing_beer_type):
+            existing_beer_type = BeerType.LIGHT_LAGER
+        return self.async_show_form(
+            step_id="reconfigure_beer_type",
+            data_schema=_async_generate_beer_type_schema(beer_type=existing_beer_type),
+        )
+
+    async def async_step_reconfigure_keg_config(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Handle reconfiguration — select keg preset."""
+        entry = self._get_reconfigure_entry()
+        if user_input is not None:
+            tank_size = user_input.get(CONF_TANK_SIZE, TankSize.CUSTOM)
+            if tank_size == TankSize.CUSTOM:
+                return await self.async_step_reconfigure_custom_height()
+            return self.async_update_reload_and_abort(
+                entry,
+                data_updates={
+                    CONF_MEDIUM_TYPE: self._medium_type,
+                    CONF_TANK_SIZE: tank_size,
+                    CONF_CUSTOM_TANK_HEIGHT: 0,
+                    CONF_TANK_CAPACITY: 0.0,
+                    CONF_TANK_CAPACITY_UNIT: DEFAULT_TANK_CAPACITY_UNIT,
+                },
+            )
+
+        existing_tank_size = normalize_tank_size(entry.data.get(CONF_TANK_SIZE))
+        keg_size_values = {s.value for s in KEG_TANK_SIZES}
+        if existing_tank_size not in keg_size_values:
+            existing_tank_size = TankSize.CUSTOM
+        return self.async_show_form(
+            step_id="reconfigure_keg_config",
+            data_schema=_async_generate_keg_tank_schema(tank_size=existing_tank_size),
         )
 
     async def async_step_reconfigure_custom_height(
@@ -628,6 +775,8 @@ class MopekaConfigFlow(ConfigFlow, domain=DOMAIN):
                 self._is_top_mount = True
                 self._medium_type = MediumType.AIR.value
                 return await self.async_step_ibc_tank_config()
+            if self._medium_type == BEER_MEDIUM_GATEWAY:
+                return await self.async_step_beer_type()
             if self._medium_type == DEFAULT_MEDIUM_TYPE:
                 return await self.async_step_tank_config()
             return await self.async_step_ibc_tank_config()
@@ -677,6 +826,8 @@ class MopekaOptionsFlow(config_entries.OptionsFlow):
 
         if user_input is not None:
             self._medium_type = user_input[CONF_MEDIUM_TYPE]
+            if self._medium_type == BEER_MEDIUM_GATEWAY:
+                return await self.async_step_beer_type()
             if self._medium_type == DEFAULT_MEDIUM_TYPE:
                 return await self.async_step_tank_config()
             return await self.async_step_ibc_tank_config()
@@ -684,7 +835,9 @@ class MopekaOptionsFlow(config_entries.OptionsFlow):
         return self.async_show_form(
             step_id="init",
             data_schema=_async_generate_medium_type_schema(
-                medium_type=self.config_entry.data.get(CONF_MEDIUM_TYPE),
+                medium_type=_medium_type_for_form(
+                    self.config_entry.data.get(CONF_MEDIUM_TYPE)
+                ),
             ),
         )
 
@@ -754,6 +907,56 @@ class MopekaOptionsFlow(config_entries.OptionsFlow):
             data_schema=_async_generate_ibc_tank_schema(
                 tank_size=existing_tank_size,
             ),
+        )
+
+    async def async_step_beer_type(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Handle options — select beer sub-type."""
+        if user_input is not None:
+            self._medium_type = user_input[CONF_MEDIUM_TYPE]
+            return await self.async_step_keg_config()
+
+        existing_beer_type = self.config_entry.data.get(CONF_MEDIUM_TYPE)
+        if not is_beer_medium(existing_beer_type):
+            existing_beer_type = BeerType.LIGHT_LAGER
+        return self.async_show_form(
+            step_id="beer_type",
+            data_schema=_async_generate_beer_type_schema(beer_type=existing_beer_type),
+        )
+
+    async def async_step_keg_config(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Handle options — select keg preset (beer media)."""
+        assert self._medium_type is not None
+        if user_input is not None:
+            tank_size = user_input.get(CONF_TANK_SIZE, TankSize.CUSTOM)
+            if tank_size == TankSize.CUSTOM:
+                return await self.async_step_custom_height()
+            new_data = {
+                **self.config_entry.data,
+                CONF_MEDIUM_TYPE: self._medium_type,
+                CONF_TANK_SIZE: tank_size,
+                CONF_CUSTOM_TANK_HEIGHT: 0,
+                CONF_TANK_CAPACITY: 0.0,
+                CONF_TANK_CAPACITY_UNIT: DEFAULT_TANK_CAPACITY_UNIT,
+            }
+            self.hass.config_entries.async_update_entry(
+                self.config_entry, data=new_data
+            )
+            await self.hass.config_entries.async_reload(self.config_entry.entry_id)
+            return self.async_create_entry(title="", data={})
+
+        existing_tank_size = normalize_tank_size(
+            self.config_entry.data.get(CONF_TANK_SIZE)
+        )
+        keg_size_values = {s.value for s in KEG_TANK_SIZES}
+        if existing_tank_size not in keg_size_values:
+            existing_tank_size = TankSize.CUSTOM
+        return self.async_show_form(
+            step_id="keg_config",
+            data_schema=_async_generate_keg_tank_schema(tank_size=existing_tank_size),
         )
 
     async def async_step_custom_height(

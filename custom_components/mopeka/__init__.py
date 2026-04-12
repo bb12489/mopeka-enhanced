@@ -19,6 +19,7 @@ from .const import (
     CONF_MEDIUM_TYPE,
     CONF_TANK_SIZE,
     DEFAULT_MEDIUM_TYPE,
+    is_beer_medium,
     normalize_tank_size,
 )
 
@@ -43,9 +44,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: MopekaConfigEntry) -> bo
             data={**entry.data, CONF_TANK_SIZE: normalized_tank_size},
         )
 
-    # Default sensors configured prior to the introduction of MediumType
+    # Default sensors configured prior to the introduction of MediumType.
+    # Beer sub-types are stored as custom values (e.g. "beer_ipa") and are not
+    # present in the library's MediumType enum.  Fresh water is the closest
+    # acoustic proxy; sensor.py applies a per-beer SOS multiplier correction.
     medium_type_str = entry.data.get(CONF_MEDIUM_TYPE, DEFAULT_MEDIUM_TYPE)
-    data = MopekaIOTBluetoothDeviceData(MediumType(medium_type_str))
+    library_medium = (
+        MediumType.FRESH_WATER
+        if is_beer_medium(medium_type_str)
+        else MediumType(medium_type_str)
+    )
+    data = MopekaIOTBluetoothDeviceData(library_medium)
     coordinator = entry.runtime_data = PassiveBluetoothProcessorCoordinator(
         hass,
         _LOGGER,

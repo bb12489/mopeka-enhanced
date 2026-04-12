@@ -38,6 +38,7 @@ from homeassistant.helpers.sensor import sensor_device_info_to_hass_device_info
 
 from . import MopekaConfigEntry
 from .const import (
+    BEER_SOS_MULTIPLIERS,
     CAPACITY_UNIT_GALLONS,
     CAPACITY_UNIT_KILOGRAMS,
     CAPACITY_UNIT_LITERS,
@@ -53,9 +54,12 @@ from .const import (
     DEFAULT_TANK_CAPACITY_UNIT,
     HORIZONTAL_TANK_SIZES,
     IBC_TANK_SIZE_RANGES,
+    KEG_TANK_SIZE_CAPACITIES,
+    KEG_TANK_SIZE_RANGES,
     TANK_SIZE_CAPACITIES,
     TANK_SIZE_RANGES,
     TankSize,
+    is_beer_medium,
     normalize_tank_size,
 )
 from .device import device_key_to_bluetooth_entity_key
@@ -214,6 +218,14 @@ def _get_tank_level_range(
         if entry_data.get(CONF_TOP_MOUNT, False):
             return (0.0, full_mm, False)
         return (empty_mm, full_mm, False)
+    # Keg presets are valid for beer media only.  The raw mm value from the
+    # library is corrected with BEER_SOS_MULTIPLIERS before comparison to
+    # these physical ranges (see make_sensor_update_to_bluetooth_data_update).
+    if is_beer_medium(medium_type):
+        keg_range = KEG_TANK_SIZE_RANGES.get(tank_size)
+        if keg_range is not None:
+            return (*keg_range, False)
+        # Beer + non-keg preset falls through and returns None below.
     # Propane presets are calibrated for propane coefficients only.
     if medium_type != DEFAULT_MEDIUM_TYPE:
         return None
@@ -250,6 +262,9 @@ def _get_tank_capacity(entry_data: Mapping[str, Any]) -> tuple[float, str] | Non
         if medium_type != DEFAULT_MEDIUM_TYPE and capacity_unit == CAPACITY_UNIT_LITERS:
             return (capacity, CAPACITY_UNIT_LITERS)
         return (capacity, CAPACITY_UNIT_GALLONS)
+    keg_capacity = KEG_TANK_SIZE_CAPACITIES.get(tank_size)
+    if keg_capacity is not None:
+        return (keg_capacity, CAPACITY_UNIT_GALLONS)
     preset_capacity = TANK_SIZE_CAPACITIES.get(tank_size)
     return (
         (preset_capacity, CAPACITY_UNIT_GALLONS)
@@ -264,8 +279,13 @@ def make_sensor_update_to_bluetooth_data_update(
     medium_type: str | None,
     propane_preset: str | None,
     tank_capacity: tuple[float, str] | None = None,
+    sos_multiplier: float = 1.0,
 ) -> Callable[[SensorUpdate], PassiveBluetoothDataUpdate]:
-    """Return a sensor update converter that optionally synthesizes a tank fill %."""
+    """Return a sensor update converter that optionally synthesizes a tank fill %.
+
+    sos_multiplier corrects the mm reading when the library uses a proxy medium
+    type (e.g. FRESH_WATER for beer sub-types).  actual_mm = library_mm × multiplier.
+    """
 
     def sensor_update_to_bluetooth_data_update(
         sensor_update: SensorUpdate,
@@ -309,13 +329,19 @@ def make_sensor_update_to_bluetooth_data_update(
                     fill_pct: float | None = None
                     if isinstance(raw_level, (int, float)):
                         level_for_calc = float(raw_level)
+                        if sos_multiplier != 1.0:
+                            # Beer sub-types: library used FRESH_WATER coefficients,
+                            # so the reported mm is (1/multiplier) × physical height.
+                            # Multiply back to recover the actual fluid column height.
+                            level_for_calc *= sos_multiplier
                         if top_mount:
                             # Top-mount sensors report air gap from sensor to fluid
                             # surface; convert to fluid height using configured depth.
                             level_for_calc = full_mm - level_for_calc
                         level_for_calc = min(full_mm, max(0.0, level_for_calc))
-                        # Report tank_level as fluid height for top-mount sensors.
-                        if top_mount:
+                        # Report the corrected physical mm for beer and top-mount
+                        # sensors so tank_level reflects actual fluid height.
+                        if top_mount or sos_multiplier != 1.0:
                             entity_data[tank_level_entity_key] = level_for_calc
                         if is_horizontal:
                             # Cylindrical geometry: volume fraction is
@@ -409,9 +435,11 @@ async def async_setup_entry(
     medium_type = entry.data.get(CONF_MEDIUM_TYPE)
     propane_preset = normalize_tank_size(entry.data.get(CONF_TANK_SIZE))
     tank_capacity = _get_tank_capacity(entry.data)
+    sos_multiplier = BEER_SOS_MULTIPLIERS.get(medium_type, 1.0)
     processor = PassiveBluetoothDataProcessor(
         make_sensor_update_to_bluetooth_data_update(
-            tank_range, top_mount, medium_type, propane_preset, tank_capacity
+            tank_range, top_mount, medium_type, propane_preset, tank_capacity,
+            sos_multiplier,
         )
     )
     entry.async_on_unload(

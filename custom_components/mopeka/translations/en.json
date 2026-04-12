@@ -12,6 +12,15 @@
         },
         "flow_title": "{name}",
         "step": {
+            "beer_type": {
+                "data": {
+                    "medium_type": "Beer type"
+                },
+                "data_description": {
+                    "medium_type": "Select the type of beer to apply the correct speed-of-sound calibration. This affects how raw acoustic readings are converted to a physical fluid height."
+                },
+                "title": "Beer type"
+            },
             "bluetooth_confirm": {
                 "data": {
                     "medium_type": "Medium type"
@@ -40,11 +49,38 @@
                 },
                 "title": "Tank configuration"
             },
+            "keg_config": {
+                "data": {
+                    "tank_size": "Keg size"
+                },
+                "data_description": {
+                    "tank_size": "Select a preset keg size. Choose 'Custom' to enter the keg height manually."
+                },
+                "title": "Keg configuration"
+            },
             "reconfigure": {
                 "data": {
                     "medium_type": "Medium type"
                 },
                 "title": "Reconfigure Mopeka"
+            },
+            "reconfigure_beer_type": {
+                "data": {
+                    "medium_type": "Beer type"
+                },
+                "data_description": {
+                    "medium_type": "Select the type of beer to apply the correct speed-of-sound calibration. This affects how raw acoustic readings are converted to a physical fluid height."
+                },
+                "title": "Beer type"
+            },
+            "reconfigure_keg_config": {
+                "data": {
+                    "tank_size": "Keg size"
+                },
+                "data_description": {
+                    "tank_size": "Select a preset keg size. Choose 'Custom' to enter the keg height manually."
+                },
+                "title": "Keg configuration"
             },
             "reconfigure_custom_height": {
                 "data": {
@@ -101,6 +137,12 @@
                 "name": "Medium type",
                 "state": {
                     "air": "Air",
+                    "beer_cider": "Cider / Sweet Wine",
+                    "beer_dark": "Dark / Heavy Beer",
+                    "beer_high_gravity": "High Gravity / Imperial",
+                    "beer_ipa": "IPA / Pale Ale",
+                    "beer_light_lager": "Light Domestic / Seltzer",
+                    "beer_standard_ale": "Standard Ale / Lager",
                     "black_water": "Black water",
                     "diesel": "Diesel",
                     "fresh_water": "Fresh water",
@@ -149,6 +191,10 @@
                     "38_0gal_asme_manchester": "Manchester 38.0 gal / 161 lb (ASME Under-mount)",
                     "ibc_275gal": "275 gal IBC tote",
                     "ibc_330gal": "330 gal IBC tote",
+                    "keg_half_bbl": "Half Barrel / Full Keg (15.5 gal)",
+                    "keg_quarter_bbl": "Quarter Barrel / Pony Keg (7.75 gal)",
+                    "keg_sixth_bbl": "Sixth Barrel / Sixtel (5.17 gal)",
+                    "keg_corny": "Corny Keg / Homebrew (5 gal)",
                     "6kg_v": "6 kg (Euro, Vertical)",
                     "11kg_v": "11 kg (Euro, Vertical)",
                     "12kg_v": "12 kg (Euro, Vertical)",
@@ -168,6 +214,24 @@
     },
     "options": {
         "step": {
+            "beer_type": {
+                "data": {
+                    "medium_type": "Beer type"
+                },
+                "data_description": {
+                    "medium_type": "Select the type of beer to apply the correct speed-of-sound calibration. This affects how raw acoustic readings are converted to a physical fluid height."
+                },
+                "title": "Beer type"
+            },
+            "keg_config": {
+                "data": {
+                    "tank_size": "Keg size"
+                },
+                "data_description": {
+                    "tank_size": "Select a preset keg size. Choose 'Custom' to enter the keg height manually."
+                },
+                "title": "Keg configuration"
+            },
             "custom_height": {
                 "data": {
                     "custom_tank_height": "Custom tank height",
@@ -253,6 +317,15 @@
                 "14kg_v": "14 kg (Euro, Vertical)",
                 "18kg_v": "18 kg (Euro, Vertical)",
                 "48kg_v": "48 kg (Euro, Vertical)",
+                "custom": "Custom"
+            }
+        },
+        "keg_tank_size": {
+            "options": {
+                "keg_half_bbl": "Half Barrel / Full Keg (15.5 gal)",
+                "keg_quarter_bbl": "Quarter Barrel / Pony Keg (7.75 gal)",
+                "keg_sixth_bbl": "Sixth Barrel / Sixtel (5.17 gal)",
+                "keg_corny": "Corny Keg / Homebrew (5 gal)",
                 "custom": "Custom"
             }
         },

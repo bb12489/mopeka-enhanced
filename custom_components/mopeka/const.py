@@ -9,6 +9,60 @@ from mopeka_iot_ble import MediumType
 
 DOMAIN = "mopeka"
 
+# ---------------------------------------------------------------------------
+# Beer medium types
+# ---------------------------------------------------------------------------
+
+# Pseudo medium type value shown in the medium type selector as a UI gateway
+# to the beer sub-type selection step.  Never persisted to config entry data.
+BEER_MEDIUM_GATEWAY: Final = "beer"
+
+
+class BeerType(StrEnum):
+    """Beer medium sub-types for brewery keg monitoring.
+
+    These values are stored as CONF_MEDIUM_TYPE in the config entry.  The
+    mopeka_iot_ble library is called with MediumType.FRESH_WATER for all beer
+    types (closest acoustic proxy), and the mm reading is then multiplied by
+    BEER_SOS_MULTIPLIERS[beer_type] to recover the physical fluid height.
+    """
+
+    LIGHT_LAGER = "beer_light_lager"
+    STANDARD_ALE = "beer_standard_ale"
+    IPA = "beer_ipa"
+    DARK = "beer_dark"
+    HIGH_GRAVITY = "beer_high_gravity"
+    CIDER = "beer_cider"
+
+
+# Speed-of-sound multipliers relative to fresh water (~1482 m/s at 20 °C).
+#
+# The mopeka_iot_ble library converts raw time-of-flight data to mm using
+# fresh-water acoustic coefficients when a BeerType is active.  Because beer
+# is slightly slower than water the library overestimates the fluid height:
+#
+#   library_mm = tof × fresh_water_sos / 2
+#   actual_mm  = tof × beer_sos / 2
+#   ∴ actual_mm = library_mm × (beer_sos / fresh_water_sos) = library_mm × multiplier
+#
+# Sources: ABV-correlated speed-of-sound measurements at ~20 °C.
+BEER_SOS_MULTIPLIERS: Final[dict[str, float]] = {
+    BeerType.LIGHT_LAGER: 0.994,   # ~1473 m/s  (4–5 % ABV)
+    BeerType.STANDARD_ALE: 0.990,  # ~1468 m/s  (5–6 % ABV)
+    BeerType.IPA: 0.986,           # ~1462 m/s  (6.5–8 % ABV)
+    BeerType.DARK: 0.989,          # ~1466 m/s  (6–8 % ABV)
+    BeerType.HIGH_GRAVITY: 0.978,  # ~1450 m/s  (9–12 %+ ABV)
+    BeerType.CIDER: 0.997,         # ~1478 m/s  (5–8 % ABV)
+}
+
+# Frozenset of all BeerType string values for fast membership testing.
+BEER_MEDIUM_TYPES: Final[frozenset[str]] = frozenset(BeerType)
+
+
+def is_beer_medium(medium_type: str | None) -> bool:
+    """Return True when the medium type is one of the beer sub-types."""
+    return medium_type in BEER_MEDIUM_TYPES
+
 CONF_CUSTOM_TANK_HEIGHT: Final = "custom_tank_height"
 CONF_MEDIUM_TYPE: Final = "medium_type"
 CONF_TANK_CAPACITY: Final = "tank_capacity"
@@ -74,6 +128,10 @@ class TankSize(StrEnum):
     GAL_38_0_ASME_MANCHESTER = "38_0gal_asme_manchester"
     IBC_275 = "ibc_275gal"
     IBC_330 = "ibc_330gal"
+    KEG_HALF_BBL = "keg_half_bbl"
+    KEG_QUARTER_BBL = "keg_quarter_bbl"
+    KEG_SIXTH_BBL = "keg_sixth_bbl"
+    KEG_CORNY = "keg_corny"
     CUSTOM = "custom"
 
 
@@ -128,6 +186,22 @@ IBC_TANK_SIZES: Final[list[TankSize]] = [
 ]
 
 DEFAULT_IBC_TANK_SIZE: Final = TankSize.IBC_275
+
+# ---------------------------------------------------------------------------
+# Keg tank sizes (beer media)
+# ---------------------------------------------------------------------------
+
+# Ordered list of tank sizes shown in the keg preset selector (beer media).
+# Custom is always the last entry so users can specify arbitrary keg dimensions.
+KEG_TANK_SIZES: Final[list[TankSize]] = [
+    TankSize.KEG_HALF_BBL,
+    TankSize.KEG_QUARTER_BBL,
+    TankSize.KEG_SIXTH_BBL,
+    TankSize.KEG_CORNY,
+    TankSize.CUSTOM,
+]
+
+DEFAULT_KEG_TANK_SIZE: Final = TankSize.KEG_HALF_BBL
 
 # Backward compatibility map for previously persisted tank preset keys.
 LEGACY_TANK_SIZE_ALIASES: Final[dict[str, str]] = {
@@ -311,4 +385,31 @@ TANK_SIZE_CAPACITIES: Final[dict[str, float]] = {
     TankSize.KG_14: 7.3,
     TankSize.KG_18: 9.4,
     TankSize.KG_48: 24.9,
+}
+
+# ---------------------------------------------------------------------------
+# Keg preset dimensions and capacities (beer media)
+# ---------------------------------------------------------------------------
+
+# Physical (empty_mm, full_mm) calibration ranges for keg presets, in mm.
+# full_mm values are the manufacturer-specified theoretical liquid heights at
+# 100 % fill.  empty_mm uses the standard TANK_EMPTY_MM dead zone (38.1 mm),
+# matching the dip-tube clearance at the base of each keg.
+#
+# The mopeka_iot_ble library reports mm using FRESH_WATER acoustic coefficients
+# for beer media; sensor.py corrects that reading with BEER_SOS_MULTIPLIERS
+# before comparing against these physical ranges.
+KEG_TANK_SIZE_RANGES: Final[dict[str, tuple[float, float]]] = {
+    TankSize.KEG_HALF_BBL:    (TANK_EMPTY_MM, 486.0),  # Half barrel  — 15.5 gal
+    TankSize.KEG_QUARTER_BBL: (TANK_EMPTY_MM, 243.0),  # Quarter barrel — 7.75 gal
+    TankSize.KEG_SIXTH_BBL:   (TANK_EMPTY_MM, 454.0),  # Sixth barrel  —  5.17 gal
+    TankSize.KEG_CORNY:       (TANK_EMPTY_MM, 530.0),  # Corny (homebrew) — 5 gal
+}
+
+# Total usable capacity in gallons for each keg preset.
+KEG_TANK_SIZE_CAPACITIES: Final[dict[str, float]] = {
+    TankSize.KEG_HALF_BBL:    15.5,   # 1/2 US barrel
+    TankSize.KEG_QUARTER_BBL:  7.75,  # 1/4 US barrel
+    TankSize.KEG_SIXTH_BBL:    5.17,  # 1/6 US barrel
+    TankSize.KEG_CORNY:        5.0,   # Standard homebrew Corny keg
 }
