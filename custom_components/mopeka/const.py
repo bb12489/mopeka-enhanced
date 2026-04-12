@@ -47,12 +47,12 @@ class BeerType(StrEnum):
 #
 # Sources: ABV-correlated speed-of-sound measurements at ~20 °C.
 BEER_SOS_MULTIPLIERS: Final[dict[str, float]] = {
-    BeerType.LIGHT_LAGER: 0.994,   # ~1473 m/s  (4–5 % ABV)
+    BeerType.LIGHT_LAGER: 0.994,  # ~1473 m/s  (4–5 % ABV)
     BeerType.STANDARD_ALE: 0.990,  # ~1468 m/s  (5–6 % ABV)
-    BeerType.IPA: 0.986,           # ~1462 m/s  (6.5–8 % ABV)
-    BeerType.DARK: 0.989,          # ~1466 m/s  (6–8 % ABV)
+    BeerType.IPA: 0.986,  # ~1462 m/s  (6.5–8 % ABV)
+    BeerType.DARK: 0.989,  # ~1466 m/s  (6–8 % ABV)
     BeerType.HIGH_GRAVITY: 0.978,  # ~1450 m/s  (9–12 %+ ABV)
-    BeerType.CIDER: 0.997,         # ~1478 m/s  (5–8 % ABV)
+    BeerType.CIDER: 0.997,  # ~1478 m/s  (5–8 % ABV)
 }
 
 # Frozenset of all BeerType string values for fast membership testing.
@@ -62,6 +62,7 @@ BEER_MEDIUM_TYPES: Final[frozenset[str]] = frozenset(BeerType)
 def is_beer_medium(medium_type: str | None) -> bool:
     """Return True when the medium type is one of the beer sub-types."""
     return medium_type in BEER_MEDIUM_TYPES
+
 
 CONF_CUSTOM_TANK_HEIGHT: Final = "custom_tank_height"
 CONF_MEDIUM_TYPE: Final = "medium_type"
@@ -400,16 +401,16 @@ TANK_SIZE_CAPACITIES: Final[dict[str, float]] = {
 # for beer media; sensor.py corrects that reading with BEER_SOS_MULTIPLIERS
 # before comparing against these physical ranges.
 KEG_TANK_SIZE_RANGES: Final[dict[str, tuple[float, float]]] = {
-    TankSize.KEG_HALF_BBL:    (TANK_EMPTY_MM, 486.0),  # Half barrel  — 15.5 gal
+    TankSize.KEG_HALF_BBL: (TANK_EMPTY_MM, 486.0),  # Half barrel  — 15.5 gal
     TankSize.KEG_QUARTER_BBL: (TANK_EMPTY_MM, 243.0),  # Quarter barrel — 7.75 gal
-    TankSize.KEG_SIXTH_BBL:   (TANK_EMPTY_MM, 454.0),  # Sixth barrel  —  5.17 gal
-    TankSize.KEG_CORNY:       (TANK_EMPTY_MM, 530.0),  # Corny (homebrew) — 5 gal
+    TankSize.KEG_SIXTH_BBL: (TANK_EMPTY_MM, 454.0),  # Sixth barrel  —  5.17 gal
+    TankSize.KEG_CORNY: (TANK_EMPTY_MM, 530.0),  # Corny (homebrew) — 5 gal
 }
 
 # Total usable capacity in gallons for each keg preset.
 KEG_TANK_SIZE_CAPACITIES: Final[dict[str, float]] = {
-    TankSize.KEG_HALF_BBL:    15.5,   # 1/2 US barrel
-    TankSize.KEG_QUARTER_BBL:  7.75,  # 1/4 US barrel
-    TankSize.KEG_SIXTH_BBL:    5.17,  # 1/6 US barrel
-    TankSize.KEG_CORNY:        5.0,   # Standard homebrew Corny keg
+    TankSize.KEG_HALF_BBL: 15.5,  # 1/2 US barrel
+    TankSize.KEG_QUARTER_BBL: 7.75,  # 1/4 US barrel
+    TankSize.KEG_SIXTH_BBL: 5.17,  # 1/6 US barrel
+    TankSize.KEG_CORNY: 5.0,  # Standard homebrew Corny keg
 }

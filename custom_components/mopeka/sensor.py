@@ -438,7 +438,11 @@ async def async_setup_entry(
     sos_multiplier = BEER_SOS_MULTIPLIERS.get(medium_type, 1.0)
     processor = PassiveBluetoothDataProcessor(
         make_sensor_update_to_bluetooth_data_update(
-            tank_range, top_mount, medium_type, propane_preset, tank_capacity,
+            tank_range,
+            top_mount,
+            medium_type,
+            propane_preset,
+            tank_capacity,
             sos_multiplier,
         )
     )
