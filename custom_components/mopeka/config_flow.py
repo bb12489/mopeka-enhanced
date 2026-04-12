@@ -20,7 +20,6 @@ from homeassistant.helpers import selector
 
 from .const import (
     BEER_MEDIUM_GATEWAY,
-    BEER_MEDIUM_TYPES,
     CAPACITY_UNIT_GALLONS,
     CAPACITY_UNIT_KILOGRAMS,
     CAPACITY_UNIT_LITERS,
