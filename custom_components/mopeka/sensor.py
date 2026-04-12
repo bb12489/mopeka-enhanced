@@ -205,10 +205,9 @@ def _get_tank_level_range(
         height = entry_data.get(CONF_CUSTOM_TANK_HEIGHT, DEFAULT_CUSTOM_TANK_HEIGHT)
         if height <= 0:
             return None
-        if entry_data.get(CONF_TOP_MOUNT, False):
-            # Top-mount sensors report air gap. Convert to fluid height later
-            # as (height - air_gap), then evaluate fill percentage on 0..height.
-            return (0.0, float(height), False)
+        # For top-mount sensors the air-gap → fluid-height conversion is applied
+        # in make_sensor_update_to_bluetooth_data_update; the calibration range
+        # is always (0..height) regardless of mount orientation.
         return (0.0, float(height), False)
     # IBC tote presets are valid for any non-propane medium (bottom-mount and
     # top-mount sensors). For top-mount, convert air gap to fluid height first.
