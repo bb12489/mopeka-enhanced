@@ -1,0 +1,36 @@
+name: Create Release Tag
+
+on:
+  push:
+    branches:
+      - "release/v*"
+
+permissions:
+  contents: write
+
+jobs:
+  create-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Extract version from branch name
+        id: version
+        run: |
+          BRANCH_NAME="${GITHUB_REF#refs/heads/release/}"
+          echo "tag=${BRANCH_NAME}" >> "$GITHUB_OUTPUT"
+
+      - name: Create and push tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "${{ steps.version.outputs.tag }}" -m "Release ${{ steps.version.outputs.tag }}"
+          git push origin "${{ steps.version.outputs.tag }}"
+
+      - name: Clean up release branch
+        run: |
+          git push origin --delete "${GITHUB_REF#refs/heads/}" || true
