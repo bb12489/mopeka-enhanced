@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - Added South Africa (`za`) propane tank presets and related preset labels/translations.
-- Added German (`de`) translations for the integration UI.
+- Added German (`de`) translations for the integration UI, contributed by @BreitiDE (issue #12).
 - Added support for Pro 200B sensor discovery (`manufacturer_data_start` byte `0x12`).
 - Added an empty-tank quality latch to reduce low-quality reflection bounce behavior at near-empty readings.
 
