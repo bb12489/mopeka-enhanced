@@ -4,23 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [0.2.6] - 2026-06-20
 
-### Added
+### 🎉 New Features!
 
-- Added South Africa (`za`) propane tank presets and related preset labels/translations.
-- Added German (`de`) translations for the integration UI, contributed by @BreitiDE (issue #12).
-- Added support for Pro 200B sensor discovery (`manufacturer_data_start` byte `0x12`).
-- Added an empty-tank quality latch to reduce low-quality reflection bounce behavior at near-empty readings.
+- Added South Africa (`za`) propane tank presets
+- Added German (`de`) translations for the integration UI — thanks to [@BreitiDE](https://github.com/BreitiDE) for the contribution! (#12)
+- Added support for Mopeka Pro 200B sensor discovery
+- Added an empty-tank quality latch to suppress false readings from reflection bounces at near-empty levels
 
-### Changed
+### 🛠️Changed
 
-- Renamed the tank volume sensor display label to `Tank volume`.
-- Merged recent pull requests since `v0.2.5`:
-  - `b2ba8b1` — Merge pull request #17 from `bb12489/copilot/add-south-african-tank-presets`
-  - `8e4bcd9` — Merge pull request #16 from `bb12489/copilot/investigate-empty-tank-handling`
-  - `79271c5` — Merge pull request #15 from `bb12489/copilot/rename-tank-volume-sensor-display-name`
-  - `5a426f7` — Merge pull request #14 from `bb12489/copilot/support-pro-200b-sensor`
-  - `127e37f` — Merge pull request #13 from `bb12489/copilot/add-german-translation`
-- Bumped integration version in `custom_components/mopeka/manifest.json` to `0.2.6`.
+- Renamed the tank volume sensor display label to `Tank volume`
+- Bumped integration version to `0.2.6`
 
 ## [0.2.5] - 2026-04-10
 
