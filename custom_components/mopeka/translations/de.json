@@ -162,7 +162,7 @@
                 "name": "Tank Füllstand"
             },
             "tank_volume": {
-                "name": "Tankinhalt (Gallonen)"
+                "name": "Tankvolumen"
             }
         }
     },
