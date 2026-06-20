@@ -55,6 +55,12 @@
       "manufacturer_data_start": [12],
       "manufacturer_id": 89,
       "service_uuid": "0000fee5-0000-1000-8000-00805f9b34fb"
+    },
+    {
+      "connectable": false,
+      "manufacturer_data_start": [18],
+      "manufacturer_id": 89,
+      "service_uuid": "0000fee5-0000-1000-8000-00805f9b34fb"
     }
   ],
   "codeowners": ["@bb12489"],
