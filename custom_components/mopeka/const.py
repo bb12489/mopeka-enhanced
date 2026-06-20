@@ -46,6 +46,19 @@ class TankSize(StrEnum):
     KG_14 = "14kg_v"
     KG_18 = "18kg_v"
     KG_48 = "48kg_v"
+    # South Africa (za).  SA LPG is a 60% propane / 40% butane blend (propane_ratio=0.6
+    # in the official Mopeka app).  The mopeka_iot_ble library has no butane medium type,
+    # so these presets use MediumType.PROPANE acoustic coefficients — readings will be
+    # slightly approximate but functionally useful.
+    ZA_KG_3 = "3kg_za_v"
+    ZA_KG_4_5 = "4_5kg_za_v"
+    ZA_KG_5 = "5kg_za_v"
+    ZA_KG_7 = "7kg_za_v"
+    ZA_KG_9 = "9kg_za_v"
+    ZA_KG_12 = "12kg_za_v"
+    ZA_KG_14 = "14kg_za_v"
+    ZA_KG_19 = "19kg_za_v"
+    ZA_KG_48 = "48kg_za_v"
     GAL_120_V = "120gal_v"
     GAL_120_H = "120gal_h"
     GAL_150_H = "150gal_h"
@@ -117,6 +130,15 @@ PROPANE_TANK_SIZES: Final[list[TankSize]] = [
     TankSize.KG_14,
     TankSize.KG_18,
     TankSize.KG_48,
+    TankSize.ZA_KG_3,
+    TankSize.ZA_KG_4_5,
+    TankSize.ZA_KG_5,
+    TankSize.ZA_KG_7,
+    TankSize.ZA_KG_9,
+    TankSize.ZA_KG_12,
+    TankSize.ZA_KG_14,
+    TankSize.ZA_KG_19,
+    TankSize.ZA_KG_48,
     TankSize.CUSTOM,
 ]
 
@@ -219,6 +241,18 @@ TANK_SIZE_RANGES: Final[dict[str, tuple[float, float]]] = {
     TankSize.KG_14: (TANK_EMPTY_MM, 467.0),
     TankSize.KG_18: (TANK_EMPTY_MM, 589.3),
     TankSize.KG_48: (TANK_EMPTY_MM, 1000.0),
+    # South Africa (za) — heights sourced from tank_types.js za region (metres × 1000).
+    # SA LPG is a 60/40 propane/butane blend; propane acoustic coefficients are used
+    # since MediumType.BUTANE is not available in the library.
+    TankSize.ZA_KG_3: (TANK_EMPTY_MM, 194.0),
+    TankSize.ZA_KG_4_5: (TANK_EMPTY_MM, 220.0),
+    TankSize.ZA_KG_5: (TANK_EMPTY_MM, 240.0),
+    TankSize.ZA_KG_7: (TANK_EMPTY_MM, 267.0),
+    TankSize.ZA_KG_9: (TANK_EMPTY_MM, 290.0),
+    TankSize.ZA_KG_12: (TANK_EMPTY_MM, 378.0),
+    TankSize.ZA_KG_14: (TANK_EMPTY_MM, 459.0),
+    TankSize.ZA_KG_19: (TANK_EMPTY_MM, 490.0),
+    TankSize.ZA_KG_48: (TANK_EMPTY_MM, 870.0),
 }
 
 # IBC tote tank dimensions in millimeters for non-propane media (bottom-mount and
@@ -311,4 +345,15 @@ TANK_SIZE_CAPACITIES: Final[dict[str, float]] = {
     TankSize.KG_14: 7.3,
     TankSize.KG_18: 9.4,
     TankSize.KG_48: 24.9,
+    # South Africa (za) — capacities converted from kg using propane liquid density
+    # (1.921 kg/gal) for consistency with other kg-rated presets.
+    TankSize.ZA_KG_3: 1.6,
+    TankSize.ZA_KG_4_5: 2.3,
+    TankSize.ZA_KG_5: 2.6,
+    TankSize.ZA_KG_7: 3.6,
+    TankSize.ZA_KG_9: 4.7,
+    TankSize.ZA_KG_12: 6.2,
+    TankSize.ZA_KG_14: 7.3,
+    TankSize.ZA_KG_19: 9.9,
+    TankSize.ZA_KG_48: 24.9,
 }
