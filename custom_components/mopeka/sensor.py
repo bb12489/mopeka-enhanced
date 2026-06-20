@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable, Mapping
 from dataclasses import replace
 import math
-from typing import Any
+from typing import Any, Final
 
 from mopeka_iot_ble import SensorUpdate
 
@@ -144,6 +144,14 @@ _TANK_VOLUME_KEY = "tank_volume"
 _MEDIUM_TYPE_KEY = "medium_type"
 _PROPANE_PRESET_KEY = "propane_preset"
 
+# Reading-quality threshold (percentage) below which the sensor is considered
+# to be producing unreliable readings due to reflections in an empty tank.
+# The mopeka_iot_ble library encodes quality as 0–3 raw stars stored as
+# round(stars / 3 * 100) %: 0 % = 0 stars, 33 % = 1 star, 67 % = 2 stars,
+# 100 % = 3 stars.  Values ≤ 33 % (0–1 stars) indicate a low-confidence read
+# that is typically caused by acoustic reflections when the tank is empty.
+_QUALITY_EMPTY_LATCH_THRESHOLD: Final[int] = 33
+
 
 def _circular_segment_fraction(h: float, diameter: float) -> float:
     """Return the volume fraction (0..1) of a horizontal cylinder filled to height *h*.
@@ -266,11 +274,16 @@ def make_sensor_update_to_bluetooth_data_update(
     tank_capacity: tuple[float, str] | None = None,
 ) -> Callable[[SensorUpdate], PassiveBluetoothDataUpdate]:
     """Return a sensor update converter that optionally synthesizes a tank fill %."""
+    # Latch state: True when the last known quality was ≤ _QUALITY_EMPTY_LATCH_THRESHOLD.
+    # Held across updates so that a momentarily-bounced level reading after the
+    # tank drains empty does not appear as a non-zero fill percentage.
+    _empty_latched = False
 
     def sensor_update_to_bluetooth_data_update(
         sensor_update: SensorUpdate,
     ) -> PassiveBluetoothDataUpdate:
         """Convert a sensor update to a bluetooth data update."""
+        nonlocal _empty_latched
         entity_descriptions: dict[PassiveBluetoothEntityKey, EntityDescription] = {
             device_key_to_bluetooth_entity_key(device_key): SENSOR_DESCRIPTIONS[
                 device_key.key
@@ -286,6 +299,18 @@ def make_sensor_update_to_bluetooth_data_update(
             device_key_to_bluetooth_entity_key(device_key): sensor_values.name
             for device_key, sensor_values in sensor_update.entity_values.items()
         }
+
+        # Update empty-tank latch state from the current reading_quality value.
+        # Quality ≤ _QUALITY_EMPTY_LATCH_THRESHOLD (0–1 stars) indicates the sensor
+        # is likely picking up acoustic reflections inside an empty tank rather than
+        # a real liquid surface.  The latch holds at zero until quality recovers so
+        # that brief bounces above the threshold do not cause a false non-zero level.
+        for device_key, sensor_values in sensor_update.entity_values.items():
+            if device_key.key == "reading_quality":
+                quality = sensor_values.native_value
+                if isinstance(quality, (int, float)):
+                    _empty_latched = quality <= _QUALITY_EMPTY_LATCH_THRESHOLD
+                break
 
         # Synthesize a tank fill percentage sensor when a calibrated range is known.
         # Vertical tanks: linear interpolation between empty and full mm.
@@ -335,6 +360,13 @@ def make_sensor_update_to_bluetooth_data_update(
                                 * 100.0
                             )
                         fill_pct = round(min(100.0, max(0.0, pct)), 1)
+                    # Empty-tank latch: when quality is 0–1 stars the sensor is likely
+                    # detecting acoustic reflections inside the empty tank.  Override
+                    # the calculated fill percentage to 0 and report the raw level as
+                    # empty_mm so that all derived sensors (volume, percentage) agree.
+                    if _empty_latched:
+                        fill_pct = 0.0
+                        entity_data[tank_level_entity_key] = empty_mm
                     entity_data[pct_entity_key] = fill_pct
 
                     # Synthesize a tank volume sensor when total capacity is known.
