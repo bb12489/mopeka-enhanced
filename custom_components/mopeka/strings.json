@@ -151,6 +151,15 @@
           "14kg_v": "14 kg (Euro, Vertical)",
           "18kg_v": "18 kg (Euro, Vertical)",
           "48kg_v": "48 kg (Euro, Vertical)",
+          "3kg_za_v": "3 kg (South Africa, Vertical)",
+          "4_5kg_za_v": "4.5 kg (South Africa, Vertical)",
+          "5kg_za_v": "5 kg (South Africa, Vertical)",
+          "7kg_za_v": "7 kg (South Africa, Vertical)",
+          "9kg_za_v": "9 kg (South Africa, Vertical)",
+          "12kg_za_v": "12 kg (South Africa, Vertical)",
+          "14kg_za_v": "14 kg (South Africa, Vertical)",
+          "19kg_za_v": "19 kg (South Africa, Vertical)",
+          "48kg_za_v": "48 kg (South Africa, Vertical)",
           "custom": "Custom"
         }
       },
@@ -245,6 +254,15 @@
         "14kg_v": "14 kg (Euro, Vertical)",
         "18kg_v": "18 kg (Euro, Vertical)",
         "48kg_v": "48 kg (Euro, Vertical)",
+        "3kg_za_v": "3 kg (South Africa, Vertical)",
+        "4_5kg_za_v": "4.5 kg (South Africa, Vertical)",
+        "5kg_za_v": "5 kg (South Africa, Vertical)",
+        "7kg_za_v": "7 kg (South Africa, Vertical)",
+        "9kg_za_v": "9 kg (South Africa, Vertical)",
+        "12kg_za_v": "12 kg (South Africa, Vertical)",
+        "14kg_za_v": "14 kg (South Africa, Vertical)",
+        "19kg_za_v": "19 kg (South Africa, Vertical)",
+        "48kg_za_v": "48 kg (South Africa, Vertical)",
         "custom": "Custom"
       }
     },
