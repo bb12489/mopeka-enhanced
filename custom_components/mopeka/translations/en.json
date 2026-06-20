@@ -162,7 +162,7 @@
                 "name": "Tank fill"
             },
             "tank_volume": {
-                "name": "Tank level (gallons)"
+                "name": "Tank volume"
             }
         }
     },
