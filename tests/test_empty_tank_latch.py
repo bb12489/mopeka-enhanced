@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 
 def _build_update(stub_types, level_mm: float | None, quality_pct: int | None):
     """Return a SensorUpdate carrying a tank_level and reading_quality value.
@@ -153,6 +155,3 @@ def test_no_quality_key_does_not_change_latch(sensor_module, stub_types):
     update = converter(_build_update(stub_types, level_mm=319.05, quality_pct=None))
 
     assert update.entity_data[pct_key] == pytest.approx(50.0, abs=1.0)
-
-
-import pytest  # noqa: E402
