@@ -43,7 +43,7 @@ I 100% welcome others to improve upon this work. Find any mistakes I made, make 
 
  📏 Option to define your own custom tank height in millimeters, and tank volume in gal/lbs/kg
 
- 📡 Automatic detection of top mount sensor models (TD40 and TD200) for correct sensor measurements
+ 📡 Automatic detection of top mount sensor models (TD40, TD200, PRO200B) for correct sensor measurements
 
  🧭 Updated config flow menu for tank configuration based on medium type selection and device detection (top mount sensors)
 
