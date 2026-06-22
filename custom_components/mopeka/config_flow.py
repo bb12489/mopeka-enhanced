@@ -54,7 +54,7 @@ def _is_top_mount_sensor(discovery_info: BluetoothServiceInfoBleak) -> bool:
     mfr_data = discovery_info.manufacturer_data.get(MOPEKA_MANUFACTURER_ID)
     if not mfr_data:
         return False
-    return (mfr_data[0] & 0x0F) in TOP_MOUNT_MODEL_IDS
+    return (mfr_data[0] & 0xFF) in TOP_MOUNT_MODEL_IDS
 
 
 def format_medium_type(medium_type: Enum) -> str:

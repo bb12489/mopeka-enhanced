@@ -70,6 +70,6 @@
   "integration_type": "device",
   "iot_class": "local_push",
   "issue_tracker": "https://github.com/bb12489/mopeka-enhanced/issues",
-  "requirements": ["mopeka-iot-ble==0.8.0"],
+  "requirements": ["mopeka-iot-ble@git+https://github.com/Bluetooth-Devices/mopeka-iot-ble.git@49c13f5cb9e7508a7085aba84089c799950e852d"],
   "version": "0.2.6"
 }
