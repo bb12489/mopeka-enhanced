@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 import enum
-from enum import Enum
 import importlib.util
-from pathlib import Path
 import re
 import sys
 import types
+from dataclasses import dataclass
+from enum import Enum
+from pathlib import Path
 
 import pytest
 
@@ -368,7 +368,7 @@ def _load_module(module_name: str, path: Path):
                 "\n"
                 "    pass\n"
             )
-        exec(compile(source, str(path), "exec"), module.__dict__)
+        exec(compile(source, str(path), "exec"), module.__dict__)  # noqa: S102
         return module
 
     if (
@@ -383,7 +383,7 @@ def _load_module(module_name: str, path: Path):
             flags=re.MULTILINE,
         )
         module.__dict__["_ConfigEntry"] = _ConfigEntry
-        exec(compile(source, str(path), "exec"), module.__dict__)
+        exec(compile(source, str(path), "exec"), module.__dict__)  # noqa: S102
         return module
 
     assert spec.loader is not None
