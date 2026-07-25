@@ -380,7 +380,7 @@ def _load_module(module_name: str, path: Path):
                 "\n"
                 "    pass\n"
             )
-        exec(compile(source, str(path), "exec"), module.__dict__)
+        exec(compile(source, str(path), "exec"), module.__dict__)  # noqa: S102
         return module
 
     if (
@@ -395,7 +395,7 @@ def _load_module(module_name: str, path: Path):
             flags=re.MULTILINE,
         )
         module.__dict__["_ConfigEntry"] = _ConfigEntry
-        exec(compile(source, str(path), "exec"), module.__dict__)
+        exec(compile(source, str(path), "exec"), module.__dict__)  # noqa: S102
         return module
 
     assert spec.loader is not None
