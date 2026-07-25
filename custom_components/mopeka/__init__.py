@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import logging
 
-from mopeka_iot_ble import MediumType, MopekaIOTBluetoothDeviceData
-
 from homeassistant.components.bluetooth import BluetoothScanningMode
 from homeassistant.components.bluetooth.passive_update_processor import (
     PassiveBluetoothProcessorCoordinator,
@@ -13,7 +11,9 @@ from homeassistant.components.bluetooth.passive_update_processor import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import device_registry as dr
+from mopeka_iot_ble import MediumType, MopekaIOTBluetoothDeviceData
 
 from .const import (
     CONF_MEDIUM_TYPE,
@@ -33,11 +33,20 @@ type MopekaConfigEntry = ConfigEntry[PassiveBluetoothProcessorCoordinator]
 async def async_setup_entry(hass: HomeAssistant, entry: MopekaConfigEntry) -> bool:
     """Set up Mopeka BLE device from a config entry."""
     address = entry.unique_id
-    assert address is not None
+    if address is None:
+        raise ConfigEntryNotReady("Mopeka config entry is missing its BLE address")
+
+    _LOGGER.debug("Setting up Mopeka entry for %s", address)
 
     tank_size = entry.data.get(CONF_TANK_SIZE)
     normalized_tank_size = normalize_tank_size(tank_size)
     if normalized_tank_size != tank_size:
+        _LOGGER.debug(
+            "Migrating legacy tank size %r to %r for %s",
+            tank_size,
+            normalized_tank_size,
+            address,
+        )
         hass.config_entries.async_update_entry(
             entry,
             data={**entry.data, CONF_TANK_SIZE: normalized_tank_size},
@@ -62,11 +71,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: MopekaConfigEntry) -> bo
 
 async def update_listener(hass: HomeAssistant, entry: MopekaConfigEntry) -> None:
     """Handle options update."""
+    _LOGGER.debug("Reloading Mopeka entry %s after options update", entry.entry_id)
     await hass.config_entries.async_reload(entry.entry_id)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: MopekaConfigEntry) -> bool:
     """Unload a config entry."""
+    _LOGGER.debug("Unloading Mopeka entry %s", entry.entry_id)
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 
 
@@ -74,4 +85,9 @@ async def async_remove_config_entry_device(
     hass: HomeAssistant, config_entry: MopekaConfigEntry, device_entry: dr.DeviceEntry
 ) -> bool:
     """Allow removal of a device that is no longer advertising."""
+    _LOGGER.debug(
+        "Allowing removal of Mopeka device %s from entry %s",
+        device_entry.id,
+        config_entry.entry_id,
+    )
     return True

@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 import enum
-from enum import Enum
 import importlib.util
-from pathlib import Path
 import re
 import sys
 import types
+from dataclasses import dataclass
+from enum import Enum
+from pathlib import Path
 
 import pytest
 
@@ -316,6 +316,18 @@ def _install_stubs() -> None:
     sys.modules["homeassistant.config_entries"] = ha_config_entries
 
     ha.config_entries = ha_config_entries
+
+    ha_exceptions = types.ModuleType("homeassistant.exceptions")
+
+    class HomeAssistantError(Exception):
+        """Stub base HA error."""
+
+    class ConfigEntryNotReady(HomeAssistantError):
+        """Stub ConfigEntryNotReady."""
+
+    ha_exceptions.HomeAssistantError = HomeAssistantError
+    ha_exceptions.ConfigEntryNotReady = ConfigEntryNotReady
+    sys.modules["homeassistant.exceptions"] = ha_exceptions
 
     ha_helpers = types.ModuleType("homeassistant.helpers")
     sys.modules["homeassistant.helpers"] = ha_helpers

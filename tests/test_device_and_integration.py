@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from types import SimpleNamespace
 
 
 class _FakeConfigEntries:
@@ -83,9 +84,10 @@ def test_async_unload_entry(integration_module):
 def test_async_remove_config_entry_device_returns_true(integration_module):
     hass = _FakeHass()
     entry = _FakeEntry()
+    device_entry = SimpleNamespace(id="device1")
 
     result = asyncio.run(
-        integration_module.async_remove_config_entry_device(hass, entry, object())
+        integration_module.async_remove_config_entry_device(hass, entry, device_entry)
     )
 
     assert result is True

@@ -27,7 +27,8 @@ def test_custom_non_propane_liters_volume_sensor(sensor_module, stub_types):
     key = stub_types["PassiveBluetoothEntityKey"]("tank_volume", "dev1")
 
     assert update.entity_data[key] == 100.0
-    assert update.entity_names[key] == "Tank level (liters)"
+    assert update.entity_names[key] is None
+    assert update.entity_descriptions[key].translation_key == "tank_volume"
     assert (
         update.entity_descriptions[key].native_unit_of_measurement
         == stub_types["UnitOfVolume"].LITERS
@@ -47,7 +48,8 @@ def test_custom_propane_kilograms_volume_sensor(sensor_module, stub_types):
     key = stub_types["PassiveBluetoothEntityKey"]("tank_volume", "dev1")
 
     assert update.entity_data[key] == 20.0
-    assert update.entity_names[key] == "Tank level (kilograms)"
+    assert update.entity_names[key] is None
+    assert update.entity_descriptions[key].translation_key == "tank_volume"
     assert (
         update.entity_descriptions[key].native_unit_of_measurement
         == stub_types["UnitOfMass"].KILOGRAMS
@@ -110,8 +112,8 @@ def test_custom_capacity_unit_resolution(sensor_module):
     ),
     [
         ("propane", "gal", 80.0, "gal", None),
-        ("propane", "kg", 40.0, "kg", "Tank level (kilograms)"),
-        ("fresh_water", "l", 200.0, "L", "Tank level (liters)"),
+        ("propane", "kg", 40.0, "kg", None),
+        ("fresh_water", "l", 200.0, "L", None),
     ],
 )
 def test_dropdown_unit_and_capacity_drive_tank_volume_output(

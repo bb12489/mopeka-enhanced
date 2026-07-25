@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
+import logging
 from enum import Enum
 from typing import Any
 
-from mopeka_iot_ble import MopekaIOTBluetoothDeviceData as DeviceData
 import voluptuous as vol
-
 from homeassistant import config_entries
 from homeassistant.components.bluetooth import (
     BluetoothServiceInfoBleak,
@@ -16,7 +15,9 @@ from homeassistant.components.bluetooth import (
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.const import CONF_ADDRESS
 from homeassistant.core import callback
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import selector
+from mopeka_iot_ble import MopekaIOTBluetoothDeviceData as DeviceData
 
 from .const import (
     CAPACITY_UNIT_GALLONS,
@@ -43,6 +44,8 @@ from .const import (
     TankSize,
     normalize_tank_size,
 )
+
+_LOGGER = logging.getLogger(__name__)
 
 
 def _is_top_mount_sensor(discovery_info: BluetoothServiceInfoBleak) -> bool:
@@ -282,10 +285,17 @@ class MopekaConfigFlow(ConfigFlow, domain=DOMAIN):
         self, discovery_info: BluetoothServiceInfoBleak
     ) -> ConfigFlowResult:
         """Handle the bluetooth discovery step."""
+        _LOGGER.debug(
+            "Discovered Mopeka device via bluetooth: %s", discovery_info.address
+        )
         await self.async_set_unique_id(discovery_info.address)
         self._abort_if_unique_id_configured()
         device = DeviceData()
         if not device.supported(discovery_info):
+            _LOGGER.debug(
+                "Discovered device %s is not a supported Mopeka device",
+                discovery_info.address,
+            )
             return self.async_abort(reason="not_supported")
         self._discovery_info = discovery_info
         self._discovered_device = device
@@ -295,9 +305,12 @@ class MopekaConfigFlow(ConfigFlow, domain=DOMAIN):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Confirm discovery and select medium type."""
-        assert self._discovered_device is not None
+        # Invariant: async_step_bluetooth always sets these before routing here.
+        if self._discovered_device is None or self._discovery_info is None:
+            raise HomeAssistantError(
+                "Bluetooth confirm step reached without prior discovery"
+            )
         device = self._discovered_device
-        assert self._discovery_info is not None
         discovery_info = self._discovery_info
         title = device.title or device.get_device_name() or discovery_info.name
 
@@ -343,7 +356,11 @@ class MopekaConfigFlow(ConfigFlow, domain=DOMAIN):
         }
         if self._discovery_info is not None:
             return self.async_create_entry(title=self._title, data=data)
-        assert self._address is not None
+        # Invariant: async_step_user always sets this before routing here.
+        if self._address is None:
+            raise HomeAssistantError(
+                "Config entry creation reached without a selected address"
+            )
         await self.async_set_unique_id(self._address, raise_on_progress=False)
         self._abort_if_unique_id_configured()
         return self.async_create_entry(
@@ -437,11 +454,17 @@ class MopekaConfigFlow(ConfigFlow, domain=DOMAIN):
                     ),
                     errors=errors,
                 )
+            # _parse_custom_height_values only returns an empty errors dict when
+            # both height and capacity parsed successfully.
+            if height is None or capacity is None:
+                raise HomeAssistantError(
+                    "Custom height parsed without errors but returned no value"
+                )
             return await self._async_create_config_entry(
                 TankSize.CUSTOM,
                 height,
                 capacity,
-                capacity_unit,  # type: ignore[arg-type]
+                capacity_unit,
             )
 
         self._custom_capacity_unit = DEFAULT_TANK_CAPACITY_UNIT
@@ -692,7 +715,11 @@ class MopekaOptionsFlow(config_entries.OptionsFlow):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Select a propane tank preset."""
-        assert self._medium_type is not None
+        # Invariant: async_step_init always sets this before routing here.
+        if self._medium_type is None:
+            raise HomeAssistantError(
+                "Options flow step reached without a selected medium type"
+            )
         if user_input is not None:
             tank_size = user_input.get(CONF_TANK_SIZE, TankSize.CUSTOM)
             if tank_size == TankSize.CUSTOM:
@@ -725,7 +752,11 @@ class MopekaOptionsFlow(config_entries.OptionsFlow):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Select an IBC tote tank preset (non-propane media)."""
-        assert self._medium_type is not None
+        # Invariant: async_step_init always sets this before routing here.
+        if self._medium_type is None:
+            raise HomeAssistantError(
+                "Options flow step reached without a selected medium type"
+            )
         if user_input is not None:
             tank_size = user_input.get(CONF_TANK_SIZE, TankSize.CUSTOM)
             if tank_size == TankSize.CUSTOM:
@@ -760,7 +791,11 @@ class MopekaOptionsFlow(config_entries.OptionsFlow):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Enter a custom tank height and total capacity."""
-        assert self._medium_type is not None
+        # Invariant: async_step_init always sets this before routing here.
+        if self._medium_type is None:
+            raise HomeAssistantError(
+                "Options flow step reached without a selected medium type"
+            )
         if user_input is not None:
             capacity_unit = user_input.get(
                 CONF_TANK_CAPACITY_UNIT,

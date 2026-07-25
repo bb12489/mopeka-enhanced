@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### 🛠️Changed
+
+- Removed the "Tank level (kilograms)" / "Tank level (liters)" custom sensor name overrides so the volume sensor falls back to its default entity name.
+- Added debug logging throughout integration setup/unload/reload, config flow discovery, and the empty-tank quality latch engage/release transitions to aid troubleshooting.
+- CI: skip the `quality` job in `validate.yml` when triggered by `schedule` events.
+- CI: added static type checking (`mypy`, scoped to `custom_components/mopeka`) as a required step in `validate.yml`'s `quality` job; bumped that job's Python to 3.14 and switched its install step to `requirements-dev.txt`. Fixed the type errors this surfaced in `config_flow.py` (explicit `None` narrowing instead of a stale `type: ignore`) and `sensor.py` (removed an unneeded `type: ignore`).
+
 ## [0.2.6] - 2026-06-20
 
 ### 🎉 New Features!

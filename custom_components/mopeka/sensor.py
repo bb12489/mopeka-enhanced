@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
+import logging
+import math
 from collections.abc import Callable, Mapping
 from dataclasses import replace
-import math
 from typing import Any, Final
-
-from mopeka_iot_ble import SensorUpdate
 
 from homeassistant.components.bluetooth.passive_update_processor import (
     PassiveBluetoothDataProcessor,
@@ -35,6 +34,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityDescription
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.sensor import sensor_device_info_to_hass_device_info
+from mopeka_iot_ble import SensorUpdate
 
 from . import MopekaConfigEntry
 from .const import (
@@ -59,6 +59,8 @@ from .const import (
     normalize_tank_size,
 )
 from .device import device_key_to_bluetooth_entity_key
+
+_LOGGER = logging.getLogger(__name__)
 
 PARALLEL_UPDATES = 0
 
@@ -292,7 +294,7 @@ def make_sensor_update_to_bluetooth_data_update(
             if device_key.key in SENSOR_DESCRIPTIONS
         }
         entity_data: dict[PassiveBluetoothEntityKey, str | float | int | None] = {
-            device_key_to_bluetooth_entity_key(device_key): sensor_values.native_value  # type: ignore[misc]
+            device_key_to_bluetooth_entity_key(device_key): sensor_values.native_value
             for device_key, sensor_values in sensor_update.entity_values.items()
         }
         entity_names: dict[PassiveBluetoothEntityKey, str | None] = {
@@ -309,7 +311,14 @@ def make_sensor_update_to_bluetooth_data_update(
             if device_key.key == "reading_quality":
                 quality = sensor_values.native_value
                 if isinstance(quality, (int, float)):
-                    empty_latched = quality <= _QUALITY_EMPTY_LATCH_THRESHOLD
+                    new_latched = quality <= _QUALITY_EMPTY_LATCH_THRESHOLD
+                    if new_latched != empty_latched:
+                        _LOGGER.debug(
+                            "Empty-tank latch %s (reading_quality=%s)",
+                            "engaged" if new_latched else "released",
+                            quality,
+                        )
+                    empty_latched = new_latched
                 break
 
         # Synthesize a tank fill percentage sensor when a calibrated range is known.
@@ -380,13 +389,13 @@ def make_sensor_update_to_bluetooth_data_update(
                                 SENSOR_DESCRIPTIONS[_TANK_VOLUME_KEY],
                                 native_unit_of_measurement=UnitOfMass.KILOGRAMS,
                             )
-                            entity_names[vol_entity_key] = "Tank level (kilograms)"
+                            entity_names[vol_entity_key] = None
                         elif capacity_unit == CAPACITY_UNIT_LITERS:
                             entity_descriptions[vol_entity_key] = replace(
                                 SENSOR_DESCRIPTIONS[_TANK_VOLUME_KEY],
                                 native_unit_of_measurement=UnitOfVolume.LITERS,
                             )
-                            entity_names[vol_entity_key] = "Tank level (liters)"
+                            entity_names[vol_entity_key] = None
                         else:
                             entity_descriptions[vol_entity_key] = SENSOR_DESCRIPTIONS[
                                 _TANK_VOLUME_KEY
@@ -435,6 +444,7 @@ async def async_setup_entry(
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Set up the Mopeka BLE sensors."""
+    _LOGGER.debug("Setting up Mopeka sensors for entry %s", entry.entry_id)
     coordinator = entry.runtime_data
     tank_range = _get_tank_level_range(entry.data)
     top_mount = entry.data.get(CONF_TOP_MOUNT, False)

@@ -1,2 +1,5 @@
 pytest>=9.0.0,<10.0.0
 ruff>=0.11.0,<1.0.0
+mypy>=1.13.0,<2.0.0
+homeassistant
+mopeka-iot-ble==0.8.0
