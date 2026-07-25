@@ -156,6 +156,18 @@ Credit to the original upstream maintainer and codeowner, `@bdraco`, for the cor
 
 The integration code lives in `custom_components/mopeka`.
 
+### Code quality
+
+This integration follows current Home Assistant development guidelines:
+
+- Typed `ConfigEntry` with `runtime_data` (no legacy `hass.data` storage)
+- Full config flow support: discovery, manual setup, reconfigure, and options flow
+- Diagnostic logging on setup, unload, reload, and other key state transitions
+- HA exception hierarchy (`ConfigEntryNotReady`, `HomeAssistantError`) instead of bare asserts for reachable error states
+- Static type checking with `mypy` against the real `homeassistant` package, run in CI alongside `ruff`
+- Two complementary test suites, both run in CI:
+  - `tests/` — fast unit tests covering flow logic, tank math, and edge cases against lightweight stub modules
+  - `tests_integration/` — end-to-end tests against a real Home Assistant test harness (`pytest-homeassistant-custom-component`), covering config entry setup, unload, and reload
 
 ## License
 
