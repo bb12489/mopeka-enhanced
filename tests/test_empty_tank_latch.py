@@ -39,7 +39,7 @@ def _build_update(stub_types, level_mm: float | None, quality_pct: int | None):
 def test_latch_engages_on_low_quality_forces_zero(sensor_module, stub_types):
     """Level should be 0 % when quality is 1 star (33 %)."""
     converter = sensor_module.make_sensor_update_to_bluetooth_data_update(
-        tank_range=(38.1, 600.0, False),
+        tank_range=(38.1, 600.0, False, None),
         top_mount=False,
         medium_type="propane",
         propane_preset="20lb_v",
@@ -58,7 +58,7 @@ def test_latch_engages_on_low_quality_forces_zero(sensor_module, stub_types):
 def test_latch_engages_on_zero_quality(sensor_module, stub_types):
     """Level should be 0 % when quality is 0 stars (0 %)."""
     converter = sensor_module.make_sensor_update_to_bluetooth_data_update(
-        tank_range=(38.1, 600.0, False),
+        tank_range=(38.1, 600.0, False, None),
         top_mount=False,
         medium_type="propane",
         propane_preset="20lb_v",
@@ -80,7 +80,7 @@ def test_latch_engages_on_zero_quality(sensor_module, stub_types):
 def test_latch_not_engaged_on_good_quality(sensor_module, stub_types):
     """Normal level should be reported when quality is high (no latch)."""
     converter = sensor_module.make_sensor_update_to_bluetooth_data_update(
-        tank_range=(38.1, 600.0, False),
+        tank_range=(38.1, 600.0, False, None),
         top_mount=False,
         medium_type="propane",
         propane_preset="20lb_v",
@@ -97,7 +97,7 @@ def test_latch_not_engaged_on_good_quality(sensor_module, stub_types):
 def test_latch_releases_after_quality_recovers(sensor_module, stub_types):
     """After engaging the latch, recovering quality should restore real readings."""
     converter = sensor_module.make_sensor_update_to_bluetooth_data_update(
-        tank_range=(38.1, 600.0, False),
+        tank_range=(38.1, 600.0, False, None),
         top_mount=False,
         medium_type="propane",
         propane_preset="20lb_v",
@@ -122,7 +122,7 @@ def test_latch_releases_after_quality_recovers(sensor_module, stub_types):
 def test_latch_zeroes_volume_sensor(sensor_module, stub_types):
     """Volume sensor must also read 0 when latch is active."""
     converter = sensor_module.make_sensor_update_to_bluetooth_data_update(
-        tank_range=(38.1, 600.0, False),
+        tank_range=(38.1, 600.0, False, None),
         top_mount=False,
         medium_type="propane",
         propane_preset="20lb_v",
@@ -143,7 +143,7 @@ def test_latch_zeroes_volume_sensor(sensor_module, stub_types):
 def test_no_quality_key_does_not_change_latch(sensor_module, stub_types):
     """If reading_quality is absent the converter should not crash or change latch."""
     converter = sensor_module.make_sensor_update_to_bluetooth_data_update(
-        tank_range=(38.1, 600.0, False),
+        tank_range=(38.1, 600.0, False, None),
         top_mount=False,
         medium_type="propane",
         propane_preset="20lb_v",

@@ -15,6 +15,13 @@ CONF_TANK_CAPACITY: Final = "tank_capacity"
 CONF_TANK_CAPACITY_UNIT: Final = "tank_capacity_unit"
 CONF_TANK_SIZE: Final = "tank_size"
 CONF_TOP_MOUNT: Final = "top_mount"
+# Height of the sensor's mounting point above the tank bottom (mm), for top-mount
+# (TD40/TD200) devices only. Mirrors the Mopeka app's "Overall Height" field, which
+# is distinct from the "Max Water Level Height" (CONF_CUSTOM_TANK_HEIGHT): the sensor
+# may be mounted above the true max-fill line, so raw air-gap readings never reach 0
+# even at 100% full. 0 (default/unset) means "assume no headspace" for backward
+# compatibility with entries created before this field existed.
+CONF_TOP_MOUNT_SENSOR_HEIGHT: Final = "top_mount_sensor_height"
 
 # Manufacturer ID used by all Mopeka BLE devices.
 MOPEKA_MANUFACTURER_ID: Final = 89
@@ -26,6 +33,7 @@ TOP_MOUNT_MODEL_IDS: Final[frozenset[int]] = frozenset({0x0A, 0x0B})
 
 DEFAULT_MEDIUM_TYPE: Final = MediumType.PROPANE.value
 DEFAULT_CUSTOM_TANK_HEIGHT: Final = 0
+DEFAULT_TOP_MOUNT_SENSOR_HEIGHT: Final = 0
 DEFAULT_TANK_CAPACITY: Final = 0.0
 CAPACITY_UNIT_GALLONS: Final = "gal"
 CAPACITY_UNIT_KILOGRAMS: Final = "kg"

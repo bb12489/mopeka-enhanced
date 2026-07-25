@@ -524,3 +524,176 @@ def test_options_flow_custom_height_no_input_missing_entry_data_uses_defaults(
     assert result["step_id"] == "custom_height"
     assert flow._custom_capacity_unit == "gal"  # DEFAULT_TANK_CAPACITY_UNIT
     assert "data_schema" in result
+
+
+# ═══════════════════ top-mount sensor height (CONF_TOP_MOUNT_SENSOR_HEIGHT) ═══
+
+
+def test_options_flow_ibc_tank_config_top_mount_preset_routes_to_sensor_height(
+    config_flow_module,
+):
+    """Top-mount + preset selection collects the sensor mount height first."""
+    flow, update_calls, reload_calls = _make_flow(
+        config_flow_module,
+        entry_data={"tank_size": "ibc_275gal", "top_mount": True},
+        medium_type="air",
+    )
+
+    result = asyncio.run(
+        flow.async_step_ibc_tank_config(user_input={"tank_size": "ibc_330gal"})
+    )
+
+    assert result["step_id"] == "top_mount_height"
+    assert flow._pending_tank_size == "ibc_330gal"
+    # No entry update yet — that only happens once the sensor height is submitted.
+    assert update_calls == []
+    assert reload_calls == []
+
+
+def test_options_flow_top_mount_height_updates_entry_and_completes(
+    config_flow_module,
+):
+    """Submitting the sensor height completes the preset + top-mount flow."""
+    flow, update_calls, reload_calls = _make_flow(
+        config_flow_module,
+        entry_data={"tank_size": "ibc_275gal", "top_mount": True},
+        medium_type="air",
+    )
+    flow._pending_tank_size = "ibc_330gal"
+
+    result = asyncio.run(
+        flow.async_step_top_mount_height(user_input={"top_mount_sensor_height": 1150})
+    )
+
+    assert len(update_calls) == 1
+    updated = update_calls[0]["data"]
+    assert updated["tank_size"] == "ibc_330gal"
+    assert updated["top_mount_sensor_height"] == 1150
+    assert reload_calls == ["test-entry-id"]
+    assert result == {"title": "", "data": {}}
+
+
+def test_options_flow_top_mount_height_no_input_shows_form_with_existing_value(
+    config_flow_module,
+):
+    """Without input, the form is pre-populated from the config entry."""
+    flow, _, _ = _make_flow(
+        config_flow_module,
+        entry_data={
+            "tank_size": "ibc_275gal",
+            "top_mount": True,
+            "top_mount_sensor_height": 1050,
+        },
+        medium_type="air",
+    )
+    flow._pending_tank_size = "ibc_275gal"
+
+    result = asyncio.run(flow.async_step_top_mount_height())
+
+    assert result["step_id"] == "top_mount_height"
+    height_selector = _schema_value(result["data_schema"], "top_mount_sensor_height")
+    assert height_selector is not None
+
+
+def test_options_flow_custom_height_top_mount_includes_sensor_height_field(
+    config_flow_module,
+):
+    """The custom height form includes the sensor height field for top-mount entries."""
+    flow, _, _ = _make_flow(
+        config_flow_module,
+        entry_data={"top_mount": True, "top_mount_sensor_height": 1350},
+        medium_type="air",
+    )
+
+    result = asyncio.run(flow.async_step_custom_height())
+
+    assert result["step_id"] == "custom_height"
+    # Would raise AssertionError if the field were missing.
+    _schema_value(result["data_schema"], "top_mount_sensor_height")
+
+
+def test_options_flow_custom_height_bottom_mount_excludes_sensor_height_field(
+    config_flow_module,
+):
+    """The custom height form omits the sensor height field for bottom-mount entries."""
+    flow, _, _ = _make_flow(
+        config_flow_module,
+        entry_data={"top_mount": False},
+        medium_type="fresh_water",
+    )
+
+    result = asyncio.run(flow.async_step_custom_height())
+
+    assert result["step_id"] == "custom_height"
+    try:
+        _schema_value(result["data_schema"], "top_mount_sensor_height")
+    except AssertionError:
+        pass
+    else:
+        raise AssertionError("top_mount_sensor_height should not be present")
+
+
+def test_options_flow_custom_height_top_mount_valid_input_persists_sensor_height(
+    config_flow_module,
+):
+    """A valid submission persists both the tank height and sensor mount height."""
+    entry_data = {
+        "top_mount": True,
+        "custom_tank_height": 0,
+        "tank_capacity": 0.0,
+        "tank_capacity_unit": "gal",
+        "top_mount_sensor_height": 0,
+    }
+    flow, update_calls, _ = _make_flow(
+        config_flow_module,
+        entry_data=entry_data,
+        medium_type="air",
+    )
+    flow._custom_capacity_unit = "gal"
+
+    result = asyncio.run(
+        flow.async_step_custom_height(
+            user_input={
+                "custom_tank_height": 1000,
+                "top_mount_sensor_height": 1150,
+                "tank_capacity": 100.0,
+                "tank_capacity_unit": "gal",
+            }
+        )
+    )
+
+    updated = update_calls[0]["data"]
+    assert updated["custom_tank_height"] == 1000
+    assert updated["top_mount_sensor_height"] == 1150
+    assert result == {"title": "", "data": {}}
+
+
+def test_options_flow_custom_height_top_mount_invalid_sensor_height_returns_error(
+    config_flow_module,
+):
+    """An invalid sensor height value returns a field error and re-shows the form."""
+    flow, _, _ = _make_flow(
+        config_flow_module,
+        entry_data={
+            "top_mount": True,
+            "custom_tank_height": 0,
+            "tank_capacity": 0.0,
+            "tank_capacity_unit": "gal",
+        },
+        medium_type="air",
+    )
+    flow._custom_capacity_unit = "gal"
+
+    result = asyncio.run(
+        flow.async_step_custom_height(
+            user_input={
+                "custom_tank_height": 1000,
+                "top_mount_sensor_height": "bad-value",
+                "tank_capacity": 100.0,
+                "tank_capacity_unit": "gal",
+            }
+        )
+    )
+
+    assert result["step_id"] == "custom_height"
+    assert result["errors"] == {"top_mount_sensor_height": "invalid_number"}

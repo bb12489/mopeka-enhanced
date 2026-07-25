@@ -16,7 +16,7 @@ def _build_update(stub_types, level_mm: float):
 
 def test_custom_non_propane_liters_volume_sensor(sensor_module, stub_types):
     converter = sensor_module.make_sensor_update_to_bluetooth_data_update(
-        tank_range=(0.0, 1000.0, False),
+        tank_range=(0.0, 1000.0, False, None),
         top_mount=False,
         medium_type="fresh_water",
         propane_preset="custom",
@@ -37,7 +37,7 @@ def test_custom_non_propane_liters_volume_sensor(sensor_module, stub_types):
 
 def test_custom_propane_kilograms_volume_sensor(sensor_module, stub_types):
     converter = sensor_module.make_sensor_update_to_bluetooth_data_update(
-        tank_range=(0.0, 600.0, False),
+        tank_range=(0.0, 600.0, False, None),
         top_mount=False,
         medium_type="propane",
         propane_preset="custom",
@@ -57,8 +57,9 @@ def test_custom_propane_kilograms_volume_sensor(sensor_module, stub_types):
 
 
 def test_custom_top_mount_uses_air_gap_conversion(sensor_module, stub_types):
+    # sensor_mount_height=None falls back to full_mm (0 headspace assumption).
     converter = sensor_module.make_sensor_update_to_bluetooth_data_update(
-        tank_range=(0.0, 1000.0, False),
+        tank_range=(0.0, 1000.0, False, None),
         top_mount=True,
         medium_type="air",
         propane_preset="custom",
@@ -71,6 +72,30 @@ def test_custom_top_mount_uses_air_gap_conversion(sensor_module, stub_types):
 
     assert update.entity_data[level_key] == 750.0
     assert update.entity_data[pct_key] == 75.0
+
+
+def test_custom_top_mount_with_headspace_uses_sensor_mount_height(
+    sensor_module, stub_types
+):
+    # Sensor is mounted 150mm above the max water level height (1000mm), i.e.
+    # a real headspace. At air_gap=150mm the tank is truly 100% full (fluid
+    # reaches the sensor_mount_height of 1150mm, clamped and scaled against
+    # the 1000mm max water level height) rather than the ~85% a single-height
+    # model would compute (1150 - 150 = 1000 -> 100%, not (1000-150)/1000).
+    converter = sensor_module.make_sensor_update_to_bluetooth_data_update(
+        tank_range=(0.0, 1000.0, False, 1150.0),
+        top_mount=True,
+        medium_type="air",
+        propane_preset="custom",
+        tank_capacity=(100.0, "gal"),
+    )
+
+    update = converter(_build_update(stub_types, level_mm=150.0))
+    level_key = stub_types["PassiveBluetoothEntityKey"]("tank_level", "dev1")
+    pct_key = stub_types["PassiveBluetoothEntityKey"]("tank_level_percent", "dev1")
+
+    assert update.entity_data[level_key] == 1000.0
+    assert update.entity_data[pct_key] == 100.0
 
 
 def test_custom_capacity_unit_resolution(sensor_module):
@@ -134,7 +159,7 @@ def test_dropdown_unit_and_capacity_drive_tank_volume_output(
     tank_capacity = sensor_module._get_tank_capacity(entry_data)
 
     converter = sensor_module.make_sensor_update_to_bluetooth_data_update(
-        tank_range=(0.0, 1000.0, False),
+        tank_range=(0.0, 1000.0, False, None),
         top_mount=False,
         medium_type=medium_type,
         propane_preset="custom",

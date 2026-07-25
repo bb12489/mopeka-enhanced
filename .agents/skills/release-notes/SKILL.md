@@ -18,14 +18,26 @@ IS the release note** — write it exactly as you want it to appear on GitHub.
   down to the user-facing takeaway.
 - **Group bullets under `###` category headers**, using the emoji already established in
   this file. Only include categories that actually apply this release:
+  - `### 🚨 Action Required` (put this section **first**, above all others, when a change
+    needs manual user action — e.g. reconfiguring an entry — for the fix/feature below to
+    take effect. Bold the affected device/entity type and the action verb. Always state
+    what happens if the user does nothing, and who is unaffected.)
   - `### 🎉 New Features!`
   - `### 🛠️Changed` (note: no space between the emoji and "Changed" — matches existing entries)
   - `### ✅ Tests`
   - `### ⚙️ CI`
   - `### 📚 Docs`
   - `### 🐛 Fixed` (used in older entries for bug fixes)
-- Order categories roughly as above (Features, Changed, Tests, CI, Docs, Fixed) but skip
-  any that don't apply.
+- Order categories roughly as above (Action Required, Features, Changed, Tests, CI, Docs,
+  Fixed) but skip any that don't apply.
+- **Check whether any change requires manual user action** (reconfiguring a config entry,
+  renaming an entity that breaks existing automations, deleting/re-adding presets, etc.)
+  before finalizing a release — don't rely on the original session/commit description to
+  flag this; verify it yourself against what actually changed. If so, it must appear
+  under `### 🚨 Action Required`. A past release (`0.2.5-Beta1`, ASME preset rewrite) needed
+  this and it was only added ad hoc to the GitHub Release body, not to `CHANGELOG.md` —
+  since `CHANGELOG.md` is now the verbatim source for release notes, this must always
+  live there so it survives into the generated release automatically.
 - Always include a `- Bumped integration version to \`X.Y.Z\`.` bullet under `### 🛠️Changed`.
 - Reference PRs/contributors inline when relevant, e.g.
   `— thanks to [@user](https://github.com/user) for the contribution! (#12)`.

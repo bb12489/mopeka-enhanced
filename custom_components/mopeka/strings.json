@@ -21,11 +21,13 @@
       "custom_height": {
         "data": {
           "custom_tank_height": "Custom tank height",
+          "top_mount_sensor_height": "Sensor mount height",
           "tank_capacity_unit": "Capacity unit",
           "tank_capacity": "Tank capacity"
         },
         "data_description": {
           "custom_tank_height": "Maximum usable fill height of the tank in millimeters. For horizontal tanks, measure and enter the inner diameter. Set to 0 to disable the fill percentage sensor.",
+          "top_mount_sensor_height": "For top-mount (TD40/TD200) sensors only: the sensor's own mounting height above the tank bottom, in millimeters — the Mopeka app's 'Overall Height'. May be greater than the max water level height above if the sensor is mounted with headspace above the true full-tank line. Set to 0 to assume no headspace (sensor mounted exactly at the max fill line).",
           "tank_capacity_unit": "Choose the custom tank capacity unit. Propane supports gallons or kilograms; other media support gallons or liters.",
           "tank_capacity": "Total usable capacity of the tank, entered in the selected capacity unit. The tank level sensor uses that same unit (gallons, kilograms, or liters). Set to 0 to disable the volume sensor."
         },
@@ -47,11 +49,13 @@
       "reconfigure_custom_height": {
         "data": {
           "custom_tank_height": "[%key:component::mopeka::config::step::custom_height::data::custom_tank_height%]",
+          "top_mount_sensor_height": "[%key:component::mopeka::config::step::custom_height::data::top_mount_sensor_height%]",
           "tank_capacity_unit": "[%key:component::mopeka::config::step::custom_height::data::tank_capacity_unit%]",
           "tank_capacity": "[%key:component::mopeka::config::step::custom_height::data::tank_capacity%]"
         },
         "data_description": {
           "custom_tank_height": "[%key:component::mopeka::config::step::custom_height::data_description::custom_tank_height%]",
+          "top_mount_sensor_height": "[%key:component::mopeka::config::step::custom_height::data_description::top_mount_sensor_height%]",
           "tank_capacity_unit": "[%key:component::mopeka::config::step::custom_height::data_description::tank_capacity_unit%]",
           "tank_capacity": "[%key:component::mopeka::config::step::custom_height::data_description::tank_capacity%]"
         },
@@ -82,6 +86,24 @@
         },
         "title": "Tank configuration"
       },
+      "top_mount_height": {
+        "data": {
+          "top_mount_sensor_height": "[%key:component::mopeka::config::step::custom_height::data::top_mount_sensor_height%]"
+        },
+        "data_description": {
+          "top_mount_sensor_height": "[%key:component::mopeka::config::step::custom_height::data_description::top_mount_sensor_height%]"
+        },
+        "title": "Top-mount sensor height"
+      },
+      "reconfigure_top_mount_height": {
+        "data": {
+          "top_mount_sensor_height": "[%key:component::mopeka::config::step::custom_height::data::top_mount_sensor_height%]"
+        },
+        "data_description": {
+          "top_mount_sensor_height": "[%key:component::mopeka::config::step::custom_height::data_description::top_mount_sensor_height%]"
+        },
+        "title": "[%key:component::mopeka::config::step::top_mount_height::title%]"
+      },
       "user": {
         "data": {
           "address": "[%key:common::config_flow::data::device%]",
@@ -93,6 +115,10 @@
   },
   "entity": {
     "sensor": {
+      "accelerometer_x": { "name": "Position X" },
+      "accelerometer_y": { "name": "Position Y" },
+      "battery": { "name": "Battery" },
+      "battery_voltage": { "name": "Battery voltage" },
       "medium_type": {
         "name": "Medium type",
         "state": {
@@ -163,8 +189,12 @@
           "custom": "Custom"
         }
       },
+      "reading_quality": { "name": "Reading quality" },
+      "signal_strength": { "name": "Signal strength" },
+      "tank_level": { "name": "Tank level" },
       "tank_level_percent": { "name": "Tank fill" },
-      "tank_volume": { "name": "Tank volume" }
+      "tank_volume": { "name": "Tank volume remaining" },
+      "temperature": { "name": "Temperature" }
     }
   },
   "options": {
@@ -172,11 +202,13 @@
       "custom_height": {
         "data": {
           "custom_tank_height": "[%key:component::mopeka::config::step::custom_height::data::custom_tank_height%]",
+          "top_mount_sensor_height": "[%key:component::mopeka::config::step::custom_height::data::top_mount_sensor_height%]",
           "tank_capacity_unit": "[%key:component::mopeka::config::step::custom_height::data::tank_capacity_unit%]",
           "tank_capacity": "[%key:component::mopeka::config::step::custom_height::data::tank_capacity%]"
         },
         "data_description": {
           "custom_tank_height": "[%key:component::mopeka::config::step::custom_height::data_description::custom_tank_height%]",
+          "top_mount_sensor_height": "[%key:component::mopeka::config::step::custom_height::data_description::top_mount_sensor_height%]",
           "tank_capacity_unit": "[%key:component::mopeka::config::step::custom_height::data_description::tank_capacity_unit%]",
           "tank_capacity": "[%key:component::mopeka::config::step::custom_height::data_description::tank_capacity%]"
         },
@@ -205,6 +237,15 @@
           "tank_size": "[%key:component::mopeka::config::step::tank_config::data_description::tank_size%]"
         },
         "title": "[%key:component::mopeka::config::step::tank_config::title%]"
+      },
+      "top_mount_height": {
+        "data": {
+          "top_mount_sensor_height": "[%key:component::mopeka::config::step::custom_height::data::top_mount_sensor_height%]"
+        },
+        "data_description": {
+          "top_mount_sensor_height": "[%key:component::mopeka::config::step::custom_height::data_description::top_mount_sensor_height%]"
+        },
+        "title": "[%key:component::mopeka::config::step::top_mount_height::title%]"
       }
     }
   },

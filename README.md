@@ -134,6 +134,16 @@ Horizontal tanks are not linear: a 10 mm change near the bottom does not represe
 Many horizontal propane tanks also have rounded/hemispherical endcaps, which further separate true volume from a naive linear model. This integration improves practical accuracy by using non-linear cylindrical geometry for fill percentage and then applying the configured tank capacity for final gallons.
 
 
+## Top-Mount Sensors (TD40/TD200)
+
+Top-mount sensors are installed through an opening in the top of the tank and measure the **air gap** from the sensor down to the liquid surface — the opposite of bottom-mount sensors, which measure straight up through the liquid. This integration detects TD40/TD200 devices automatically and converts that air-gap reading into a fluid height for you, but it needs two measurements to do that correctly — the same two values the official Mopeka app asks for when configuring one of these sensors:
+
+- **Max Water Level Height** — the fill height at 100% full, measured from the tank bottom. This is the same "Custom tank height" field used for bottom-mount custom tanks, and it's what the percentage/volume sensors are scaled against.
+- **Overall Height** (labeled **Sensor mount height** in this integration's config flow) — the height of the sensor's own mounting point above the tank bottom. If your sensor is mounted flush with the max-fill line, this is the same as the Max Water Level Height and you can leave it at 0 (the integration then assumes no headspace, matching versions of this integration before this field existed). If your sensor sits *above* the max-fill line — common when there's headspace, a vent, or a raised fitting — enter the sensor's true mounting height here so the tank can still reach 100% instead of maxing out early.
+
+Both fields are available wherever a top-mount device's tank height is configured: initial setup (Custom tank entries and IBC tote presets), reconfigure, and the options flow.
+
+
 ## Installation (HACS)
 
 1. Open HACS in Home Assistant.

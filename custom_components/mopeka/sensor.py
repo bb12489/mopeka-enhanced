@@ -47,10 +47,12 @@ from .const import (
     CONF_TANK_CAPACITY_UNIT,
     CONF_TANK_SIZE,
     CONF_TOP_MOUNT,
+    CONF_TOP_MOUNT_SENSOR_HEIGHT,
     DEFAULT_CUSTOM_TANK_HEIGHT,
     DEFAULT_MEDIUM_TYPE,
     DEFAULT_TANK_CAPACITY,
     DEFAULT_TANK_CAPACITY_UNIT,
+    DEFAULT_TOP_MOUNT_SENSOR_HEIGHT,
     HORIZONTAL_TANK_SIZES,
     IBC_TANK_SIZE_RANGES,
     TANK_SIZE_CAPACITIES,
@@ -65,18 +67,27 @@ _LOGGER = logging.getLogger(__name__)
 PARALLEL_UPDATES = 0
 
 SENSOR_DESCRIPTIONS: dict[str, SensorEntityDescription] = {
+    # Every entry below sets translation_key so its display name is sourced
+    # from this integration's own strings.json/translations (sentence case,
+    # consistent scheme), rather than the upstream mopeka_iot_ble library's
+    # own (Title Case, non-localizable) name for the same raw sensor value.
+    # See the entity_names construction below, which suppresses the library's
+    # raw name for any key present in this dict so translation_key can apply.
     "accelerometer_x": SensorEntityDescription(
         key="accelerometer_x",
+        translation_key="accelerometer_x",
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_registry_enabled_default=False,
     ),
     "accelerometer_y": SensorEntityDescription(
         key="accelerometer_y",
+        translation_key="accelerometer_y",
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_registry_enabled_default=False,
     ),
     "battery": SensorEntityDescription(
         key="battery",
+        translation_key="battery",
         device_class=SensorDeviceClass.BATTERY,
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
@@ -84,6 +95,7 @@ SENSOR_DESCRIPTIONS: dict[str, SensorEntityDescription] = {
     ),
     "battery_voltage": SensorEntityDescription(
         key="battery_voltage",
+        translation_key="battery_voltage",
         device_class=SensorDeviceClass.VOLTAGE,
         native_unit_of_measurement=UnitOfElectricPotential.VOLT,
         state_class=SensorStateClass.MEASUREMENT,
@@ -102,12 +114,14 @@ SENSOR_DESCRIPTIONS: dict[str, SensorEntityDescription] = {
     ),
     "reading_quality": SensorEntityDescription(
         key="reading_quality",
+        translation_key="reading_quality",
         entity_category=EntityCategory.DIAGNOSTIC,
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
     ),
     "signal_strength": SensorEntityDescription(
         key="signal_strength",
+        translation_key="signal_strength",
         device_class=SensorDeviceClass.SIGNAL_STRENGTH,
         native_unit_of_measurement=SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
         state_class=SensorStateClass.MEASUREMENT,
@@ -116,6 +130,7 @@ SENSOR_DESCRIPTIONS: dict[str, SensorEntityDescription] = {
     ),
     "tank_level": SensorEntityDescription(
         key="tank_level",
+        translation_key="tank_level",
         device_class=SensorDeviceClass.DISTANCE,
         native_unit_of_measurement=UnitOfLength.MILLIMETERS,
         state_class=SensorStateClass.MEASUREMENT,
@@ -135,6 +150,7 @@ SENSOR_DESCRIPTIONS: dict[str, SensorEntityDescription] = {
     ),
     "temperature": SensorEntityDescription(
         key="temperature",
+        translation_key="temperature",
         device_class=SensorDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         state_class=SensorStateClass.MEASUREMENT,
@@ -174,8 +190,8 @@ def _circular_segment_fraction(h: float, diameter: float) -> float:
 
 def _get_tank_level_range(
     entry_data: Mapping[str, Any],
-) -> tuple[float, float, bool] | None:
-    """Return the (empty_mm, full_mm, is_horizontal) calibration range.
+) -> tuple[float, float, bool, float | None] | None:
+    """Return the (empty_mm, full_mm, is_horizontal, sensor_mount_height) range.
 
     Returns None when no percentage sensor should be shown:
     - No tank size configured (legacy/unconfigured entries).
@@ -195,11 +211,23 @@ def _get_tank_level_range(
                         coefficients are applied by the library per CONF_MEDIUM_TYPE).
     Other medium + propane preset → not permitted; propane ranges are propane-specific.
 
-    Top-mount (TD40/TD200) + Custom → standard range (0..height). The raw
-                        sensor reading is first converted from air gap to
-                        fluid height via (height - air_gap).
+    Top-mount (TD40/TD200) + Custom → standard range (0..height), where `height`
+                        is the "Max Water Level Height" (the fill-percentage
+                        scale, same meaning as for bottom-mount sensors).
     Top-mount + IBC preset → standard range (0..preset_height) with the same
-                        air-gap conversion.
+                        meaning.
+
+    For both top-mount cases, `sensor_mount_height` (the fourth tuple element)
+    carries CONF_TOP_MOUNT_SENSOR_HEIGHT — the Mopeka app's "Overall Height":
+    the sensor's physical mounting height above the tank bottom. This may be
+    greater than the max water level height when the sensor sits above the
+    true max-fill line (headspace), in which case raw air-gap readings never
+    reach 0 even at 100% full. sensor.py uses this (not the max water level
+    height) to convert raw air-gap into fluid height, then still uses the max
+    water level height as the percentage scale. When unset (0, the default),
+    it falls back to the max water level height, reproducing the pre-existing
+    zero-headspace assumption for backward compatibility. Always None for
+    non-top-mount ranges, where it is not applicable.
 
     Legacy entries without CONF_MEDIUM_TYPE default to propane.
     """
@@ -212,25 +240,50 @@ def _get_tank_level_range(
         if height <= 0:
             return None
         if entry_data.get(CONF_TOP_MOUNT, False):
-            # Top-mount sensors report air gap. Convert to fluid height later
-            # as (height - air_gap), then evaluate fill percentage on 0..height.
-            return (0.0, float(height), False)
-        return (0.0, float(height), False)
+            return (
+                0.0,
+                float(height),
+                False,
+                _resolve_sensor_mount_height(entry_data, float(height)),
+            )
+        return (0.0, float(height), False, None)
     # IBC tote presets are valid for any non-propane medium (bottom-mount and
-    # top-mount sensors). For top-mount, convert air gap to fluid height first.
+    # top-mount sensors).
     ibc_range = IBC_TANK_SIZE_RANGES.get(tank_size)
     if ibc_range is not None:
         empty_mm, full_mm = ibc_range
         if entry_data.get(CONF_TOP_MOUNT, False):
-            return (0.0, full_mm, False)
-        return (empty_mm, full_mm, False)
+            return (
+                0.0,
+                full_mm,
+                False,
+                _resolve_sensor_mount_height(entry_data, full_mm),
+            )
+        return (empty_mm, full_mm, False, None)
     # Propane presets are calibrated for propane coefficients only.
     if medium_type != DEFAULT_MEDIUM_TYPE:
         return None
     tank_range = TANK_SIZE_RANGES.get(tank_size)
     if tank_range is None:
         return None
-    return (*tank_range, tank_size in HORIZONTAL_TANK_SIZES)
+    return (*tank_range, tank_size in HORIZONTAL_TANK_SIZES, None)
+
+
+def _resolve_sensor_mount_height(
+    entry_data: Mapping[str, Any], max_water_level_height: float
+) -> float:
+    """Return the top-mount sensor's mounting height above the tank bottom.
+
+    Falls back to the max water level height (i.e. assumes the sensor sits
+    exactly at the max-fill line, with no headspace) when unset, reproducing
+    behavior from before CONF_TOP_MOUNT_SENSOR_HEIGHT existed.
+    """
+    sensor_mount_height = entry_data.get(
+        CONF_TOP_MOUNT_SENSOR_HEIGHT, DEFAULT_TOP_MOUNT_SENSOR_HEIGHT
+    )
+    if sensor_mount_height <= 0:
+        return max_water_level_height
+    return float(sensor_mount_height)
 
 
 def _get_tank_capacity(entry_data: Mapping[str, Any]) -> tuple[float, str] | None:
@@ -269,7 +322,7 @@ def _get_tank_capacity(entry_data: Mapping[str, Any]) -> tuple[float, str] | Non
 
 
 def make_sensor_update_to_bluetooth_data_update(
-    tank_range: tuple[float, float, bool] | None,
+    tank_range: tuple[float, float, bool, float | None] | None,
     top_mount: bool,
     medium_type: str | None,
     propane_preset: str | None,
@@ -299,8 +352,16 @@ def make_sensor_update_to_bluetooth_data_update(
             device_key_to_bluetooth_entity_key(device_key): sensor_values.native_value  # type: ignore[misc]
             for device_key, sensor_values in sensor_update.entity_values.items()
         }
+        # mopeka_iot_ble always supplies a non-None SensorValue.name (either an
+        # explicit string or an auto-generated Title Case fallback derived from
+        # the key), which would otherwise hard-set Entity._attr_name and take
+        # priority over translation_key. Suppress it to None for every key we
+        # have our own SENSOR_DESCRIPTIONS translation_key for, so our own
+        # (sentence case, localizable) strings.json name applies instead.
         entity_names: dict[PassiveBluetoothEntityKey, str | None] = {
-            device_key_to_bluetooth_entity_key(device_key): sensor_values.name
+            device_key_to_bluetooth_entity_key(device_key): (
+                None if device_key.key in SENSOR_DESCRIPTIONS else sensor_values.name
+            )
             for device_key, sensor_values in sensor_update.entity_values.items()
         }
 
@@ -328,7 +389,7 @@ def make_sensor_update_to_bluetooth_data_update(
         # Horizontal tanks: cylindrical cross-section geometry for accurate
         #   volume-based fill percentage.
         if tank_range is not None:
-            empty_mm, full_mm, is_horizontal = tank_range
+            empty_mm, full_mm, is_horizontal, sensor_mount_height = tank_range
             for device_key, sensor_values in sensor_update.entity_values.items():
                 if device_key.key == "tank_level":
                     tank_level_entity_key = device_key_to_bluetooth_entity_key(
@@ -346,10 +407,21 @@ def make_sensor_update_to_bluetooth_data_update(
                     if isinstance(raw_level, (int, float)):
                         level_for_calc = float(raw_level)
                         if top_mount:
-                            # Top-mount sensors report air gap from sensor to fluid
-                            # surface; convert to fluid height using configured depth.
-                            level_for_calc = full_mm - level_for_calc
-                        level_for_calc = min(full_mm, max(0.0, level_for_calc))
+                            # Top-mount sensors report air gap from the sensor
+                            # (mounted at sensor_mount_height above the tank
+                            # bottom, which may sit above the max-fill line) to
+                            # the fluid surface; convert to fluid height first,
+                            # then clamp to the sensor's own physical mount
+                            # height (fluid can't be higher than the sensor).
+                            mount_height = (
+                                sensor_mount_height
+                                if sensor_mount_height is not None
+                                else full_mm
+                            )
+                            level_for_calc = mount_height - level_for_calc
+                            level_for_calc = min(mount_height, max(0.0, level_for_calc))
+                        else:
+                            level_for_calc = min(full_mm, max(0.0, level_for_calc))
                         # Report tank_level as fluid height for top-mount sensors.
                         if top_mount:
                             entity_data[tank_level_entity_key] = level_for_calc

@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### 🚨 Action Required
+
+- Existing **top-mount (TD40/TD200)** sensors must be **reconfigured** (Settings → Devices & Services → Mopeka → Reconfigure, or the entry's Options) to pick up the headspace fix below — the new "Sensor mount height" field defaults to 0 (old zero-headspace behavior) until you explicitly set it. No action needed for bottom-mount sensors or if your top-mount sensor has no headspace.
+
+### 🐛 Fixed
+
+- Top-mount (TD40/TD200) sensors now correctly support a sensor mount height that differs from the max water level height (headspace above the true full-tank line), matching the two-value model the official Mopeka app uses ("Max Water Level Height" and "Overall Height"). Previously, any headspace caused the tank to never reach 100% full. Existing configurations are unaffected (defaults to the old zero-headspace assumption unless the new field is set).
+
+### 🎉 New Features!
+
+- Added a "Sensor mount height" field for top-mount sensors, available in initial setup (Custom entries and IBC tote presets), reconfigure, and the options flow.
+
+### 🛠️Changed
+
+- Renamed the "Tank volume" sensor to "Tank volume remaining" to make clear it reports the current amount remaining, not the tank's total/rated capacity.
+- Standardized every sensor entity's display name to come from this integration's own translations (sentence case, localizable) instead of some falling back to the upstream `mopeka_iot_ble` library's own inconsistently-cased, non-localizable names. Affects `battery_voltage` ("Battery Voltage" → "Battery voltage"), `tank_level` ("Tank Level" → "Tank level"), and `signal_strength` ("Signal Strength" → "Signal strength"); `accelerometer_x`/`accelerometer_y`/`battery`/`reading_quality`/`temperature` keep their existing wording but are now sourced from `strings.json` as well.
+
 ## [0.2.7] - 2026-07-25
 
 ### 🛠️Changed
