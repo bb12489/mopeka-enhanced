@@ -36,14 +36,21 @@ jobs:
       - name: Install quality tools
         run: python -m pip install --upgrade pip -r requirements-dev.txt
 
-      - name: Run tests
-        run: python -m pytest -q
+      # -p no:homeassistant disables pytest-homeassistant-custom-component's
+      # autouse fixtures, which assume a real `homeassistant` package is
+      # importable — tests/ instead loads the integration against hand-rolled
+      # stub modules and would otherwise fail once those fixtures run.
+      - name: Run unit tests
+        run: python -m pytest -p no:homeassistant -q tests
+
+      - name: Run end-to-end tests
+        run: python -m pytest -q tests_integration
 
       - name: Lint integration and tests
-        run: python -m ruff check custom_components tests
+        run: python -m ruff check custom_components tests tests_integration
 
       - name: Check formatting
-        run: python -m ruff format --check custom_components tests
+        run: python -m ruff format --check custom_components tests tests_integration
 
       - name: Type check integration
         run: python -m mypy

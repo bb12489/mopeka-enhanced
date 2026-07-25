@@ -294,7 +294,9 @@ def make_sensor_update_to_bluetooth_data_update(
             if device_key.key in SENSOR_DESCRIPTIONS
         }
         entity_data: dict[PassiveBluetoothEntityKey, str | float | int | None] = {
-            device_key_to_bluetooth_entity_key(device_key): sensor_values.native_value
+            # SensorValue.native_value is typed broader (also date/datetime/Decimal)
+            # than any value mopeka_iot_ble actually produces for this integration.
+            device_key_to_bluetooth_entity_key(device_key): sensor_values.native_value  # type: ignore[misc]
             for device_key, sensor_values in sensor_update.entity_values.items()
         }
         entity_names: dict[PassiveBluetoothEntityKey, str | None] = {
