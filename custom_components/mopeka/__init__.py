@@ -15,6 +15,7 @@ from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import device_registry as dr
 from mopeka_iot_ble import MediumType, MopekaIOTBluetoothDeviceData
 
+from . import _mopeka_iot_ble_compat  # noqa: F401
 from .const import (
     CONF_MEDIUM_TYPE,
     CONF_TANK_SIZE,

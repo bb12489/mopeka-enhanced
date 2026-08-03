@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.9] - 2026-08-03
+
+### 🐛 Fixed
+
+- Mopeka Pro-200B sensors now get discovered correctly. The pinned `mopeka-iot-ble==0.8.0` library predates upstream's Pro-200B support ([Bluetooth-Devices/mopeka-iot-ble#71](https://github.com/Bluetooth-Devices/mopeka-iot-ble/pull/71)), so `supported()` returned `False` and Home Assistant aborted bluetooth discovery with "not_supported" even though our own `manifest.json` already listed the device's manufacturer-data signature. Added a temporary local compatibility shim (`_mopeka_iot_ble_compat.py`) that patches the library's device table in place to match upstream's fix; it will be removed once `mopeka-iot-ble` publishes a release that includes it natively.
+
 ## [0.2.8] - 2026-07-25
 
 ### 🚨 Action Required
