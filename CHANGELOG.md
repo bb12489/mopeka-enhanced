@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2026-08-03
+
+### 🚨 Action Required
+
+- If you added a Pro-200B sensor between the `0.2.9` and `0.3.0` releases, remove and re-add it (Settings → Devices & Services → Mopeka → Delete, then re-discover) so it's classified as top-mount on setup. Top-mount status is only determined at initial discovery, not on reconfigure.
+
+### 🐛 Fixed
+
+- Pro-200B sensors are now correctly classified as top-mount (air-gap) devices, matching TD40/TD200 handling. `0.2.9` fixed discovery (the device would appear and get sensors), but left it classified as bottom-mount, so `tank_level`/fill % used the raw air-gap reading directly instead of converting it to fluid height — producing inaccurate readings. `_is_top_mount_sensor()` also previously masked the manufacturer-data model byte to its lower nibble (`& 0x0F`), which can never match Pro-200B's `0x12`; it now compares the full byte.
+
 ## [0.2.9] - 2026-08-03
 
 ### 🐛 Fixed

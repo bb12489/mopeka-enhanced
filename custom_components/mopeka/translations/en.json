@@ -27,7 +27,7 @@
                 },
                 "data_description": {
                     "custom_tank_height": "Maximum usable fill height of the tank in millimeters. For horizontal tanks, measure and enter the inner diameter. Set to 0 to disable the fill percentage sensor.",
-                    "top_mount_sensor_height": "For top-mount (TD40/TD200) sensors only: the sensor's own mounting height above the tank bottom, in millimeters — the Mopeka app's 'Overall Height'. May be greater than the max water level height above if the sensor is mounted with headspace above the true full-tank line. Set to 0 to assume no headspace (sensor mounted exactly at the max fill line).",
+                    "top_mount_sensor_height": "For top-mount (TD40/TD200/Pro-200B) sensors only: the sensor's own mounting height above the tank bottom, in millimeters — the Mopeka app's 'Overall Height'. May be greater than the max water level height above if the sensor is mounted with headspace above the true full-tank line. Set to 0 to assume no headspace (sensor mounted exactly at the max fill line).",
                     "tank_capacity_unit": "Choose the custom tank capacity unit. Propane supports gallons or kilograms; other media support gallons or liters.",
                     "tank_capacity": "Total usable capacity of the tank, entered in the selected capacity unit. The tank level sensor uses that same unit (gallons, kilograms, or liters). Set to 0 to disable the volume sensor."
                 },
@@ -57,7 +57,7 @@
                 },
                 "data_description": {
                     "custom_tank_height": "Maximum usable fill height of the tank in millimeters. For horizontal tanks, measure and enter the inner diameter. Set to 0 to disable the fill percentage sensor.",
-                    "top_mount_sensor_height": "For top-mount (TD40/TD200) sensors only: the sensor's own mounting height above the tank bottom, in millimeters — the Mopeka app's 'Overall Height'. May be greater than the max water level height above if the sensor is mounted with headspace above the true full-tank line. Set to 0 to assume no headspace (sensor mounted exactly at the max fill line).",
+                    "top_mount_sensor_height": "For top-mount (TD40/TD200/Pro-200B) sensors only: the sensor's own mounting height above the tank bottom, in millimeters — the Mopeka app's 'Overall Height'. May be greater than the max water level height above if the sensor is mounted with headspace above the true full-tank line. Set to 0 to assume no headspace (sensor mounted exactly at the max fill line).",
                     "tank_capacity_unit": "Choose the custom tank capacity unit. Propane supports gallons or kilograms; other media support gallons or liters.",
                     "tank_capacity": "Total usable capacity of the tank, entered in the selected capacity unit. The tank level sensor uses that same unit (gallons, kilograms, or liters). Set to 0 to disable the volume sensor."
                 },
@@ -86,7 +86,7 @@
                     "top_mount_sensor_height": "Sensor mount height"
                 },
                 "data_description": {
-                    "top_mount_sensor_height": "For top-mount (TD40/TD200) sensors only: the sensor's own mounting height above the tank bottom, in millimeters — the Mopeka app's 'Overall Height'. May be greater than the max water level height above if the sensor is mounted with headspace above the true full-tank line. Set to 0 to assume no headspace (sensor mounted exactly at the max fill line)."
+                    "top_mount_sensor_height": "For top-mount (TD40/TD200/Pro-200B) sensors only: the sensor's own mounting height above the tank bottom, in millimeters — the Mopeka app's 'Overall Height'. May be greater than the max water level height above if the sensor is mounted with headspace above the true full-tank line. Set to 0 to assume no headspace (sensor mounted exactly at the max fill line)."
                 },
                 "title": "Top-mount sensor height"
             },
@@ -104,7 +104,7 @@
                     "top_mount_sensor_height": "Sensor mount height"
                 },
                 "data_description": {
-                    "top_mount_sensor_height": "For top-mount (TD40/TD200) sensors only: the sensor's own mounting height above the tank bottom, in millimeters — the Mopeka app's 'Overall Height'. May be greater than the max water level height above if the sensor is mounted with headspace above the true full-tank line. Set to 0 to assume no headspace (sensor mounted exactly at the max fill line)."
+                    "top_mount_sensor_height": "For top-mount (TD40/TD200/Pro-200B) sensors only: the sensor's own mounting height above the tank bottom, in millimeters — the Mopeka app's 'Overall Height'. May be greater than the max water level height above if the sensor is mounted with headspace above the true full-tank line. Set to 0 to assume no headspace (sensor mounted exactly at the max fill line)."
                 },
                 "title": "Top-mount sensor height"
             },
@@ -232,7 +232,7 @@
                 },
                 "data_description": {
                     "custom_tank_height": "Maximum usable fill height of the tank in millimeters. For horizontal tanks, measure and enter the inner diameter. Set to 0 to disable the fill percentage sensor.",
-                    "top_mount_sensor_height": "For top-mount (TD40/TD200) sensors only: the sensor's own mounting height above the tank bottom, in millimeters — the Mopeka app's 'Overall Height'. May be greater than the max water level height above if the sensor is mounted with headspace above the true full-tank line. Set to 0 to assume no headspace (sensor mounted exactly at the max fill line).",
+                    "top_mount_sensor_height": "For top-mount (TD40/TD200/Pro-200B) sensors only: the sensor's own mounting height above the tank bottom, in millimeters — the Mopeka app's 'Overall Height'. May be greater than the max water level height above if the sensor is mounted with headspace above the true full-tank line. Set to 0 to assume no headspace (sensor mounted exactly at the max fill line).",
                     "tank_capacity_unit": "Choose the custom tank capacity unit. Propane supports gallons or kilograms; other media support gallons or liters.",
                     "tank_capacity": "Total usable capacity of the tank, entered in the selected capacity unit. The tank level sensor uses that same unit (gallons, kilograms, or liters). Set to 0 to disable the volume sensor."
                 },
@@ -267,7 +267,7 @@
                     "top_mount_sensor_height": "Sensor mount height"
                 },
                 "data_description": {
-                    "top_mount_sensor_height": "For top-mount (TD40/TD200) sensors only: the sensor's own mounting height above the tank bottom, in millimeters — the Mopeka app's 'Overall Height'. May be greater than the max water level height above if the sensor is mounted with headspace above the true full-tank line. Set to 0 to assume no headspace (sensor mounted exactly at the max fill line)."
+                    "top_mount_sensor_height": "For top-mount (TD40/TD200/Pro-200B) sensors only: the sensor's own mounting height above the tank bottom, in millimeters — the Mopeka app's 'Overall Height'. May be greater than the max water level height above if the sensor is mounted with headspace above the true full-tank line. Set to 0 to assume no headspace (sensor mounted exactly at the max fill line)."
                 },
                 "title": "Top-mount sensor height"
             }

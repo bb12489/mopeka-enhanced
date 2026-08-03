@@ -52,7 +52,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def _is_top_mount_sensor(discovery_info: BluetoothServiceInfoBleak) -> bool:
-    """Return True if the device is a top-mount sensor (TD40/TD200).
+    """Return True if the device is a top-mount sensor (TD40/TD200/Pro-200B).
 
     Top-mount sensors always measure the air gap above the liquid surface and
     must use the AIR acoustic coefficient — the user cannot override this.
@@ -60,7 +60,7 @@ def _is_top_mount_sensor(discovery_info: BluetoothServiceInfoBleak) -> bool:
     mfr_data = discovery_info.manufacturer_data.get(MOPEKA_MANUFACTURER_ID)
     if not mfr_data:
         return False
-    return (mfr_data[0] & 0x0F) in TOP_MOUNT_MODEL_IDS
+    return mfr_data[0] in TOP_MOUNT_MODEL_IDS
 
 
 def format_medium_type(medium_type: Enum) -> str:
@@ -394,7 +394,7 @@ class MopekaConfigFlow(ConfigFlow, domain=DOMAIN):
         discovery_info = self._discovery_info
         title = device.title or device.get_device_name() or discovery_info.name
 
-        # Top-mount sensors (TD40/TD200) always use AIR — bypass the medium type form.
+        # Top-mount sensors (TD40/TD200/Pro-200B) always use AIR — bypass the medium type form.
         if _is_top_mount_sensor(discovery_info):
             self._is_top_mount = True
             self._medium_type = MediumType.AIR.value

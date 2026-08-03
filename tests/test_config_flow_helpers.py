@@ -30,12 +30,12 @@ def test_top_mount_sensor_detection_false_when_missing_data(
     assert config_flow_module._is_top_mount_sensor(bleak) is False
 
 
-def test_top_mount_sensor_detection_false_for_pro_200b(config_flow_module, stub_types):
+def test_top_mount_sensor_detection_true_for_pro_200b(config_flow_module, stub_types):
     bleak = stub_types["BluetoothServiceInfoBleak"](
         address="AA:BB",
         manufacturer_data={89: bytes([0x12])},
     )
-    assert config_flow_module._is_top_mount_sensor(bleak) is False
+    assert config_flow_module._is_top_mount_sensor(bleak) is True
 
 
 def test_capacity_unit_selector_propane(config_flow_module):

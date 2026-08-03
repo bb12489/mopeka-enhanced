@@ -211,7 +211,7 @@ def _get_tank_level_range(
                         coefficients are applied by the library per CONF_MEDIUM_TYPE).
     Other medium + propane preset → not permitted; propane ranges are propane-specific.
 
-    Top-mount (TD40/TD200) + Custom → standard range (0..height), where `height`
+    Top-mount (TD40/TD200/Pro-200B) + Custom → standard range (0..height), where `height`
                         is the "Max Water Level Height" (the fill-percentage
                         scale, same meaning as for bottom-mount sensors).
     Top-mount + IBC preset → standard range (0..preset_height) with the same

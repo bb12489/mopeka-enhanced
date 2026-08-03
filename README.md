@@ -25,7 +25,7 @@ Contributions welcome — bug fixes, efficiency improvements, docs, or additiona
 - 🛢️ **Tank presets** for US, Euro, and South African horizontal/vertical propane tanks (gal/lbs/kg), sourced from the official Mopeka Tank App — more regions on the way
 - 🚰 **IBC tote presets** (275 gal / 330 gal) available for all non-propane medium types
 - 📏 **Custom tank support** — define your own tank height (mm) and capacity (gal/lbs/kg)
-- 📡 **Automatic top-mount sensor detection** (TD40/TD200) with a dedicated sensor mount height field so headspace above the max-fill line no longer prevents the tank from reading 100%
+- 📡 **Automatic top-mount sensor detection** (TD40/TD200/Pro-200B) with a dedicated sensor mount height field so headspace above the max-fill line no longer prevents the tank from reading 100%
 - 🧭 **Guided config flow** that adapts based on medium type and detected device (top-mount vs. bottom-mount)
 - 🧮 **Accurate horizontal tank math** — non-linear fill calculation that accounts for cylindrical geometry and hemispherical endcaps, instead of a naive linear height-to-percent conversion
 - 📊 **Tank level sensors** for fill percentage and volume remaining (gal/lbs/kg)
@@ -61,9 +61,9 @@ Horizontal tanks aren't linear — a 10 mm change near the bottom doesn't repres
 
 This integration instead calculates fill percentage from the actual circular-segment cross-section of the tank (adjusted for your configured empty offset), then applies your configured capacity to get a volume in gal/lbs/kg. The result is a more accurate reading than a linear model — so don't be surprised if it doesn't match the Mopeka app exactly; that's expected and it's the more accurate value. See `custom_components/mopeka/sensor.py` for the implementation.
 
-## Top-Mount Sensors (TD40/TD200)
+## Top-Mount Sensors (TD40/TD200/Pro-200B)
 
-Top-mount sensors measure the **air gap** from the sensor down to the liquid surface, rather than straight up through the liquid like bottom-mount sensors. This integration detects TD40/TD200 devices automatically and needs two measurements to convert that air-gap reading into an accurate fluid height — the same two values the official Mopeka app asks for:
+Top-mount sensors measure the **air gap** from the sensor down to the liquid surface, rather than straight up through the liquid like bottom-mount sensors. This integration detects TD40/TD200/Pro-200B devices automatically and needs two measurements to convert that air-gap reading into an accurate fluid height — the same two values the official Mopeka app asks for:
 
 - **Max Water Level Height** — the fill height at 100% full, measured from the tank bottom. Same field used for bottom-mount custom tanks.
 - **Sensor mount height** (Mopeka app's "Overall Height") — the height of the sensor's own mounting point above the tank bottom. Leave at 0 if the sensor sits flush with the max-fill line (the default, matching older versions of this integration). If your sensor sits above the max-fill line (headspace, a vent, a raised fitting), set the true mounting height here so the tank can reach 100% instead of maxing out early.
