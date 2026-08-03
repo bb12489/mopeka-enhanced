@@ -26,8 +26,9 @@ jobs:
           echo "version=${BRANCH_NAME#v}" >> "$GITHUB_OUTPUT"
 
       - name: Create and push tag
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
         run: |
-          TAG="${{ steps.version.outputs.tag }}"
           if git rev-parse "$TAG" >/dev/null 2>&1; then
             echo "Tag $TAG already exists — skipping creation."
           else
@@ -38,10 +39,11 @@ jobs:
           fi
 
       - name: Build release notes from changelog
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          TAG_NAME: ${{ steps.version.outputs.tag }}
         run: |
           set -euo pipefail
-          VERSION="${{ steps.version.outputs.version }}"
-          TAG_NAME="${{ steps.version.outputs.tag }}"
 
           CHANGELOG_SECTION="$(awk -v ver="$VERSION" '
             $0 ~ "^## \\[" ver "\\]" {in_section=1; next}
@@ -67,9 +69,10 @@ jobs:
 
       - name: Determine release channel
         id: release_channel
+        env:
+          TAG_NAME: ${{ steps.version.outputs.tag }}
         run: |
           set -euo pipefail
-          TAG_NAME="${{ steps.version.outputs.tag }}"
 
           if echo "${TAG_NAME}" | grep -qi "beta"; then
             echo "prerelease=true" >> "$GITHUB_OUTPUT"

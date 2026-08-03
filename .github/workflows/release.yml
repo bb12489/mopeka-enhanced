@@ -24,9 +24,10 @@ jobs:
           fetch-depth: 0
 
       - name: Build release notes from changelog
+        env:
+          TAG_NAME: ${{ inputs.tag_name || github.ref_name }}
         run: |
           set -euo pipefail
-          TAG_NAME="${{ inputs.tag_name || github.ref_name }}"
           VERSION="${TAG_NAME#v}"
 
           CHANGELOG_SECTION="$(awk -v ver="$VERSION" '
@@ -53,9 +54,10 @@ jobs:
 
       - name: Determine release channel
         id: release_channel
+        env:
+          TAG_NAME: ${{ inputs.tag_name || github.ref_name }}
         run: |
           set -euo pipefail
-          TAG_NAME="${{ inputs.tag_name || github.ref_name }}"
 
           if echo "${TAG_NAME}" | grep -qi "beta"; then
             echo "prerelease=true" >> "$GITHUB_OUTPUT"

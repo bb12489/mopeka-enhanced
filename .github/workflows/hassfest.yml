@@ -6,9 +6,16 @@ on:
   schedule:
     - cron:  '0 0 * * *'
 
+permissions:
+  contents: read
+
 jobs:
   validate:
     runs-on: "ubuntu-latest"
     steps:
         - uses: "actions/checkout@v4"
-        - uses: "home-assistant/actions/hassfest@master"
+        # home-assistant/actions has no maintained version tags (only a stale
+        # "1.0.0" from years ago); hassfest must track the latest schema, so
+        # pin to a commit SHA instead of the mutable @master branch. Bump
+        # periodically by re-checking home-assistant/actions@master's HEAD.
+        - uses: "home-assistant/actions/hassfest@a7c616ce81ccda50150bf1595786c71b1883fabb" # master @ 2026-08-03
