@@ -1,6 +1,6 @@
-"""Temporary compatibility shim for the pinned mopeka-iot-ble release.
+"""Temporary compatibility shim for the development-pinned mopeka-iot-ble release.
 
-The pinned `mopeka-iot-ble` release (0.8.0, from July 2024) does not
+The development-pinned `mopeka-iot-ble` release (0.8.0, from July 2024) does not
 recognize device type `0x12`, the Mopeka Pro-200B. Our own manifest.json
 already discovers it (manufacturer_data_start [18] == 0x12, added in our
 v0.2.6), but without this patch `MopekaIOTBluetoothDeviceData.supported()`
@@ -13,8 +13,8 @@ cut a release that includes it yet. This patches the library's device
 table in place to match that upstream fix exactly.
 
 Remove this file (and its imports in __init__.py/config_flow.py) once
-mopeka-iot-ble publishes a release with 0x12 support, and bump the pinned
-version in manifest.json/requirements-dev.txt accordingly.
+mopeka-iot-ble publishes a release with 0x12 support, and raise the minimum
+version in manifest.json and the development pin in requirements-dev.txt accordingly.
 """
 
 from __future__ import annotations
