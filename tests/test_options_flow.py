@@ -130,6 +130,34 @@ def test_options_flow_init_no_input_shows_form(config_flow_module):
     assert "data_schema" in result
 
 
+def test_options_flow_init_manual_top_mount_override_routes_to_ibc(
+    config_flow_module,
+):
+    """Checking the top-mount override forces AIR medium and routes to IBC config.
+
+    Lets a device not auto-detected as top-mount (e.g. a Pro Check mounted
+    inside a tank lid rather than through-wall from below) opt into the same
+    air-gap math TD40/TD200/Pro-200B get automatically.
+    """
+    flow, _, _ = _make_flow(
+        config_flow_module,
+        entry_data={"top_mount": False, "medium_type": "propane"},
+    )
+
+    async def _fake_ibc():
+        return {"step": "ibc"}
+
+    flow.async_step_ibc_tank_config = _fake_ibc
+
+    result = asyncio.run(
+        flow.async_step_init(user_input={"medium_type": "propane", "top_mount": True})
+    )
+
+    assert result == {"step": "ibc"}
+    assert flow._medium_type == "air"
+    assert flow._is_top_mount is True
+
+
 # ════════════════════════ async_step_tank_config ═════════════════════════════
 
 

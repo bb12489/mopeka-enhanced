@@ -48,6 +48,12 @@ def test_capacity_unit_selector_non_propane(config_flow_module):
     assert selector.config.options == ["gal", "l"]
 
 
+def test_medium_type_schema_includes_top_mount_override(config_flow_module):
+    """The medium-type form always offers a manual top-mount override checkbox."""
+    schema = config_flow_module._async_generate_medium_type_schema()
+    assert _schema_value(schema, "top_mount") is not None
+
+
 def test_custom_schema_uses_kg_input_when_propane_kg_selected(config_flow_module):
     schema = config_flow_module._async_generate_custom_height_schema(
         medium_type="propane",

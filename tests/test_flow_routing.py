@@ -65,6 +65,34 @@ def test_bluetooth_confirm_propane_routes_to_tank(config_flow_module, stub_types
     assert flow._medium_type == "propane"
 
 
+def test_bluetooth_confirm_manual_top_mount_override_routes_to_ibc(
+    config_flow_module, stub_types
+):
+    """A non-top-mount model with the manual override checked is treated as top-mount."""
+    flow = config_flow_module.MopekaConfigFlow()
+    flow._discovered_device = _FakeDiscoveredDevice()
+    flow._discovery_info = stub_types["BluetoothServiceInfoBleak"](
+        address="AA:EE",
+        manufacturer_data={89: bytes([0x01])},
+        name="Pro-200",
+    )
+
+    async def _fake_ibc_step():
+        return {"step": "ibc"}
+
+    flow.async_step_ibc_tank_config = _fake_ibc_step
+
+    result = asyncio.run(
+        flow.async_step_bluetooth_confirm(
+            user_input={"medium_type": "propane", "top_mount": True}
+        )
+    )
+
+    assert result == {"step": "ibc"}
+    assert flow._is_top_mount is True
+    assert flow._medium_type == "air"
+
+
 def test_bluetooth_confirm_non_propane_routes_to_ibc(config_flow_module, stub_types):
     flow = config_flow_module.MopekaConfigFlow()
     flow._discovered_device = _FakeDiscoveredDevice()
@@ -149,6 +177,31 @@ def test_reconfigure_tank_config_falls_back_for_unknown_legacy_propane_key(
     tank_selector = _schema_value(result["data_schema"], "tank_size")
     assert result["step_id"] == "reconfigure_tank_config"
     assert tank_selector.config.options[0] == "20lb_v"
+
+
+def test_reconfigure_manual_top_mount_override_routes_to_ibc(config_flow_module):
+    """Checking the override during reconfigure forces AIR and routes to IBC config."""
+    flow = config_flow_module.MopekaConfigFlow()
+    flow._get_reconfigure_entry = lambda: type(
+        "Entry",
+        (),
+        {"data": {"top_mount": False, "medium_type": "propane"}},
+    )()
+
+    async def _fake_ibc_step():
+        return {"step": "ibc"}
+
+    flow.async_step_reconfigure_ibc_tank_config = _fake_ibc_step
+
+    result = asyncio.run(
+        flow.async_step_reconfigure(
+            user_input={"medium_type": "propane", "top_mount": True}
+        )
+    )
+
+    assert result == {"step": "ibc"}
+    assert flow._is_top_mount is True
+    assert flow._medium_type == "air"
 
 
 def test_custom_height_invalid_capacity_returns_field_error(config_flow_module):

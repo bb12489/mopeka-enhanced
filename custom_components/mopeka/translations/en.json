@@ -14,7 +14,11 @@
         "step": {
             "bluetooth_confirm": {
                 "data": {
-                    "medium_type": "Medium type"
+                    "medium_type": "Medium type",
+                    "top_mount": "Sensor is mounted at the top of the tank"
+                },
+                "data_description": {
+                    "top_mount": "Enable if this sensor measures the air gap above the liquid (e.g. mounted inside the tank lid) rather than sensing through the tank wall from below. Automatically enabled for TD40/TD200/Pro-200B and cannot be disabled for those models; for other models this is a one-way manual override."
                 },
                 "description": "Do you want to set up {name}?"
             },
@@ -44,7 +48,11 @@
             },
             "reconfigure": {
                 "data": {
-                    "medium_type": "Medium type"
+                    "medium_type": "Medium type",
+                    "top_mount": "Sensor is mounted at the top of the tank"
+                },
+                "data_description": {
+                    "top_mount": "Enable if this sensor measures the air gap above the liquid (e.g. mounted inside the tank lid) rather than sensing through the tank wall from below. Automatically enabled for TD40/TD200/Pro-200B and cannot be disabled for those models; for other models this is a one-way manual override."
                 },
                 "title": "Reconfigure Mopeka"
             },
@@ -111,7 +119,11 @@
             "user": {
                 "data": {
                     "address": "Device",
-                    "medium_type": "Medium type"
+                    "medium_type": "Medium type",
+                    "top_mount": "Sensor is mounted at the top of the tank"
+                },
+                "data_description": {
+                    "top_mount": "Enable if this sensor measures the air gap above the liquid (e.g. mounted inside the tank lid) rather than sensing through the tank wall from below. Automatically enabled for TD40/TD200/Pro-200B and cannot be disabled for those models; for other models this is a one-way manual override."
                 },
                 "description": "Choose a device to set up"
             }
@@ -198,6 +210,12 @@
                     "14kg_za_v": "14 kg (South Africa, Vertical)",
                     "19kg_za_v": "19 kg (South Africa, Vertical)",
                     "48kg_za_v": "48 kg (South Africa, Vertical)",
+                    "4_5kg_nz_v": "4.5 kg (New Zealand, Vertical)",
+                    "6kg_nz_v": "6 kg (New Zealand, Vertical)",
+                    "9kg_nz_v": "9 kg (New Zealand, Vertical)",
+                    "11kg_nz_v": "11 kg (New Zealand, Vertical)",
+                    "14kg_nz_v": "14 kg (New Zealand, Vertical)",
+                    "18kg_nz_v": "18 kg (New Zealand, Vertical)",
                     "custom": "Custom"
                 }
             },
@@ -249,7 +267,11 @@
             },
             "init": {
                 "data": {
-                    "medium_type": "Medium type"
+                    "medium_type": "Medium type",
+                    "top_mount": "Sensor is mounted at the top of the tank"
+                },
+                "data_description": {
+                    "top_mount": "Enable if this sensor measures the air gap above the liquid (e.g. mounted inside the tank lid) rather than sensing through the tank wall from below. Automatically enabled for TD40/TD200/Pro-200B and cannot be disabled for those models; for other models this is a one-way manual override."
                 },
                 "title": "Configure Mopeka"
             },
@@ -328,6 +350,12 @@
                 "14kg_za_v": "14 kg (South Africa, Vertical)",
                 "19kg_za_v": "19 kg (South Africa, Vertical)",
                 "48kg_za_v": "48 kg (South Africa, Vertical)",
+                "4_5kg_nz_v": "4.5 kg (New Zealand, Vertical)",
+                "6kg_nz_v": "6 kg (New Zealand, Vertical)",
+                "9kg_nz_v": "9 kg (New Zealand, Vertical)",
+                "11kg_nz_v": "11 kg (New Zealand, Vertical)",
+                "14kg_nz_v": "14 kg (New Zealand, Vertical)",
+                "18kg_nz_v": "18 kg (New Zealand, Vertical)",
                 "custom": "Custom"
             }
         },

@@ -188,12 +188,21 @@ def _async_generate_capacity_unit_selector(medium_type: str) -> selector.SelectS
 def _async_generate_medium_type_schema(
     medium_type: str | None = None,
 ) -> vol.Schema:
-    """Return a schema containing only the medium type selector."""
+    """Return a schema containing the medium type selector and a manual
+    top-mount override checkbox.
+
+    Only shown for devices not auto-detected as top-mount (TD40/TD200/Pro-200B
+    bypass this form entirely). Lets a user whose sensor is physically mounted
+    at the top of the tank — measuring the air gap above the liquid, e.g. a
+    Pro Check clipped inside a tank lid rather than through-wall bottom-mounted
+    — opt into the same air-gap math those models get automatically.
+    """
     return vol.Schema(
         {
             vol.Required(
                 CONF_MEDIUM_TYPE, default=medium_type or DEFAULT_MEDIUM_TYPE
             ): vol.In(MEDIUM_TYPES_BY_NAME),
+            vol.Optional(CONF_TOP_MOUNT, default=False): selector.BooleanSelector(),
         }
     )
 
@@ -403,9 +412,13 @@ class MopekaConfigFlow(ConfigFlow, domain=DOMAIN):
             return await self.async_step_ibc_tank_config()
 
         if user_input is not None:
-            self._medium_type = user_input[CONF_MEDIUM_TYPE]
             self._title = title
             self._discovered_devices[discovery_info.address] = title
+            if user_input.get(CONF_TOP_MOUNT, False):
+                self._is_top_mount = True
+                self._medium_type = MediumType.AIR.value
+                return await self.async_step_ibc_tank_config()
+            self._medium_type = user_input[CONF_MEDIUM_TYPE]
             if self._medium_type == DEFAULT_MEDIUM_TYPE:
                 return await self.async_step_tank_config()
             return await self.async_step_ibc_tank_config()
@@ -625,6 +638,10 @@ class MopekaConfigFlow(ConfigFlow, domain=DOMAIN):
             return await self.async_step_reconfigure_ibc_tank_config()
 
         if user_input is not None:
+            if user_input.get(CONF_TOP_MOUNT, False):
+                self._is_top_mount = True
+                self._medium_type = MediumType.AIR.value
+                return await self.async_step_reconfigure_ibc_tank_config()
             self._medium_type = user_input[CONF_MEDIUM_TYPE]
             if self._medium_type == DEFAULT_MEDIUM_TYPE:
                 return await self.async_step_reconfigure_tank_config()
@@ -672,11 +689,12 @@ class MopekaConfigFlow(ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         """Handle reconfiguration — select IBC tote tank preset."""
         entry = self._get_reconfigure_entry()
+        is_top_mount = entry.data.get(CONF_TOP_MOUNT, False) or self._is_top_mount
         if user_input is not None:
             tank_size = user_input.get(CONF_TANK_SIZE, TankSize.CUSTOM)
             if tank_size == TankSize.CUSTOM:
                 return await self.async_step_reconfigure_custom_height()
-            if entry.data.get(CONF_TOP_MOUNT, False):
+            if is_top_mount:
                 self._pending_tank_size = tank_size
                 return await self.async_step_reconfigure_top_mount_height()
             return self.async_update_reload_and_abort(
@@ -687,6 +705,7 @@ class MopekaConfigFlow(ConfigFlow, domain=DOMAIN):
                     CONF_CUSTOM_TANK_HEIGHT: 0,
                     CONF_TANK_CAPACITY: 0.0,
                     CONF_TANK_CAPACITY_UNIT: DEFAULT_TANK_CAPACITY_UNIT,
+                    CONF_TOP_MOUNT: is_top_mount,
                 },
             )
 
@@ -726,6 +745,7 @@ class MopekaConfigFlow(ConfigFlow, domain=DOMAIN):
                     CONF_CUSTOM_TANK_HEIGHT: 0,
                     CONF_TANK_CAPACITY: 0.0,
                     CONF_TANK_CAPACITY_UNIT: DEFAULT_TANK_CAPACITY_UNIT,
+                    CONF_TOP_MOUNT: True,
                     CONF_TOP_MOUNT_SENSOR_HEIGHT: sensor_height,
                 },
             )
@@ -744,7 +764,7 @@ class MopekaConfigFlow(ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         """Handle reconfiguration — enter custom tank height and total capacity."""
         entry = self._get_reconfigure_entry()
-        is_top_mount = entry.data.get(CONF_TOP_MOUNT, False)
+        is_top_mount = entry.data.get(CONF_TOP_MOUNT, False) or self._is_top_mount
         if user_input is not None:
             capacity_unit = user_input.get(
                 CONF_TANK_CAPACITY_UNIT,
@@ -815,6 +835,7 @@ class MopekaConfigFlow(ConfigFlow, domain=DOMAIN):
                     CONF_CUSTOM_TANK_HEIGHT: height,
                     CONF_TANK_CAPACITY: capacity,
                     CONF_TANK_CAPACITY_UNIT: capacity_unit,
+                    CONF_TOP_MOUNT: is_top_mount,
                     CONF_TOP_MOUNT_SENSOR_HEIGHT: sensor_height,
                 },
             )
@@ -851,7 +872,10 @@ class MopekaConfigFlow(ConfigFlow, domain=DOMAIN):
             self._medium_type = user_input[CONF_MEDIUM_TYPE]
             # Top-mount sensors always use AIR regardless of user selection.
             service_info = self._discovered_service_infos.get(self._address)
-            if service_info is not None and _is_top_mount_sensor(service_info):
+            manually_flagged_top_mount = user_input.get(CONF_TOP_MOUNT, False)
+            if (
+                service_info is not None and _is_top_mount_sensor(service_info)
+            ) or manually_flagged_top_mount:
                 self._is_top_mount = True
                 self._medium_type = MediumType.AIR.value
                 return await self.async_step_ibc_tank_config()
@@ -891,6 +915,7 @@ class MopekaOptionsFlow(config_entries.OptionsFlow):
     def __init__(self) -> None:
         """Initialize options flow."""
         self._medium_type: str | None = None
+        self._is_top_mount: bool = False
         self._custom_capacity_unit: str = DEFAULT_TANK_CAPACITY_UNIT
         # Preset tank size chosen by a top-mount device on the IBC preset step,
         # held while collecting CONF_TOP_MOUNT_SENSOR_HEIGHT on the next step.
@@ -906,6 +931,10 @@ class MopekaOptionsFlow(config_entries.OptionsFlow):
             return await self.async_step_ibc_tank_config()
 
         if user_input is not None:
+            if user_input.get(CONF_TOP_MOUNT, False):
+                self._is_top_mount = True
+                self._medium_type = MediumType.AIR.value
+                return await self.async_step_ibc_tank_config()
             self._medium_type = user_input[CONF_MEDIUM_TYPE]
             if self._medium_type == DEFAULT_MEDIUM_TYPE:
                 return await self.async_step_tank_config()
@@ -964,11 +993,14 @@ class MopekaOptionsFlow(config_entries.OptionsFlow):
             raise HomeAssistantError(
                 "Options flow step reached without a selected medium type"
             )
+        is_top_mount = (
+            self.config_entry.data.get(CONF_TOP_MOUNT, False) or self._is_top_mount
+        )
         if user_input is not None:
             tank_size = user_input.get(CONF_TANK_SIZE, TankSize.CUSTOM)
             if tank_size == TankSize.CUSTOM:
                 return await self.async_step_custom_height()
-            if self.config_entry.data.get(CONF_TOP_MOUNT, False):
+            if is_top_mount:
                 self._pending_tank_size = tank_size
                 return await self.async_step_top_mount_height()
             new_data = {
@@ -978,6 +1010,7 @@ class MopekaOptionsFlow(config_entries.OptionsFlow):
                 CONF_CUSTOM_TANK_HEIGHT: 0,
                 CONF_TANK_CAPACITY: 0.0,
                 CONF_TANK_CAPACITY_UNIT: DEFAULT_TANK_CAPACITY_UNIT,
+                CONF_TOP_MOUNT: is_top_mount,
             }
             self.hass.config_entries.async_update_entry(
                 self.config_entry, data=new_data
@@ -1020,6 +1053,7 @@ class MopekaOptionsFlow(config_entries.OptionsFlow):
                 CONF_CUSTOM_TANK_HEIGHT: 0,
                 CONF_TANK_CAPACITY: 0.0,
                 CONF_TANK_CAPACITY_UNIT: DEFAULT_TANK_CAPACITY_UNIT,
+                CONF_TOP_MOUNT: True,
                 CONF_TOP_MOUNT_SENSOR_HEIGHT: sensor_height,
             }
             self.hass.config_entries.async_update_entry(
@@ -1046,7 +1080,9 @@ class MopekaOptionsFlow(config_entries.OptionsFlow):
             raise HomeAssistantError(
                 "Options flow step reached without a selected medium type"
             )
-        is_top_mount = self.config_entry.data.get(CONF_TOP_MOUNT, False)
+        is_top_mount = (
+            self.config_entry.data.get(CONF_TOP_MOUNT, False) or self._is_top_mount
+        )
         if user_input is not None:
             capacity_unit = user_input.get(
                 CONF_TANK_CAPACITY_UNIT,
@@ -1116,6 +1152,7 @@ class MopekaOptionsFlow(config_entries.OptionsFlow):
                 CONF_CUSTOM_TANK_HEIGHT: height,
                 CONF_TANK_CAPACITY: capacity,
                 CONF_TANK_CAPACITY_UNIT: capacity_unit,
+                CONF_TOP_MOUNT: is_top_mount,
                 CONF_TOP_MOUNT_SENSOR_HEIGHT: sensor_height,
             }
             self.hass.config_entries.async_update_entry(
