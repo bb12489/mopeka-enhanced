@@ -19,7 +19,6 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import selector
 from mopeka_iot_ble import MopekaIOTBluetoothDeviceData as DeviceData
 
-from . import _mopeka_iot_ble_compat  # noqa: F401
 from .const import (
     CAPACITY_UNIT_GALLONS,
     CAPACITY_UNIT_KILOGRAMS,

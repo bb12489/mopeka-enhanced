@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.1] - 2026-10-16
+
+### 🔧 Changed
+
+- Raised the `mopeka-iot-ble` dependency floor to `>=1.0.0`, which natively supports the Pro-200B ([Bluetooth-Devices/mopeka-iot-ble#71](https://github.com/Bluetooth-Devices/mopeka-iot-ble/pull/71), released in `1.0.0`). Removed the temporary local compatibility shim (`_mopeka_iot_ble_compat.py`) added in `0.2.9`, since it's now redundant.
+
 ## [0.3.0] - 2026-08-03
 
 ### 🚨 Action Required
