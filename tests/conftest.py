@@ -260,12 +260,12 @@ def _install_stubs() -> None:
     mopeka_iot_ble.MopekaIOTBluetoothDeviceData = _MopekaIOTBluetoothDeviceData
     sys.modules["mopeka_iot_ble"] = mopeka_iot_ble
 
-    vol = types.ModuleType("voluptuous")
-    vol.Schema = _VolSchema
-    vol.Required = _vol_required
-    vol.Optional = _vol_optional
-    vol.In = _vol_in
-    sys.modules["voluptuous"] = vol
+    probatio = types.ModuleType("probatio")
+    probatio.Schema = _VolSchema
+    probatio.Required = _vol_required
+    probatio.Optional = _vol_optional
+    probatio.In = _vol_in
+    sys.modules["probatio"] = probatio
 
     ha = types.ModuleType("homeassistant")
     sys.modules["homeassistant"] = ha

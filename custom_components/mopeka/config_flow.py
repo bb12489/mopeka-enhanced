@@ -6,7 +6,7 @@ import logging
 from enum import Enum
 from typing import Any
 
-import voluptuous as vol
+import probatio
 from homeassistant import config_entries
 from homeassistant.components.bluetooth import (
     BluetoothServiceInfoBleak,
@@ -187,7 +187,7 @@ def _async_generate_capacity_unit_selector(medium_type: str) -> selector.SelectS
 
 def _async_generate_medium_type_schema(
     medium_type: str | None = None,
-) -> vol.Schema:
+) -> probatio.Schema:
     """Return a schema containing the medium type selector and a manual
     top-mount override checkbox.
 
@@ -197,23 +197,25 @@ def _async_generate_medium_type_schema(
     Pro Check clipped inside a tank lid rather than through-wall bottom-mounted
     — opt into the same air-gap math those models get automatically.
     """
-    return vol.Schema(
+    return probatio.Schema(
         {
-            vol.Required(
+            probatio.Required(
                 CONF_MEDIUM_TYPE, default=medium_type or DEFAULT_MEDIUM_TYPE
-            ): vol.In(MEDIUM_TYPES_BY_NAME),
-            vol.Optional(CONF_TOP_MOUNT, default=False): selector.BooleanSelector(),
+            ): probatio.In(MEDIUM_TYPES_BY_NAME),
+            probatio.Optional(
+                CONF_TOP_MOUNT, default=False
+            ): selector.BooleanSelector(),
         }
     )
 
 
 def _async_generate_tank_schema(
     tank_size: str | None = None,
-) -> vol.Schema:
+) -> probatio.Schema:
     """Return a schema containing only the tank preset selector."""
-    return vol.Schema(
+    return probatio.Schema(
         {
-            vol.Required(
+            probatio.Required(
                 CONF_TANK_SIZE, default=tank_size or DEFAULT_TANK_SIZE
             ): selector.SelectSelector(
                 selector.SelectSelectorConfig(
@@ -228,11 +230,11 @@ def _async_generate_tank_schema(
 
 def _async_generate_ibc_tank_schema(
     tank_size: str | None = None,
-) -> vol.Schema:
+) -> probatio.Schema:
     """Return a schema containing the IBC tote tank preset selector."""
-    return vol.Schema(
+    return probatio.Schema(
         {
-            vol.Required(
+            probatio.Required(
                 CONF_TANK_SIZE, default=tank_size or DEFAULT_IBC_TANK_SIZE
             ): selector.SelectSelector(
                 selector.SelectSelectorConfig(
@@ -253,7 +255,7 @@ def _async_generate_custom_height_schema(
     *,
     top_mount: bool = False,
     top_mount_sensor_height: int | None = None,
-) -> vol.Schema:
+) -> probatio.Schema:
     """Return a schema containing the custom tank height and capacity inputs.
 
     When top_mount is True, also includes CONF_TOP_MOUNT_SENSOR_HEIGHT (the
@@ -263,7 +265,7 @@ def _async_generate_custom_height_schema(
     where the raw reading is already fluid height and no offset applies.
     """
     schema: dict[Any, Any] = {
-        vol.Required(
+        probatio.Required(
             CONF_CUSTOM_TANK_HEIGHT,
             default=custom_tank_height
             if custom_tank_height is not None
@@ -273,7 +275,7 @@ def _async_generate_custom_height_schema(
 
     if top_mount:
         schema[
-            vol.Required(
+            probatio.Required(
                 CONF_TOP_MOUNT_SENSOR_HEIGHT,
                 default=top_mount_sensor_height
                 if top_mount_sensor_height is not None
@@ -294,14 +296,14 @@ def _async_generate_custom_height_schema(
     )
 
     schema[
-        vol.Required(
+        probatio.Required(
             CONF_TANK_CAPACITY_UNIT,
             default=selected_unit,
         )
     ] = _async_generate_capacity_unit_selector(medium_type)
 
     schema[
-        vol.Required(
+        probatio.Required(
             CONF_TANK_CAPACITY,
             default=tank_capacity
             if tank_capacity is not None
@@ -309,21 +311,21 @@ def _async_generate_custom_height_schema(
         )
     ] = _CUSTOM_CAPACITY_SELECTOR
 
-    return vol.Schema(schema)
+    return probatio.Schema(schema)
 
 
 def _async_generate_top_mount_height_schema(
     top_mount_sensor_height: int | None = None,
-) -> vol.Schema:
+) -> probatio.Schema:
     """Return a schema containing only the top-mount sensor height input.
 
     Used when a top-mount device selects a fixed-geometry preset (e.g. an IBC
     tote) rather than Custom, since presets don't otherwise show a height
     form where CONF_TOP_MOUNT_SENSOR_HEIGHT could be collected.
     """
-    return vol.Schema(
+    return probatio.Schema(
         {
-            vol.Required(
+            probatio.Required(
                 CONF_TOP_MOUNT_SENSOR_HEIGHT,
                 default=top_mount_sensor_height
                 if top_mount_sensor_height is not None
@@ -900,9 +902,11 @@ class MopekaConfigFlow(ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
             step_id="user",
-            data_schema=vol.Schema(
+            data_schema=probatio.Schema(
                 {
-                    vol.Required(CONF_ADDRESS): vol.In(self._discovered_devices),
+                    probatio.Required(CONF_ADDRESS): probatio.In(
+                        self._discovered_devices
+                    ),
                     **_async_generate_medium_type_schema().schema,
                 }
             ),
