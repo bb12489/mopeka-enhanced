@@ -1,17 +1,24 @@
-"""Regression test for Pro-200B support in the pinned mopeka-iot-ble.
+"""Regression test for the Pro-200B compat shim against the real mopeka-iot-ble.
 
-mopeka-iot-ble>=1.0.0 natively supports device type 0x12 (Mopeka Pro-200B),
-via https://github.com/Bluetooth-Devices/mopeka-iot-ble/pull/71. Our own
-manifest.json also discovers it (manufacturer_data_start [18] == 0x12,
-added in our v0.2.6). This test guards against either side regressing.
+The pinned mopeka-iot-ble release (0.8.0) doesn't know about device type
+0x12 (Mopeka Pro-200B), even though our manifest.json already discovers it.
+custom_components/mopeka/_mopeka_iot_ble_compat.py patches the library's
+device table in place to cover the gap until upstream ships a release with
+https://github.com/Bluetooth-Devices/mopeka-iot-ble/pull/71 included.
 
-This advertisement fixture is upstream's own PR #71 test vector.
+This advertisement fixture is upstream's own PR #71 test vector, so a
+correct parse here should track what a real future release would produce.
 """
 
 from __future__ import annotations
 
 from home_assistant_bluetooth import BluetoothServiceInfo
 from mopeka_iot_ble import MopekaIOTBluetoothDeviceData
+
+# Importing config_flow (transitively imports __init__, which imports the
+# compat shim) is what real bluetooth discovery does before it ever calls
+# MopekaIOTBluetoothDeviceData.supported() on a Pro-200B advertisement.
+from custom_components.mopeka import config_flow  # noqa: F401
 
 PRO_200B_SERVICE_INFO = BluetoothServiceInfo(
     name="",
@@ -25,7 +32,7 @@ PRO_200B_SERVICE_INFO = BluetoothServiceInfo(
 
 
 def test_pro_200b_is_supported() -> None:
-    """On mopeka-iot-ble<1.0.0 this returns False and discovery aborts."""
+    """Without the compat patch this returns False and discovery aborts."""
     parser = MopekaIOTBluetoothDeviceData()
     assert parser.supported(PRO_200B_SERVICE_INFO) is True
 
