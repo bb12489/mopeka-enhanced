@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0] - 2026-10-16
+
+### ✨ Added
+
+- New Zealand (`nz`) propane tank presets (4.5 kg, 6 kg, 9 kg, 11 kg, 14 kg, 18 kg), sourced from the official Mopeka app's combined Australia/NZ tank geometry data ([#24](https://github.com/bb12489/mopeka-enhanced/issues/24)). NZ LPG is a 60/40 propane/butane blend like South Africa's, so these use propane acoustic coefficients and will be slightly approximate.
+- A manual "sensor is mounted at the top of the tank" override, available during initial setup and reconfigure ([#22](https://github.com/bb12489/mopeka-enhanced/issues/22)). TD40/TD200/Pro-200B are still auto-detected as top-mount automatically and can't be switched off, but any other model — e.g. a Pro Check clipped inside a tank lid instead of through-wall bottom-mounted — can now opt into the same air-gap fill math by checking this box, rather than reporting an empty tank as 100% full.
+
 ## [0.3.0] - 2026-08-03
 
 ### 🚨 Action Required

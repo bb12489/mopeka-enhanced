@@ -140,6 +140,11 @@ class _SelectSelector:
         self.config = config
 
 
+class _BooleanSelector:
+    def __init__(self, config=None):
+        self.config = config
+
+
 class _VolSchema:
     def __init__(self, schema):
         self.schema = schema
@@ -147,6 +152,10 @@ class _VolSchema:
 
 def _vol_required(key, default=None):
     return ("required", key, default)
+
+
+def _vol_optional(key, default=None):
+    return ("optional", key, default)
 
 
 def _vol_in(options):
@@ -251,11 +260,12 @@ def _install_stubs() -> None:
     mopeka_iot_ble.MopekaIOTBluetoothDeviceData = _MopekaIOTBluetoothDeviceData
     sys.modules["mopeka_iot_ble"] = mopeka_iot_ble
 
-    vol = types.ModuleType("voluptuous")
-    vol.Schema = _VolSchema
-    vol.Required = _vol_required
-    vol.In = _vol_in
-    sys.modules["voluptuous"] = vol
+    probatio = types.ModuleType("probatio")
+    probatio.Schema = _VolSchema
+    probatio.Required = _vol_required
+    probatio.Optional = _vol_optional
+    probatio.In = _vol_in
+    sys.modules["probatio"] = probatio
 
     ha = types.ModuleType("homeassistant")
     sys.modules["homeassistant"] = ha
@@ -344,6 +354,7 @@ def _install_stubs() -> None:
     ha_helpers_selector.NumberSelectorMode = _NumberSelectorMode
     ha_helpers_selector.SelectSelector = _SelectSelector
     ha_helpers_selector.SelectSelectorConfig = _SelectSelectorConfig
+    ha_helpers_selector.BooleanSelector = _BooleanSelector
     ha_helpers_selector.SelectSelectorMode = _SelectSelectorMode
     sys.modules["homeassistant.helpers.selector"] = ha_helpers_selector
 

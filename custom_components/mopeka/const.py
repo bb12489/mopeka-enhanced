@@ -68,6 +68,19 @@ class TankSize(StrEnum):
     ZA_KG_14 = "14kg_za_v"
     ZA_KG_19 = "19kg_za_v"
     ZA_KG_48 = "48kg_za_v"
+    # New Zealand (nz).  Shares tank geometry with the Mopeka app's combined
+    # Australia/NZ region, but NZ LPG is a 60% propane / 40% butane blend
+    # (propane_ratio=0.6 in the official app, same as South Africa) rather than
+    # straight propane (ratio=1.0, used for Australia itself). The mopeka_iot_ble
+    # library has no butane medium type, so these presets use MediumType.PROPANE
+    # acoustic coefficients — readings will be slightly approximate but functionally
+    # useful.
+    NZ_KG_4_5 = "4_5kg_nz_v"
+    NZ_KG_6 = "6kg_nz_v"
+    NZ_KG_9 = "9kg_nz_v"
+    NZ_KG_11 = "11kg_nz_v"
+    NZ_KG_14 = "14kg_nz_v"
+    NZ_KG_18 = "18kg_nz_v"
     GAL_120_V = "120gal_v"
     GAL_120_H = "120gal_h"
     GAL_150_H = "150gal_h"
@@ -148,6 +161,12 @@ PROPANE_TANK_SIZES: Final[list[TankSize]] = [
     TankSize.ZA_KG_14,
     TankSize.ZA_KG_19,
     TankSize.ZA_KG_48,
+    TankSize.NZ_KG_4_5,
+    TankSize.NZ_KG_6,
+    TankSize.NZ_KG_9,
+    TankSize.NZ_KG_11,
+    TankSize.NZ_KG_14,
+    TankSize.NZ_KG_18,
     TankSize.CUSTOM,
 ]
 
@@ -262,6 +281,14 @@ TANK_SIZE_RANGES: Final[dict[str, tuple[float, float]]] = {
     TankSize.ZA_KG_14: (TANK_EMPTY_MM, 459.0),
     TankSize.ZA_KG_19: (TANK_EMPTY_MM, 490.0),
     TankSize.ZA_KG_48: (TANK_EMPTY_MM, 870.0),
+    # New Zealand (nz) — heights sourced from tank_types.js au region (Australia/NZ
+    # share tank geometry; metres × 1000, with the file's 0.8 scaling factor applied).
+    TankSize.NZ_KG_4_5: (TANK_EMPTY_MM, 304.0),
+    TankSize.NZ_KG_6: (TANK_EMPTY_MM, 336.0),
+    TankSize.NZ_KG_9: (TANK_EMPTY_MM, 372.0),
+    TankSize.NZ_KG_11: (TANK_EMPTY_MM, 366.0),
+    TankSize.NZ_KG_14: (TANK_EMPTY_MM, 467.0),
+    TankSize.NZ_KG_18: (TANK_EMPTY_MM, 589.3),
 }
 
 # IBC tote tank dimensions in millimeters for non-propane media (bottom-mount and
@@ -365,4 +392,12 @@ TANK_SIZE_CAPACITIES: Final[dict[str, float]] = {
     TankSize.ZA_KG_14: 7.3,
     TankSize.ZA_KG_19: 9.9,
     TankSize.ZA_KG_48: 24.9,
+    # New Zealand (nz) — capacities converted from kg using propane liquid density
+    # (1.921 kg/gal) for consistency with other kg-rated presets.
+    TankSize.NZ_KG_4_5: 2.3,
+    TankSize.NZ_KG_6: 3.1,
+    TankSize.NZ_KG_9: 4.7,
+    TankSize.NZ_KG_11: 5.7,
+    TankSize.NZ_KG_14: 7.3,
+    TankSize.NZ_KG_18: 9.4,
 }
