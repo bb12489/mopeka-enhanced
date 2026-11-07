@@ -49,6 +49,9 @@ class TankSize(StrEnum):
     LB_30 = "30lb_v"
     LB_40 = "40lb_v"
     LB_100 = "100lb_v"
+    # Flame King vertical portable cylinders popular with overlanders (YSN5LB / YSN10LB).
+    LB_5_FK = "5lb_fk_v"
+    LB_10_FK = "10lb_fk_v"
     KG_6 = "6kg_v"
     KG_11 = "11kg_v"
     KG_12 = "12kg_v"
@@ -120,6 +123,8 @@ PROPANE_TANK_SIZES: Final[list[TankSize]] = [
     TankSize.LB_30,
     TankSize.LB_40,
     TankSize.LB_100,
+    TankSize.LB_5_FK,
+    TankSize.LB_10_FK,
     TankSize.GAL_120_V,
     TankSize.GAL_120_H,
     TankSize.GAL_150_H,
@@ -237,6 +242,16 @@ TANK_SIZE_RANGES: Final[dict[str, tuple[float, float]]] = {
     TankSize.LB_30: (TANK_EMPTY_MM, 381.0),
     TankSize.LB_40: (TANK_EMPTY_MM, 508.0),
     TankSize.LB_100: (TANK_EMPTY_MM, 813.0),
+    # Flame King 5 lb (YSN5LB, 8.1 in dia x 12.8 in overall) and 10 lb (YSN10LB,
+    # 9 in dia x 17.8 in overall).  These are not in the Mopeka app's tank_types.js,
+    # so full heights are ESTIMATED liquid-column heights: propane volume at the
+    # cylinder's rated capacity (lb / 4.236 lb per gal) = straight-wall cylinder
+    # volume + one 2:1 elliptical bottom head, solved for height from the tank
+    # bottom.  The same method reproduces the app's 20 lb (254 mm) and 40 lb
+    # (508 mm) heights to within ~3%.  Treat as +/-10% until confirmed with a
+    # measured full-tank reading.
+    TankSize.LB_5_FK: (TANK_EMPTY_MM, 155.0),
+    TankSize.LB_10_FK: (TANK_EMPTY_MM, 253.0),
     TankSize.GAL_120_V: (TANK_EMPTY_MM, 975.4),
     TankSize.GAL_120_H: (TANK_EMPTY_MM, 609.6),
     TankSize.GAL_150_H: (TANK_EMPTY_MM, 609.6),
@@ -347,6 +362,10 @@ TANK_SIZE_CAPACITIES: Final[dict[str, float]] = {
     TankSize.LB_30: 7.1,
     TankSize.LB_40: 9.4,
     TankSize.LB_100: 23.6,
+    # Flame King: 5 lb = 5 / 4.236; the 10 lb cylinder's true propane capacity is
+    # 10.51 lb (2.48 gal), published by Flame King as 2.5 gal.
+    TankSize.LB_5_FK: 1.2,
+    TankSize.LB_10_FK: 2.5,
     TankSize.GAL_120_V: 120.0,
     TankSize.GAL_120_H: 120.0,
     TankSize.GAL_150_H: 150.0,

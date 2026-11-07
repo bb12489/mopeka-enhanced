@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.1] - 2026-11-07
+
+### ✨ Added
+
+- Flame King 5 lb (YSN5LB) and 10 lb (YSN10LB) vertical propane cylinder presets, popular with overlanders. These cylinders are not in the official Mopeka app's tank list, so the full-level heights (155 mm and 253 mm) are estimated from the cylinders' published dimensions and rated propane capacity (the same method reproduces the app's 20 lb and 40 lb heights within ~3%). Expect up to roughly ±10% until confirmed with a measured full-tank reading; use a custom tank if you need exact calibration.
+
 ## [0.4.0] - 2026-10-16
 
 ### ✨ Added

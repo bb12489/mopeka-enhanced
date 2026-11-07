@@ -22,7 +22,7 @@ Contributions welcome — bug fixes, efficiency improvements, docs, or additiona
 
 ## Features
 
-- 🛢️ **Tank presets** for US, Euro, and South African horizontal/vertical propane tanks (gal/lbs/kg), sourced from the official Mopeka Tank App — more regions on the way
+- 🛢️ **Tank presets** for US, Euro, and South African horizontal/vertical propane tanks (gal/lbs/kg), including Flame King 5 lb and 10 lb overlanding cylinders, sourced from the official Mopeka Tank App — more regions on the way
 - 🚰 **IBC tote presets** (275 gal / 330 gal) available for all non-propane medium types
 - 📏 **Custom tank support** — define your own tank height (mm) and capacity (gal/lbs/kg)
 - 📡 **Automatic top-mount sensor detection** (TD40/TD200/Pro-200B) with a dedicated sensor mount height field so headspace above the max-fill line no longer prevents the tank from reading 100%
