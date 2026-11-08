@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### 🐛 Fixed
+
+- Kilogram-rated propane presets (Euro, South African and New Zealand) now report the tank volume sensor in **kilograms** (rated weight × fill percentage) instead of gallons. Previously only the Custom tank type could use kilograms, so changing from a gallon/pound preset to a kg preset kept the sensor in gallons ([#9](https://github.com/bb12489/mopeka-enhanced/issues/9)). Pound-rated presets, including Flame King, still report gallons. Home Assistant may show a one-time "units changed" notice for the volume sensor's long-term statistics after switching.
+
 ## [0.4.1] - 2026-11-07
 
 ### ✨ Added
