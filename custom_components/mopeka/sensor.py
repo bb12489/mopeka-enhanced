@@ -57,6 +57,7 @@ from .const import (
     IBC_TANK_SIZE_RANGES,
     TANK_SIZE_CAPACITIES,
     TANK_SIZE_RANGES,
+    TANK_SIZE_RATED_KG,
     TankSize,
     normalize_tank_size,
 )
@@ -289,7 +290,8 @@ def _resolve_sensor_mount_height(
 def _get_tank_capacity(entry_data: Mapping[str, Any]) -> tuple[float, str] | None:
     """Return total tank capacity value and unit, or None if unavailable.
 
-    For preset tanks the capacity is looked up from TANK_SIZE_CAPACITIES.
+    For preset tanks the capacity is looked up from TANK_SIZE_CAPACITIES
+    (gallons); kilogram-rated presets (TANK_SIZE_RATED_KG) report kilograms.
     For custom tanks the user-supplied CONF_TANK_CAPACITY is used (0 = disabled).
     Propane custom entries may use kilograms; all custom entries may use gallons.
     Non-propane custom entries may use liters.
@@ -313,6 +315,10 @@ def _get_tank_capacity(entry_data: Mapping[str, Any]) -> tuple[float, str] | Non
         if medium_type != DEFAULT_MEDIUM_TYPE and capacity_unit == CAPACITY_UNIT_LITERS:
             return (capacity, CAPACITY_UNIT_LITERS)
         return (capacity, CAPACITY_UNIT_GALLONS)
+    rated_kg = TANK_SIZE_RATED_KG.get(tank_size)
+    if rated_kg is not None:
+        # Kilogram-rated cylinders (Euro/ZA/NZ) report mass, not gallons.
+        return (rated_kg, CAPACITY_UNIT_KILOGRAMS)
     preset_capacity = TANK_SIZE_CAPACITIES.get(tank_size)
     return (
         (preset_capacity, CAPACITY_UNIT_GALLONS)

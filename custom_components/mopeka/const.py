@@ -420,3 +420,31 @@ TANK_SIZE_CAPACITIES: Final[dict[str, float]] = {
     TankSize.NZ_KG_14: 7.3,
     TankSize.NZ_KG_18: 9.4,
 }
+
+# Kilogram-rated propane presets and their rated fill weight in kg.  These presets
+# report the tank volume sensor in kilograms (rated capacity x fill percentage)
+# instead of gallons, matching how the cylinders are sold and refilled.  The
+# gallon value in TANK_SIZE_CAPACITIES is kept for other consumers.
+TANK_SIZE_RATED_KG: Final[dict[str, float]] = {
+    TankSize.KG_6: 6.0,
+    TankSize.KG_11: 11.0,
+    TankSize.KG_12: 12.0,
+    TankSize.KG_14: 14.0,
+    TankSize.KG_18: 18.0,
+    TankSize.KG_48: 48.0,
+    TankSize.ZA_KG_3: 3.0,
+    TankSize.ZA_KG_4_5: 4.5,
+    TankSize.ZA_KG_5: 5.0,
+    TankSize.ZA_KG_7: 7.0,
+    TankSize.ZA_KG_9: 9.0,
+    TankSize.ZA_KG_12: 12.0,
+    TankSize.ZA_KG_14: 14.0,
+    TankSize.ZA_KG_19: 19.0,
+    TankSize.ZA_KG_48: 48.0,
+    TankSize.NZ_KG_4_5: 4.5,
+    TankSize.NZ_KG_6: 6.0,
+    TankSize.NZ_KG_9: 9.0,
+    TankSize.NZ_KG_11: 11.0,
+    TankSize.NZ_KG_14: 14.0,
+    TankSize.NZ_KG_18: 18.0,
+}
