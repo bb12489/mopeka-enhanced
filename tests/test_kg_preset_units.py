@@ -1,6 +1,8 @@
-"""Kilogram-rated presets must report the tank volume sensor in kilograms."""
+"""Rated presets must report the tank volume sensor in their label units."""
 
 from __future__ import annotations
+
+import re
 
 import pytest
 
@@ -56,6 +58,20 @@ def test_rated_kg_agrees_with_gallon_capacity(const_module):
         assert kg / 1.921 == pytest.approx(gal, abs=0.1), preset
 
 
+def test_all_liter_named_presets_have_rated_liters_and_gallon_equivalents(
+    const_module,
+):
+    liter_presets = {
+        str(size) for size in const_module.TankSize if re.search(r"\dl_", str(size))
+    }
+    assert liter_presets == {str(size) for size in const_module.TANK_SIZE_RATED_LITERS}
+    for preset, liters in const_module.TANK_SIZE_RATED_LITERS.items():
+        assert liters > 0
+        assert liters / 3.785411784 == pytest.approx(
+            const_module.TANK_SIZE_CAPACITIES[preset], abs=0.1
+        )
+
+
 @pytest.mark.parametrize(
     ("preset", "kg"),
     [("6kg_v", 6.0), ("11kg_v", 11.0), ("4_5kg_za_v", 4.5), ("9kg_nz_v", 9.0)],
@@ -97,3 +113,34 @@ def test_custom_tank_unit_behaviour_unchanged(sensor_module):
         "tank_capacity_unit": "kg",
     }
     assert sensor_module._get_tank_capacity(entry) == (10.0, "kg")
+
+
+@pytest.mark.parametrize(
+    ("preset", "liters"),
+    [
+        ("120l_mx_h", 120.0),
+        ("450l_cl_v", 450.0),
+        ("dispenser_20000l_bn_h", 20000.0),
+    ],
+)
+def test_liter_preset_capacity_is_liters(sensor_module, preset, liters):
+    entry = {"tank_size": preset, "medium_type": "propane"}
+    assert sensor_module._get_tank_capacity(entry) == (liters, "l")
+
+
+def test_liter_preset_volume_scales_with_fill(sensor_module, stub_types):
+    # Chile's vertical 450 L tank is linear between its empty and full readings.
+    mid_mm = 38.1 + (940.0 - 38.1) / 2
+    unit, value = _convert(sensor_module, stub_types, "450l_cl_v", mid_mm)
+    assert unit == "L" and value == 225.0
+
+
+def test_regional_presets_keep_distinct_geometry(sensor_module):
+    mexico_horizontal = sensor_module._get_tank_level_range(
+        {"tank_size": "120l_mx_h", "medium_type": "propane"}
+    )
+    israel_vertical = sensor_module._get_tank_level_range(
+        {"tank_size": "12kg_il_v", "medium_type": "propane"}
+    )
+    assert mexico_horizontal == (38.1, 432.0, True, None)
+    assert israel_vertical == (38.1, 320.0, False, None)

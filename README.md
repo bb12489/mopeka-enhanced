@@ -22,7 +22,7 @@ Contributions welcome — bug fixes, efficiency improvements, docs, or additiona
 
 ## Features
 
-- 🛢️ **Tank presets** for US, Euro, and South African horizontal/vertical propane tanks (gal/lbs/kg), including Flame King 5 lb and 10 lb overlanding cylinders, sourced from the official Mopeka Tank App — more regions on the way
+- 🛢️ **Tank presets** for North American, European, African, Latin American, Middle Eastern, and Asian horizontal/vertical propane tanks (gal/lbs/kg/L), including Flame King 5 lb and 10 lb overlanding cylinders. Regional dimensions come from the official Mopeka Tank App.
 - 🚰 **IBC tote presets** (275 gal / 330 gal) available for all non-propane medium types
 - 📏 **Custom tank support** — define your own tank height (mm) and capacity (gal/lbs/kg)
 - 📡 **Automatic top-mount sensor detection** (TD40/TD200/Pro-200B) with a dedicated sensor mount height field so headspace above the max-fill line no longer prevents the tank from reading 100%
@@ -33,7 +33,7 @@ Contributions welcome — bug fixes, efficiency improvements, docs, or additiona
 
 ## A Word on Tank Presets
 
-Non-ASME tank preset dimensions come from the `tank_types.js` file extracted from the Mopeka tank app. Currently US, Euro, and South African regions are included, with more planned as time permits. Full file contents: [mopeka-tank-types](https://github.com/bb12489/mopeka-tank-types).
+Non-ASME tank preset dimensions come from the `tank_types.js` file extracted from the Mopeka tank app. Full file contents: [mopeka-tank-types](https://github.com/bb12489/mopeka-tank-types). Some source entries share the same geometry across regions; these use an existing matching preset rather than a duplicate regional entry. The Colombian horizontal 500 gal entry is excluded because its source diameter of 9000 mm needs verification.
 
 ASME horizontal tank presets are sourced directly from manufacturer spec sheets — see the source list on the [wiki](https://github.com/bb12489/mopeka-enhanced/wiki#supported-horizontal-propane-tanks--sources).
 
