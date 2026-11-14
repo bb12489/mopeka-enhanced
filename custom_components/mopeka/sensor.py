@@ -58,6 +58,7 @@ from .const import (
     TANK_SIZE_CAPACITIES,
     TANK_SIZE_RANGES,
     TANK_SIZE_RATED_KG,
+    TANK_SIZE_RATED_LITERS,
     TankSize,
     normalize_tank_size,
 )
@@ -291,7 +292,7 @@ def _get_tank_capacity(entry_data: Mapping[str, Any]) -> tuple[float, str] | Non
     """Return total tank capacity value and unit, or None if unavailable.
 
     For preset tanks the capacity is looked up from TANK_SIZE_CAPACITIES
-    (gallons); kilogram-rated presets (TANK_SIZE_RATED_KG) report kilograms.
+    (gallons); kilogram- and liter-rated presets report their label units.
     For custom tanks the user-supplied CONF_TANK_CAPACITY is used (0 = disabled).
     Propane custom entries may use kilograms; all custom entries may use gallons.
     Non-propane custom entries may use liters.
@@ -319,6 +320,9 @@ def _get_tank_capacity(entry_data: Mapping[str, Any]) -> tuple[float, str] | Non
     if rated_kg is not None:
         # Kilogram-rated cylinders (Euro/ZA/NZ) report mass, not gallons.
         return (rated_kg, CAPACITY_UNIT_KILOGRAMS)
+    rated_liters = TANK_SIZE_RATED_LITERS.get(tank_size)
+    if rated_liters is not None:
+        return (rated_liters, CAPACITY_UNIT_LITERS)
     preset_capacity = TANK_SIZE_CAPACITIES.get(tank_size)
     return (
         (preset_capacity, CAPACITY_UNIT_GALLONS)
