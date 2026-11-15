@@ -8,7 +8,7 @@
 
 This is an enhanced version of Home Assistant's native Mopeka integration by `@bdraco`. It uses the same `mopeka_iot_ble` library to talk to the sensors — no changes there.
 
-The native integration only gives you a raw fluid-level sensor in inches, leaving you to build your own template sensors for percentage or volume. This integration replaces that with tank presets, a guided config flow, and ready-to-use percentage/volume sensors — no templating required.
+The native integration gives you a raw fluid-level reading, leaving you to build template sensors for fill percentage or remaining volume. Mopeka Enhanced adds tank presets, a guided setup flow, and ready-to-use fill and remaining-volume sensors — no templating required.
 
 Mopeka Enhanced overrides the native HA integration while keeping your existing Mopeka devices intact. You'll need to reconfigure them once to pick up the new tank presets and sensors.
 
@@ -16,59 +16,57 @@ Mopeka Enhanced overrides the native HA integration while keeping your existing 
 
 Yes, this was vibecoded. I'm not a developer — I'm an IT Systems Engineer with a solid grasp of what's going on. The enhancements were built with GitHub Copilot (Claude Opus/Sonnet) in the HA dev container; research and real-world verification were done by me.
 
-All HA/HACS standards and tests pass. I've validated real-world readings on a 40 lb vertical propane tank, a 100 lb horizontal propane tank, and a 330 gallon IBC tote (fresh water) — results match the Mopeka app closely, and in several cases are more accurate due to the enhancements here.
+The project's HA/HACS checks and tests pass. I've compared real-world readings on a 40 lb vertical propane tank, a 100 lb horizontal propane tank, and a 330 gal IBC tote (fresh water) with the Mopeka app. Horizontal preset readings can differ because this integration uses a different fill calculation.
 
 Contributions welcome — bug fixes, efficiency improvements, docs, or additional tank presets. Maybe one day this makes it back upstream into HA core!
 
 ## Features
 
-- 🛢️ **Tank presets** for North American, European, African, Latin American, Middle Eastern, and Asian horizontal/vertical propane tanks (gal/lbs/kg/L), including Flame King 5 lb and 10 lb overlanding cylinders. Regional dimensions come from the official Mopeka Tank App.
-- 🚰 **IBC tote presets** (275 gal / 330 gal) available for all non-propane medium types
-- 📏 **Custom tank support** — define your own tank height (mm) and capacity (gal/lbs/kg)
-- 📡 **Automatic top-mount sensor detection** (TD40/TD200/Pro-200B) with a dedicated sensor mount height field so headspace above the max-fill line no longer prevents the tank from reading 100%
-- 🧭 **Guided config flow** that adapts based on medium type and detected device (top-mount vs. bottom-mount)
-- 🧮 **Accurate horizontal tank math** — non-linear fill calculation that accounts for cylindrical geometry and hemispherical endcaps, instead of a naive linear height-to-percent conversion
-- 📊 **Tank level sensors** for fill percentage and volume remaining (gal/lbs/kg)
-- 📊 **Diagnostic sensors** for the selected medium type and tank preset
+- 🛢️ **Propane/LPG tank presets** — vertical and horizontal tanks across North America, Europe, South Africa, New Zealand, Latin America, Israel, South Korea, the Philippines, and Bangladesh. Version 0.4.3 added 113 regional presets; Flame King and ASME tanks are also included.
+- 🚰 **IBC tote presets** — 275 gal and 330 gal for non-propane media, including water and diesel.
+- 📏 **Custom tanks** — enter usable fill height in millimeters and capacity. Custom propane tanks support gallons or kilograms; other media support gallons or liters.
+- 📡 **Top-mount support** — TD40, TD200, and Pro-200B are detected automatically. Other sensors can use a manual top-mount override when they measure the air gap above the liquid. A separate sensor mount height accounts for headspace above the full-tank level.
+- 🧭 **Guided setup** — Bluetooth discovery and manual device selection, plus reconfigure and options flows that adapt to the medium and sensor mounting position.
+- 🧮 **Horizontal preset calculations** — circular-segment math converts liquid height into fill percentage for horizontal cylindrical presets.
+- 📊 **Tank sensors** — raw level, fill percentage, and remaining volume in gallons, kilograms, or liters according to the selected preset or custom capacity.
+- 🔎 **Diagnostics and empty-tank handling** — medium and preset labels, battery, reading quality, and other device diagnostics; low reading quality near empty latches the calculated fill at 0% until readings recover.
 
 ## A Word on Tank Presets
 
-Non-ASME tank preset dimensions come from the `tank_types.js` file extracted from the Mopeka tank app. Full file contents: [mopeka-tank-types](https://github.com/bb12489/mopeka-tank-types). Some source entries share the same geometry across regions; these use an existing matching preset rather than a duplicate regional entry. The Colombian horizontal 500 gal entry is excluded because its source diameter of 9000 mm needs verification.
+Non-ASME regional tank dimensions come from the `tank_types.js` file extracted from the Mopeka tank app: [mopeka-tank-types](https://github.com/bb12489/mopeka-tank-types). Some regions share tank geometry and use an existing matching preset. The Colombian horizontal 500 gal entry is excluded because its source diameter of 9000 mm needs verification.
 
 ASME horizontal tank presets are sourced directly from manufacturer spec sheets — see the source list on the [wiki](https://github.com/bb12489/mopeka-enhanced/wiki#supported-horizontal-propane-tanks--sources).
 
 ## Screenshots
 
+### Setup and mounting position
+
+<img src="images/screenshots/setup_medium.png" alt="Medium type and manual top-mount option" width="75%" />
+
+### Propane presets
+
+<img src="images/screenshots/propane_presets_current.png" alt="Propane tank preset selector" width="75%" />
+
 ### Sensors
 
-<img src="images/screenshots/sensors.png" alt="Sensors view" width="75%" />
-
-### Propane Presets
-
-<img src="images/screenshots/propane_presets.png" alt="Propane presets" width="75%" />
-
-### IBC Presets
-
-<img src="images/screenshots/ibc_presets.png" alt="IBC presets" width="75%" />
-
-### Custom Tanks
-
-<img src="images/screenshots/custom%20tanks.png" alt="Custom tanks" width="75%" />
+<img src="images/screenshots/sensors_current.png" alt="Tank fill, remaining volume, and diagnostic sensors" width="75%" />
 
 ## Horizontal Tank Geometry
 
-Horizontal tanks aren't linear — a 10 mm change near the bottom doesn't represent the same volume as 10 mm near the middle, especially with rounded/hemispherical endcaps. The official Mopeka app doesn't account for this and uses a straight linear conversion, so its readings can drift from the true fill level.
+For a horizontal cylinder, the same change in liquid height represents different amounts of liquid near the bottom and near the middle. Horizontal **presets** use a circular-segment calculation to account for that changing cross-section.
 
-This integration instead calculates fill percentage from the actual circular-segment cross-section of the tank (adjusted for your configured empty offset), then applies your configured capacity to get a volume in gal/lbs/kg. The result is a more accurate reading than a linear model — so don't be surprised if it doesn't match the Mopeka app exactly; that's expected and it's the more accurate value. See `custom_components/mopeka/sensor.py` for the implementation.
+The calculation uses the preset tank's diameter and a fixed empty-reading offset, then applies its rated capacity to report the amount remaining. It models a cylindrical cross-section; it does not separately model rounded endcaps. Custom tanks currently use a **linear** height-to-fill calculation, even when the entered height is a horizontal tank's diameter. See `custom_components/mopeka/sensor.py` for the implementation.
 
 ## Top-Mount Sensors (TD40/TD200/Pro-200B)
 
-Top-mount sensors measure the **air gap** from the sensor down to the liquid surface, rather than straight up through the liquid like bottom-mount sensors. This integration detects TD40/TD200/Pro-200B devices automatically and needs two measurements to convert that air-gap reading into an accurate fluid height — the same two values the official Mopeka app asks for:
+Top-mount sensors measure the **air gap** from the sensor down to the liquid surface, rather than liquid height from the tank bottom. TD40, TD200, and Pro-200B devices are detected automatically and use the air-gap calculation. For other sensors mounted at the top, enable the manual top-mount option during setup, reconfigure, or the options flow; this is a one-way override.
 
-- **Max Water Level Height** — the fill height at 100% full, measured from the tank bottom. Same field used for bottom-mount custom tanks.
+Two heights determine the calculated fill:
+
+- **Max Water Level Height** — the fill height at 100% full, measured from the tank bottom. Enter it for a custom tank; an IBC preset supplies it automatically.
 - **Sensor mount height** (Mopeka app's "Overall Height") — the height of the sensor's own mounting point above the tank bottom. Leave at 0 if the sensor sits flush with the max-fill line (the default, matching older versions of this integration). If your sensor sits above the max-fill line (headspace, a vent, a raised fitting), set the true mounting height here so the tank can reach 100% instead of maxing out early.
 
-Both fields are available in initial setup, reconfigure, and the options flow.
+For a custom tank, both heights can be set during initial setup, reconfigure, or the options flow. With an IBC preset, the maximum fill height is fixed and you enter only the sensor mount height.
 
 ## Installation (HACS)
 
@@ -85,7 +83,7 @@ Click the badge above to open the repository directly in HACS on your own Home A
 
 After restart, add or reconfigure your Mopeka devices from Settings → Devices.
 
-Mopeka Enhanced doesn't modify existing Mopeka tank sensors automatically — you won't see the new tank level/volume sensors until you reconfigure a device with a new tank preset or custom height/capacity.
+Mopeka Enhanced doesn't configure existing devices with a tank size automatically. Reconfigure a device with a preset or a custom height to enable the fill percentage sensor; enter a custom capacity greater than zero to enable remaining volume for a custom tank.
 
 ## Acknowledgment
 
