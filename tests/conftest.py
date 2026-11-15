@@ -277,6 +277,7 @@ def _install_stubs() -> None:
     ha_bt.BluetoothScanningMode = _BluetoothScanningMode
     ha_bt.BluetoothServiceInfoBleak = _BluetoothServiceInfoBleak
     ha_bt.async_discovered_service_info = lambda _hass, _connectable: []
+    ha_bt.async_last_service_info = lambda _hass, _address, connectable=False: None
     sys.modules["homeassistant.components.bluetooth"] = ha_bt
 
     ha_bt_pup = types.ModuleType(

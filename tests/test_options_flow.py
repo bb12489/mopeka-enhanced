@@ -65,7 +65,7 @@ def test_options_flow_init_top_mount_skips_medium_selector(config_flow_module):
     """Top-mount entries bypass the medium-type form and go straight to IBC config."""
     flow, _, _ = _make_flow(
         config_flow_module,
-        entry_data={"top_mount": True, "medium_type": "air"},
+        entry_data={"top_mount": True, "top_mount_auto": True, "medium_type": "air"},
     )
 
     async def _fake_ibc():
@@ -164,7 +164,7 @@ def test_options_flow_init_manual_top_mount_override_routes_to_ibc(
 def test_options_flow_tank_config_preset_updates_entry_and_completes(
     config_flow_module,
 ):
-    """Selecting a preset updates the config entry, triggers a reload, and finishes."""
+    """Selecting a preset updates the entry and leaves reloading to its listener."""
     entry_data = {
         "tank_size": "20lb_v",
         "medium_type": "propane",
@@ -192,7 +192,7 @@ def test_options_flow_tank_config_preset_updates_entry_and_completes(
     # Existing keys should be preserved via **self.config_entry.data spread
     assert "tank_size" in updated
 
-    assert reload_calls == ["test-entry-id"]
+    assert reload_calls == []
     assert result == {"title": "", "data": {}}
 
 
@@ -300,7 +300,7 @@ def test_options_flow_ibc_tank_config_preset_updates_entry_and_completes(
     assert updated["custom_tank_height"] == 0
     assert updated["tank_capacity"] == 0.0
 
-    assert reload_calls == ["test-entry-id"]
+    assert reload_calls == []
     assert result == {"title": "", "data": {}}
 
 
@@ -476,7 +476,7 @@ def test_options_flow_custom_height_valid_input_updates_entry_and_completes(
     assert updated["tank_capacity_unit"] == "gal"
     assert updated["medium_type"] == "propane"
 
-    assert reload_calls == ["test-entry-id"]
+    assert reload_calls == []
     assert result == {"title": "", "data": {}}
 
 
@@ -510,7 +510,7 @@ def test_options_flow_custom_height_valid_input_kg_unit(config_flow_module):
     assert updated["custom_tank_height"] == 400
     assert updated["tank_capacity"] == 11.0
     assert updated["tank_capacity_unit"] == "kg"
-    assert reload_calls == ["test-entry-id"]
+    assert reload_calls == []
     assert result == {"title": "", "data": {}}
 
 
@@ -566,6 +566,7 @@ def test_options_flow_ibc_tank_config_top_mount_preset_routes_to_sensor_height(
         entry_data={"tank_size": "ibc_275gal", "top_mount": True},
         medium_type="air",
     )
+    flow._is_top_mount = True
 
     result = asyncio.run(
         flow.async_step_ibc_tank_config(user_input={"tank_size": "ibc_330gal"})
@@ -587,6 +588,7 @@ def test_options_flow_top_mount_height_updates_entry_and_completes(
         entry_data={"tank_size": "ibc_275gal", "top_mount": True},
         medium_type="air",
     )
+    flow._is_top_mount = True
     flow._pending_tank_size = "ibc_330gal"
 
     result = asyncio.run(
@@ -597,7 +599,7 @@ def test_options_flow_top_mount_height_updates_entry_and_completes(
     updated = update_calls[0]["data"]
     assert updated["tank_size"] == "ibc_330gal"
     assert updated["top_mount_sensor_height"] == 1150
-    assert reload_calls == ["test-entry-id"]
+    assert reload_calls == []
     assert result == {"title": "", "data": {}}
 
 
@@ -632,6 +634,7 @@ def test_options_flow_custom_height_top_mount_includes_sensor_height_field(
         entry_data={"top_mount": True, "top_mount_sensor_height": 1350},
         medium_type="air",
     )
+    flow._is_top_mount = True
 
     result = asyncio.run(flow.async_step_custom_height())
 
@@ -677,6 +680,7 @@ def test_options_flow_custom_height_top_mount_valid_input_persists_sensor_height
         entry_data=entry_data,
         medium_type="air",
     )
+    flow._is_top_mount = True
     flow._custom_capacity_unit = "gal"
 
     result = asyncio.run(
@@ -710,6 +714,7 @@ def test_options_flow_custom_height_top_mount_invalid_sensor_height_returns_erro
         },
         medium_type="air",
     )
+    flow._is_top_mount = True
     flow._custom_capacity_unit = "gal"
 
     result = asyncio.run(

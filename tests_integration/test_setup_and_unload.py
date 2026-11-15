@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from homeassistant.config_entries import ConfigEntryState
+from unittest.mock import patch
+
+from homeassistant.config_entries import SOURCE_RECONFIGURE, ConfigEntryState
 from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
@@ -65,9 +67,87 @@ async def test_options_update_reloads_entry(
     await hass.async_block_till_done()
     assert entry.state is ConfigEntryState.LOADED
 
-    hass.config_entries.async_update_entry(
-        entry, data={**entry.data, CONF_TANK_SIZE: "30lb_v"}
-    )
-    await hass.async_block_till_done()
+    with patch.object(
+        hass.config_entries,
+        "async_reload",
+        wraps=hass.config_entries.async_reload,
+    ) as reload_mock:
+        hass.config_entries.async_update_entry(
+            entry, data={**entry.data, CONF_TANK_SIZE: "30lb_v"}
+        )
+        await hass.async_block_till_done()
+        assert reload_mock.await_count == 1
+
+        # An unchanged save should not schedule another reload.
+        hass.config_entries.async_update_entry(entry, data=dict(entry.data))
+        await hass.async_block_till_done()
+        assert reload_mock.await_count == 1
 
     assert entry.state is ConfigEntryState.LOADED
+
+
+async def test_options_flow_reloads_once(
+    hass: HomeAssistant, mock_bluetooth: None
+) -> None:
+    """Saving a tank preset in the options flow reloads the entry once."""
+    entry = _make_entry()
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    assert result["step_id"] == "init"
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        user_input={CONF_MEDIUM_TYPE: DEFAULT_MEDIUM_TYPE, CONF_TOP_MOUNT: False},
+    )
+    assert result["step_id"] == "tank_config"
+
+    with patch.object(
+        hass.config_entries,
+        "async_reload",
+        wraps=hass.config_entries.async_reload,
+    ) as reload_mock:
+        await hass.config_entries.options.async_configure(
+            result["flow_id"], user_input={CONF_TANK_SIZE: "30lb_v"}
+        )
+        await hass.async_block_till_done()
+        assert reload_mock.await_count == 1
+
+    assert entry.state is ConfigEntryState.LOADED
+    assert entry.data[CONF_TANK_SIZE] == "30lb_v"
+
+
+async def test_reconfigure_flow_reloads_once(
+    hass: HomeAssistant, mock_bluetooth: None
+) -> None:
+    """Reconfiguring a tank preset reloads the entry once."""
+    entry = _make_entry()
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN,
+        context={"source": SOURCE_RECONFIGURE, "entry_id": entry.entry_id},
+    )
+    assert result["step_id"] == "reconfigure"
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        user_input={CONF_MEDIUM_TYPE: DEFAULT_MEDIUM_TYPE, CONF_TOP_MOUNT: False},
+    )
+    assert result["step_id"] == "reconfigure_tank_config"
+
+    with patch.object(
+        hass.config_entries,
+        "async_reload",
+        wraps=hass.config_entries.async_reload,
+    ) as reload_mock:
+        await hass.config_entries.flow.async_configure(
+            result["flow_id"], user_input={CONF_TANK_SIZE: "30lb_v"}
+        )
+        await hass.async_block_till_done()
+        assert reload_mock.await_count == 1
+
+    assert entry.state is ConfigEntryState.LOADED
+    assert entry.data[CONF_TANK_SIZE] == "30lb_v"

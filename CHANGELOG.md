@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.4] - 2026-11-15
+
+### 🚨 Action Required
+
+- **Home Assistant 2026.9 or earlier:** upgrade to 2026.10 or newer to install and configure this release; users already on 2026.10 or newer are unaffected.
+
+### 🎉 New Features!
+
+- Manual top-mount selection can now be turned off in reconfigure or options; automatically detected top-mount models remain locked to AIR.
+
+### 🛠️Changed
+
+- Bumped integration version to `0.4.4`.
+
+### ✅ Tests
+
+- Added real Home Assistant flow tests for single reloads and regression tests for reversible top-mount settings.
+
+### 📚 Docs
+
+- Updated Marketplace and HACS installation instructions, minimum Home Assistant version, feature guidance, and screenshots.
+
+### 🐛 Fixed
+
+- Prevented duplicate config entry reloads when saving reconfigure or options flows.
+
 ## [0.4.3] - 2026-11-15
 
 ### 🎉 New Features!

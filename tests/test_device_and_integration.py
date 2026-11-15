@@ -7,14 +7,14 @@ from types import SimpleNamespace
 class _FakeConfigEntries:
     def __init__(self):
         self.forward_calls = []
-        self.reload_calls = []
+        self.scheduled_reload_calls = []
         self.unload_calls = []
 
     async def async_forward_entry_setups(self, entry, platforms):
         self.forward_calls.append((entry, platforms))
 
-    async def async_reload(self, entry_id):
-        self.reload_calls.append(entry_id)
+    def async_schedule_reload(self, entry_id):
+        self.scheduled_reload_calls.append(entry_id)
 
     async def async_unload_platforms(self, entry, platforms):
         self.unload_calls.append((entry, platforms))
@@ -62,13 +62,13 @@ def test_async_setup_entry_sets_coordinator(integration_module):
     assert hass.config_entries.forward_calls
 
 
-def test_update_listener_triggers_reload(integration_module):
+def test_update_listener_schedules_reload(integration_module):
     hass = _FakeHass()
     entry = _FakeEntry()
 
     asyncio.run(integration_module.update_listener(hass, entry))
 
-    assert hass.config_entries.reload_calls == ["entry1"]
+    assert hass.config_entries.scheduled_reload_calls == ["entry1"]
 
 
 def test_async_unload_entry(integration_module):

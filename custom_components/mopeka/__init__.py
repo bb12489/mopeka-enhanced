@@ -71,9 +71,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: MopekaConfigEntry) -> bo
 
 
 async def update_listener(hass: HomeAssistant, entry: MopekaConfigEntry) -> None:
-    """Handle options update."""
-    _LOGGER.debug("Reloading Mopeka entry %s after options update", entry.entry_id)
-    await hass.config_entries.async_reload(entry.entry_id)
+    """Schedule a reload after the entry's configuration data changes."""
+    _LOGGER.debug(
+        "Reloading Mopeka entry %s after configuration update", entry.entry_id
+    )
+    hass.config_entries.async_schedule_reload(entry.entry_id)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: MopekaConfigEntry) -> bool:

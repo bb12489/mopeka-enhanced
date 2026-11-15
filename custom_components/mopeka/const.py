@@ -15,6 +15,7 @@ CONF_TANK_CAPACITY: Final = "tank_capacity"
 CONF_TANK_CAPACITY_UNIT: Final = "tank_capacity_unit"
 CONF_TANK_SIZE: Final = "tank_size"
 CONF_TOP_MOUNT: Final = "top_mount"
+CONF_TOP_MOUNT_AUTO: Final = "top_mount_auto"
 # Height of the sensor's mounting point above the tank bottom (mm), for top-mount
 # (TD40/TD200/Pro-200B) devices only. Mirrors the Mopeka app's "Overall Height" field, which
 # is distinct from the "Max Water Level Height" (CONF_CUSTOM_TANK_HEIGHT): the sensor

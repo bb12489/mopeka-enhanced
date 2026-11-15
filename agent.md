@@ -2,7 +2,7 @@
 
 ## Project
 
-Mopeka Enhanced is a Home Assistant custom integration installed through HACS. It uses `mopeka_iot_ble` to receive passive Bluetooth readings and adds guided tank configuration, fill percentage, volume, and diagnostic sensors. The integration domain remains `mopeka`, so changes must preserve existing config entries and entity identities where possible. Read `README.md` for user-facing behavior before changing it.
+Mopeka Enhanced is a Home Assistant custom integration installed through Marketplace (or HACS on Home Assistant 2026.10). It uses `mopeka_iot_ble` to receive passive Bluetooth readings and adds guided tank configuration, fill percentage, volume, and diagnostic sensors. The integration domain remains `mopeka`, so changes must preserve existing config entries and entity identities where possible. Read `README.md` for user-facing behavior before changing it.
 
 ## Code map
 

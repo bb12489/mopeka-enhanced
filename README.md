@@ -2,7 +2,7 @@
 
 > **Development Status:** This integration is under active, heavy development. Code changes and updates are frequent. Please review the latest release notes to check for important changes or migration guidance.
 
-[![HACS Custom](https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge)](https://hacs.xyz/docs/faq/custom_repositories/) [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2025.1.0%2B-41BDF5.svg?style=for-the-badge)](https://www.home-assistant.io/) [![Active Installations](https://raw.githubusercontent.com/golles/ha-active-installation-badges/main/badges/mopeka.svg)](https://github.com/golles/ha-active-installation-badges) [![Quality Scale](https://img.shields.io/badge/Quality%20Scale-Custom-795548.svg?style=for-the-badge)](https://www.home-assistant.io/docs/quality_scale/) [![HACS Validate](https://img.shields.io/github/actions/workflow/status/bb12489/mopeka-enhanced/validate.yml?branch=main&style=for-the-badge&label=HACS+Validate)](https://github.com/bb12489/mopeka-enhanced/actions/workflows/validate.yml) [![Hassfest](https://img.shields.io/github/actions/workflow/status/bb12489/mopeka-enhanced/hassfest.yml?branch=main&style=for-the-badge&label=Hassfest)](https://github.com/bb12489/mopeka-enhanced/actions/workflows/hassfest.yml) [![GitHub Release](https://img.shields.io/github/v/release/bb12489/mopeka-enhanced.svg?style=for-the-badge)](https://github.com/bb12489/mopeka-enhanced/releases) [![License](https://img.shields.io/github/license/bb12489/mopeka-enhanced?style=for-the-badge)](LICENSE) [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=for-the-badge)](https://www.paypal.com/paypalme/BryantBeers)
+[![Marketplace / HACS](https://img.shields.io/badge/Marketplace%20%2F%20HACS-Custom-orange.svg?style=for-the-badge)](https://www.home-assistant.io/integrations/marketplace/) [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2026.10.0%2B-41BDF5.svg?style=for-the-badge)](https://www.home-assistant.io/) [![Active Installations](https://raw.githubusercontent.com/golles/ha-active-installation-badges/main/badges/mopeka.svg)](https://github.com/golles/ha-active-installation-badges) [![Quality Scale](https://img.shields.io/badge/Quality%20Scale-Custom-795548.svg?style=for-the-badge)](https://www.home-assistant.io/docs/quality_scale/) [![HACS Validate](https://img.shields.io/github/actions/workflow/status/bb12489/mopeka-enhanced/validate.yml?branch=main&style=for-the-badge&label=HACS+Validate)](https://github.com/bb12489/mopeka-enhanced/actions/workflows/validate.yml) [![Hassfest](https://img.shields.io/github/actions/workflow/status/bb12489/mopeka-enhanced/hassfest.yml?branch=main&style=for-the-badge&label=Hassfest)](https://github.com/bb12489/mopeka-enhanced/actions/workflows/hassfest.yml) [![GitHub Release](https://img.shields.io/github/v/release/bb12489/mopeka-enhanced.svg?style=for-the-badge)](https://github.com/bb12489/mopeka-enhanced/releases) [![License](https://img.shields.io/github/license/bb12489/mopeka-enhanced?style=for-the-badge)](LICENSE) [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=for-the-badge)](https://www.paypal.com/paypalme/BryantBeers)
 
 ## Intro
 
@@ -59,7 +59,7 @@ The calculation uses the preset tank's diameter and a fixed empty-reading offset
 
 ## Top-Mount Sensors (TD40/TD200/Pro-200B)
 
-Top-mount sensors measure the **air gap** from the sensor down to the liquid surface, rather than liquid height from the tank bottom. TD40, TD200, and Pro-200B devices are detected automatically and use the air-gap calculation. For other sensors mounted at the top, enable the manual top-mount option during setup, reconfigure, or the options flow; this is a one-way override.
+Top-mount sensors measure the **air gap** from the sensor down to the liquid surface, rather than liquid height from the tank bottom. TD40, TD200, and Pro-200B devices are detected automatically and stay locked to AIR. For other sensors mounted at the top, enable the manual top-mount option during setup, reconfigure, or the options flow. You can turn that manual option off later through reconfigure or options.
 
 Two heights determine the calculated fill:
 
@@ -68,20 +68,23 @@ Two heights determine the calculated fill:
 
 For a custom tank, both heights can be set during initial setup, reconfigure, or the options flow. With an IBC preset, the maximum fill height is fixed and you enter only the sensor mount height.
 
-## Installation (HACS)
+## Installation (Marketplace or HACS)
 
-[![Open your Home Assistant instance and add this repository to HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=bb12489&repository=mopeka-enhanced&category=integration)
+[![Open this repository in the Marketplace or HACS on your Home Assistant instance.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=bb12489&repository=mopeka-enhanced&category=integration)
 
-Click the badge above to open the repository directly in HACS on your own Home Assistant instance, or follow the manual steps below:
+Home Assistant 2026.10.0 or newer is required. Click the badge to open this repository in Marketplace on Home Assistant 2026.11 or newer, or in HACS on Home Assistant 2026.10. The existing HACS link supports both.
 
-1. Open HACS in Home Assistant.
-2. Go to Integrations.
-3. Open the three-dot menu and select Custom repositories.
-4. Add `https://github.com/bb12489/mopeka-enhanced` as category `Integration`.
-5. Search for `Mopeka Enhanced` in HACS and install it.
-6. Restart Home Assistant.
+To add it manually on **Home Assistant 2026.11 or newer**:
 
-After restart, add or reconfigure your Mopeka devices from Settings → Devices.
+1. Go to **Settings → Marketplace** and select **Add from link** in the upper-right corner.
+2. Enter `https://github.com/bb12489/mopeka-enhanced` as the GitHub link and select **Add**. Marketplace may ask you to connect a GitHub account for a custom repository.
+3. Open the repository in Marketplace and select **Install**.
+
+On **Home Assistant 2026.10**, use HACS: open **HACS → Integrations → three-dot menu → Custom repositories**, add the same GitHub URL as an `Integration`, then search for `Mopeka Enhanced` and install it.
+
+Restart Home Assistant after installing this integration because it replaces Home Assistant's built-in `mopeka` integration.
+
+After restart, add or reconfigure your Mopeka devices from **Settings → Devices & services**.
 
 Mopeka Enhanced doesn't configure existing devices with a tank size automatically. Reconfigure a device with a preset or a custom height to enable the fill percentage sensor; enter a custom capacity greater than zero to enable remaining volume for a custom tank.
 

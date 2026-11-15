@@ -182,6 +182,7 @@ def test_reconfigure_tank_config_falls_back_for_unknown_legacy_propane_key(
 def test_reconfigure_manual_top_mount_override_routes_to_ibc(config_flow_module):
     """Checking the override during reconfigure forces AIR and routes to IBC config."""
     flow = config_flow_module.MopekaConfigFlow()
+    flow.hass = object()
     flow._get_reconfigure_entry = lambda: type(
         "Entry",
         (),
@@ -348,6 +349,7 @@ def test_reconfigure_ibc_tank_config_top_mount_preset_routes_to_sensor_height(
     """Reconfigure: top-mount + preset selection routes to the sensor height step."""
     flow = config_flow_module.MopekaConfigFlow()
     flow._medium_type = "air"
+    flow._is_top_mount = True
     flow._get_reconfigure_entry = lambda: type(
         "Entry",
         (),
@@ -378,11 +380,11 @@ def test_reconfigure_top_mount_height_updates_entry(config_flow_module):
 
     calls: list[dict] = []
 
-    def _fake_update_reload_and_abort(entry, *, data_updates):
+    def _fake_update_and_abort(entry, *, data_updates):
         calls.append(data_updates)
         return {"step": "done"}
 
-    flow.async_update_reload_and_abort = _fake_update_reload_and_abort
+    flow.async_update_and_abort = _fake_update_and_abort
 
     result = asyncio.run(
         flow.async_step_reconfigure_top_mount_height(
