@@ -2,11 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## [0.4.3] - 2026-11-15
 
-### ✨ Added
+### 🎉 New Features!
 
-- Added 113 regional propane/LPG tank presets from the Mopeka app's `tank_types.js`: Mexico, legacy Latin America, Chile, Argentina, Brazil, Colombia, Ecuador, Uruguay, Peru, Paraguay, Israel, South Korea, Philippines, and Bangladesh. These include vertical and horizontal tanks rated in kilograms, gallons, or liters. Liter-rated presets report the tank volume remaining in liters. Colombia's horizontal 500 gal entry is excluded because the source lists an implausible 9000 mm diameter.
+- Added 113 regional propane/LPG tank presets across Latin America, Israel, South Korea, the Philippines, and Bangladesh; liter-rated presets report remaining volume in liters (#30).
+- Excluded Colombia's horizontal 500 gal tank because the source lists an implausible 9000 mm diameter.
+
+### 🛠️Changed
+
+- Bumped integration version to `0.4.3`.
+
+### 📚 Docs
+
+- Added `agent.md` with project guidance for contributors.
 
 ## [0.4.2] - 2026-11-08
 
